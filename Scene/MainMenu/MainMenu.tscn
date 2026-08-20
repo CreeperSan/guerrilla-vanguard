@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://rhxrurwwx6lr"]
+
+[ext_resource type="Script" uid="uid://bfylvj0r8ta7o" path="res://Scene/MainMenu/ScriptMainMenu.gd" id="1_b4s8y"]
+[ext_resource type="Texture2D" uid="uid://dtno4l5e386cf" path="res://Scene/MainMenu/title.png" id="1_lck82"]
+
+[node name="Control" type="Control" unique_id=392141558]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="Panel" parent="." unique_id=541964503]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Setting Panel" type="Panel" parent="." unique_id=142897313]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -184.0
+offset_top = -170.0
+offset_right = 184.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Main Panel" type="VBoxContainer" parent="." unique_id=981452239]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -110.0
+offset_top = -127.5
+offset_right = 110.0
+offset_bottom = 127.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_b4s8y")
+
+[node name="Title Image" type="TextureRect" parent="Main Panel" unique_id=1502314197]
+layout_mode = 2
+texture = ExtResource("1_lck82")
+
+[node name="Start Button" type="Button" parent="Main Panel" unique_id=254503237]
+layout_mode = 2
+text = "Start"
+
+[node name="Setting Button" type="Button" parent="Main Panel" unique_id=950641656]
+layout_mode = 2
+text = "Setting"
+
+[node name="Exit Button" type="Button" parent="Main Panel" unique_id=892918587]
+layout_mode = 2
+text = "Quit"

@@ -1,0 +1,27 @@
+# Godot 4+ generated editor data and platform-specific project files
+.godot/
+/android/
+
+# Godot Mono/.NET generated data (if the project enables C# later)
+.mono/
+
+# Temporary and generated export output
+/export/
+/build/
+*.tmp
+*.log
+
+# Operating-system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# IDE/editor user settings
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
