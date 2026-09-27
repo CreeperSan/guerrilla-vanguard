@@ -2,8 +2,9 @@
 
 [ext_resource type="Script" uid="uid://ov8g1qxiq8k4" path="res://Script/Player/player.gd" id="1_rj13t"]
 [ext_resource type="Texture2D" uid="uid://dn0t6v28cm3ku" path="res://Tileset/tileset-test.png" id="2_s8eyi"]
-[ext_resource type="Script" uid="uid://du3qpxm6jf448" path="res://Script/Enemy/enemy_soilder.gd" id="3_s8eyi"]
+[ext_resource type="Script" uid="uid://du3qpxm6jf448" path="res://Script/Enemy/enemy_controller.gd" id="3_s8eyi"]
 [ext_resource type="Script" uid="uid://dd34o0ihgp627" path="res://Script/Component/health_component.gd" id="4_ne4hw"]
+[ext_resource type="Script" uid="uid://0jnf6vjh8r47" path="res://Script/Enemy/enemy_perception.gd" id="5_oik87"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ne4hw"]
 radius = 6.0
@@ -627,6 +628,11 @@ animations = [{
 radius = 5.0
 height = 26.0
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_oik87"]
+radius = 45.01111
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6hef8"]
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_158bj"]
 atlas = ExtResource("2_s8eyi")
 region = Rect2(0, 96, 32, 32)
@@ -675,32 +681,42 @@ animation = &"move_right"
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="Player" unique_id=1082809347]
 
-[node name="Enemy Soilder" type="CharacterBody2D" parent="." unique_id=1413478571]
+[node name="Enemy Soldier" type="CharacterBody2D" parent="." unique_id=1413478571]
 position = Vector2(100, 0)
 script = ExtResource("3_s8eyi")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy Soilder" unique_id=1579028081]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy Soldier" unique_id=1579028081]
 shape = SubResource("CapsuleShape2D_s8eyi")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Enemy Soilder" unique_id=319173524]
+[node name="Body" type="Node2D" parent="Enemy Soldier" unique_id=374413793]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Enemy Soldier/Body" unique_id=319173524]
 position = Vector2(0, -1)
 sprite_frames = SubResource("SpriteFrames_e8qw5")
 animation = &"idle_down"
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="Enemy Soilder" unique_id=485334090]
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="Enemy Soldier/Body" unique_id=485334090]
 
-[node name="Health" type="Node" parent="Enemy Soilder" unique_id=1879307765]
+[node name="Health" type="Node" parent="Enemy Soldier" unique_id=1879307765]
 script = ExtResource("4_ne4hw")
 
-[node name="HitBox" type="Area2D" parent="Enemy Soilder" unique_id=1185929365]
+[node name="HitBox" type="Area2D" parent="Enemy Soldier" unique_id=1185929365]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy Soilder/HitBox" unique_id=311222372]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy Soldier/HitBox" unique_id=311222372]
 shape = SubResource("CapsuleShape2D_6o3eo")
+
+[node name="Perception" type="Area2D" parent="Enemy Soldier" unique_id=1960209843]
+script = ExtResource("5_oik87")
+
+[node name="RangeHear" type="CollisionShape2D" parent="Enemy Soldier/Perception" unique_id=916750029]
+shape = SubResource("CircleShape2D_oik87")
+
+[node name="RangeVision" type="CollisionShape2D" parent="Enemy Soldier/Perception" unique_id=1809521109]
+shape = SubResource("CircleShape2D_6hef8")
 
 [node name="Explosion" type="Node2D" parent="." unique_id=1264228604]
 position = Vector2(61.58, -60.13)
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Explosion" unique_id=912795848]
 sprite_frames = SubResource("SpriteFrames_6hsgd")
-frame = 2
-frame_progress = 0.8196364
+autoplay = "default"

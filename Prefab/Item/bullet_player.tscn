@@ -16,5 +16,5 @@ script = ExtResource("1_cem4w")
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=166336332]
 texture = SubResource("AtlasTexture_kpn6i")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2134636699]
+[node name="HitBox" type="CollisionShape2D" parent="." unique_id=2134636699]
 shape = SubResource("CircleShape2D_p5m8a")

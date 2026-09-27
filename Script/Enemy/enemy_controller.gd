@@ -1,9 +1,9 @@
 extends CharacterBody2D
 
-@onready var node_hitbox = $HitBox
+@onready var node_hitbox: Area2D = $HitBox
 @onready var health_component := $Health as HealthComponent
 
-@export var health = 8
+@export var health: int = 8
 
 
 func _ready() -> void:
@@ -24,9 +24,9 @@ func _physics_process(delta: float) -> void:
 
 func _on_area_enter(area: Area2D) -> void:
 	if area is Bullet:
-		if area.from == Bullet.From.PLAYER or area.from == Bullet.From.FRIEND:
-			health_component.damage(area.damage) # 受到伤害
-			area.queue_free() # 移除子弹
+		if area.bullet_from == Bullet.From.PLAYER or area.bullet_from == Bullet.From.FRIEND:
+			health_component.damage(area.bullet_damage) # 受到伤害
+			#area.queue_free() # 移除子弹
 
 
 func _on_die() -> void:

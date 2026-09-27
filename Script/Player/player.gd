@@ -57,7 +57,7 @@ func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("fire"):
 		var new_bullet: Bullet = PREFAB_BULLET.instantiate()
 		new_bullet.global_position = anim.global_position
-		new_bullet.direction = facing_direction
-		new_bullet.damage = 10
-		new_bullet.from = Bullet.From.PLAYER
+		new_bullet.flight_direction = facing_direction
+		new_bullet.bullet_damage = 10
+		new_bullet.bullet_from = Bullet.From.PLAYER
 		get_parent().add_child(new_bullet)
