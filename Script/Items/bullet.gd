@@ -31,9 +31,8 @@ func _physics_process(delta: float) -> void:
 
 # 子弹命中物体
 func _on_area_entered(area: Area2D) -> void:
-	
-	print('bullet on area enter 2d', typeof(area) , area)
-	pass
+	if area is HurtBox:
+		queue_free()
 
 
 enum From {

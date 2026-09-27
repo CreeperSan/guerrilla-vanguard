@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-@onready var node_hitbox: Area2D = $HitBox
+@onready var node_hurtbox: HurtBox = $HurtBox
 @onready var health_component := $Health as HealthComponent
 
 @export var health: int = 8
@@ -8,7 +8,7 @@ extends CharacterBody2D
 
 func _ready() -> void:
 	# 碰撞
-	node_hitbox.area_entered.connect(_on_area_enter)
+	node_hurtbox.area_entered.connect(_on_area_enter)
 	# 生命值
 	health_component.health = health
 	health_component.health_max = health

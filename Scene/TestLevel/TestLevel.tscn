@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://du3qpxm6jf448" path="res://Script/Enemy/enemy_controller.gd" id="3_s8eyi"]
 [ext_resource type="Script" uid="uid://dd34o0ihgp627" path="res://Script/Component/health_component.gd" id="4_ne4hw"]
 [ext_resource type="Script" uid="uid://0jnf6vjh8r47" path="res://Script/Enemy/enemy_perception.gd" id="5_oik87"]
+[ext_resource type="Script" uid="uid://bk6pyna1cghq6" path="res://Script/Component/hurt_box.gd" id="6_hurtbox"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ne4hw"]
 radius = 6.0
@@ -700,9 +701,12 @@ animation = &"idle_down"
 [node name="Health" type="Node" parent="Enemy Soldier" unique_id=1879307765]
 script = ExtResource("4_ne4hw")
 
-[node name="HitBox" type="Area2D" parent="Enemy Soldier" unique_id=1185929365]
+[node name="HurtBox" type="Area2D" parent="Enemy Soldier" unique_id=1185929365]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("6_hurtbox")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy Soldier/HitBox" unique_id=311222372]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy Soldier/HurtBox" unique_id=311222372]
 shape = SubResource("CapsuleShape2D_6o3eo")
 
 [node name="Perception" type="Area2D" parent="Enemy Soldier" unique_id=1960209843]
