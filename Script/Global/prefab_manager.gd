@@ -6,6 +6,23 @@ extends Node
 var _prefab_dictionary: Dictionary[String, PackedScene] = {}
 
 
+## 创建货币拾取物，数量与种类在加入场景树前指定；位置和父节点由掉落方决定。
+func create_currency(kind: RunCurrencyWallet.Kind, amount: int) -> CurrencyPickup:
+    if amount <= 0 or kind not in [RunCurrencyWallet.Kind.MONEY, RunCurrencyWallet.Kind.RESEARCH]:
+        return null
+    var path := "res://Prefab/Currency/money.tscn" if kind == RunCurrencyWallet.Kind.MONEY else "res://Prefab/Currency/research_point.tscn"
+    var packed_scene := _get_or_create_as(path)
+    if packed_scene == null:
+        return null
+    var pickup := packed_scene.instantiate() as CurrencyPickup
+    if pickup == null:
+        push_error("货币预制体根节点必须是 CurrencyPickup。")
+        return null
+    pickup.currency_kind = kind
+    pickup.num = amount
+    return pickup
+
+
 ## 获取缓存的 PackedScene；首次访问时从资源路径加载并写入缓存。
 func _get_or_create_as(path: String) -> PackedScene:
     if path.is_empty():

@@ -6,6 +6,7 @@ SVG 使用整数坐标和 crispEdges，便于替换贴图并保持小尺寸像�
 
 from pathlib import Path
 import random
+import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -117,14 +118,21 @@ def write_theme(theme, stage):
     for kind, source in textures.items():
         (terrain / f"{kind}.svg").write_text(source)
     resource_root = f"res://Scene/Level{name}"
-    entries = ['[gd_resource type="Resource" script_class="BattlefieldTheme" load_steps=9 format=3]', '', '[ext_resource type="Script" path="res://Script/Level/battlefield_theme.gd" id="1_theme"]']
+    # 已生成主题配乐时保留绑定，重新生成地形不会把各 Level 的选曲丢掉。
+    music_name = 'level_' + re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
+    has_music = (ROOT / 'Assets/Audio/Music' / f'{music_name}.wav').exists()
+    entries = [f'[gd_resource type="Resource" script_class="BattlefieldTheme" load_steps={10 if has_music else 9} format=3]', '', '[ext_resource type="Script" path="res://Script/Level/battlefield_theme.gd" id="1_theme"]']
     for index, kind in enumerate(textures, 2):
         entries.append(f'[ext_resource type="Texture2D" path="{resource_root}/Terrain/{kind}.svg" id="{index}_{kind}"]')
+    if has_music:
+        entries.append(f'[ext_resource type="AudioStream" path="res://Assets/Audio/Music/{music_name}.wav" id="music_theme"]')
     entries.extend(['', '[resource]', 'script = ExtResource("1_theme")', f'display_name = "{display_name}"', f'room_template_root = "{resource_root}"'])
     for index, kind in enumerate(textures, 2):
         entries.append(f'{kind}_texture = ExtResource("{index}_{kind}")')
     size = theme[-2]
     entries.extend(['secondary_style_tint = Color(0.92, 0.94, 0.9, 1)', 'cover_count = 1', f'cover_size = Vector2({size[0]}, {size[1]})'])
+    if has_music:
+        entries.append('background_music = ExtResource("music_theme")')
     (directory / "theme.tres").write_text("\n".join(entries) + "\n")
     for width in range(1, 4):
         for height in range(1, 4):

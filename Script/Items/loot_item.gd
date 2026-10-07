@@ -20,6 +20,8 @@ enum Type {
     SupportTacticalBombing = 11, # 战场支援 - 战术轰炸
     SkillSprint = 12, # 自身技能 - 奔跑
     SkillDodge = 13, # 自身技能 - 闪避
+    CurrencyMoney = 14, # 货币 - 本次闯关内的金钱，使用独立 CurrencyPickup 预制体
+    CurrencyResearch = 15, # 货币 - 本局研究点数，结算后才存入账户
 }
 
 # 自身属性
@@ -30,6 +32,8 @@ enum Type {
 @onready var sprite: Sprite2D = $Sprite2D
 var pickup_frame: Line2D
 var _base_scale: Vector2
+## 货币在队列销毁前可能再次收到触碰信号，入账标志确保只奖励一次。
+var _currency_collected: bool = false
 
 func _ready() -> void:
     if type == Type.Empty:
@@ -65,8 +69,21 @@ func apply_to(player: Player) -> bool:
             return player.obtain_battle_support_from_loot(type)
         Type.SkillSprint, Type.SkillDodge:
             return player.obtain_skill_from_loot(type)
+        Type.CurrencyMoney, Type.CurrencyResearch:
+            return _apply_currency_to(player)
 
     return false
+
+
+## 普通 LootItem 与独立 CurrencyPickup 都走同一入账入口，死亡玩家不可拾取货币。
+func _apply_currency_to(player: Player) -> bool:
+    if _currency_collected or player.node_health == null or player.node_health.health <= 0:
+        return false
+    var kind := RunCurrencyWallet.Kind.MONEY if type == Type.CurrencyMoney else RunCurrencyWallet.Kind.RESEARCH
+    if not CurrencyManager.credit(kind, num):
+        return false
+    _currency_collected = true
+    return true
 
 
 ## 为生命值未满的玩家补充生命，并据实际恢复结果决定是否消耗拾取物。
@@ -82,6 +99,10 @@ func _apply_health_to(player: Player) -> bool:
 ## 武器拾取物显示对应图标，其他道具沿用场景中配置的 Sprite2D 样式。
 func _update_appearance() -> void:
     match type:
+        Type.CurrencyMoney, Type.CurrencyResearch:
+            var path := "res://Prefab/Currency/money.svg" if type == Type.CurrencyMoney else "res://Prefab/Currency/research_point.svg"
+            sprite.texture = load(path) as Texture2D
+            sprite.region_enabled = false
         Type.WeaponSMG:
             sprite.texture = load("res://Prefab/Player/player_weapon_smg.png") as Texture2D
             sprite.region_enabled = false

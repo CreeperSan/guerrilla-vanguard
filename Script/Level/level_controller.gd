@@ -8,6 +8,15 @@ extends Node2D
 @export_node_path("CanvasLayer") var hud_path: NodePath
 @export_node_path("Camera2D") var camera_path: NodePath
 
+@export_group("货币掉落")
+## 两类货币独立判定，可同时掉落；数量区间包含端点，支持 Inspector 调整。
+@export_range(0.0, 1.0, 0.01) var money_drop_chance: float = 0.65
+@export var money_drop_amount: Vector2i = Vector2i(4, 12)
+@export_range(0.0, 1.0, 0.01) var research_drop_chance: float = 0.18
+@export var research_drop_amount: Vector2i = Vector2i(1, 3)
+## Boss 只有最终阶段死亡才直接入账，无需在地面拾取。
+@export var boss_research_amount: Vector2i = Vector2i(10, 20)
+
 ## 当前关卡累计分数；普通敌人 100 分，Boss 500 分。
 var total_score: int = 0
 ## 由子类和外部关卡脚本访问的玩家、HUD、相机引用。
@@ -20,6 +29,8 @@ var _registered_enemy_ids: Dictionary = {}
 
 ## 解析关卡组件、连接 HUD 信号，并注册场景中已存在的敌人。
 func _ready() -> void:
+	# 只在创建新宿主时重置局内货币，同一宿主内切换关卡时保留钱包。
+	CurrencyManager.begin_run()
 	controlled_player = get_node_or_null(player_path) as Node2D if not player_path.is_empty() else null
 	controlled_hud = get_node_or_null(hud_path) as GameHUD if not hud_path.is_empty() else null
 	controlled_camera = get_node_or_null(camera_path) as FollowCamera if not camera_path.is_empty() else null
@@ -96,7 +107,7 @@ func register_enemy(enemy: Node2D) -> void:
 		if controlled_hud != null:
 			controlled_hud.show_boss_health("GENERAL", enemy_health.health, enemy_health.health_max, boss.current_phase)
 	else:
-		enemy_health.sig_die.connect(_on_enemy_died)
+		enemy_health.sig_die.connect(_on_enemy_died.bind(enemy))
 
 
 ## 为受到伤害的目标创建伤害飘字；治疗不会显示伤害数字。
@@ -111,14 +122,41 @@ func _on_target_health_change(health_change: int, target: Node2D, faction: Defin
 
 
 ## 普通敌人死亡时增加积分，并同步 HUD。
-func _on_enemy_died() -> void:
+func _on_enemy_died(enemy: Node2D) -> void:
 	total_score += 100
 	if controlled_hud != null:
 		controlled_hud.set_score(total_score)
+	if not is_instance_valid(enemy):
+		return
+	# 在敌人所属房间生成，使隐藏房间和切关清理规则同样作用于掉落物。
+	var parent := enemy.get_parent()
+	var death_position := enemy.global_position
+	if randf() < money_drop_chance:
+		_spawn_currency_drop.call_deferred(parent, death_position + Vector2(-8, 0), RunCurrencyWallet.Kind.MONEY, _roll_currency_amount(money_drop_amount))
+	if randf() < research_drop_chance:
+		_spawn_currency_drop.call_deferred(parent, death_position + Vector2(8, 0), RunCurrencyWallet.Kind.RESEARCH, _roll_currency_amount(research_drop_amount))
+
+
+## 将区间规范为非负升序；0 数量不生成掉落物，便于关闭特定奖励。
+func _roll_currency_amount(amount_range: Vector2i) -> int:
+	return randi_range(maxi(0, mini(amount_range.x, amount_range.y)), maxi(0, maxi(amount_range.x, amount_range.y)))
+
+
+## 物理回调结束后加入 Area2D，避免碰撞查询期间修改物理空间。
+func _spawn_currency_drop(parent: Node, drop_position: Vector2, kind: RunCurrencyWallet.Kind, amount: int) -> void:
+	if not is_instance_valid(parent) or parent.is_queued_for_deletion():
+		return
+	var pickup := PrefabManager.create_currency(kind, amount)
+	if pickup == null:
+		return
+	parent.add_child(pickup)
+	pickup.global_position = drop_position
 
 
 ## 玩家死亡时冻结游戏并显示本局积分。
 func _on_player_died() -> void:
+	# 战败也带出已经获得的研究点数；未拾取的地面货币不计入收益。
+	CurrencyManager.settle_run()
 	if controlled_hud != null:
 		controlled_hud.show_defeat(total_score)
 
@@ -126,6 +164,10 @@ func _on_player_died() -> void:
 ## Boss 最终死亡时增加积分并隐藏 Boss 血条。
 func _on_registered_boss_defeated() -> void:
 	total_score += 500
+	if CurrencyManager.credit(RunCurrencyWallet.Kind.RESEARCH, _roll_currency_amount(boss_research_amount)):
+		var player := controlled_player as Player
+		if player != null:
+			player.play_currency_pickup_sound(RunCurrencyWallet.Kind.RESEARCH)
 	if controlled_hud != null:
 		controlled_hud.set_score(total_score)
 		controlled_hud.hide_boss_health()

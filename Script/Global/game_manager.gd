@@ -9,8 +9,10 @@ enum RunState { IDLE, TRANSITIONING, ACTIVE, COMPLETED, FAILED }
 signal sig_run_changed(snapshot: Dictionary)
 signal sig_stage_requested(stage_number: int, theme: BattlefieldTheme, stage_seed: int, revision: int)
 signal sig_run_finished(won: bool)
+signal sig_navigation_failed(message: String)
 
 const RUN_SCENE_PATH := "res://Scene/GameRun/GameRun.tscn"
+const MAIN_MENU_PATH := "res://Scene/MainMenu/MainMenu.tscn"
 const DEFAULT_LEVEL_POOL: BattlefieldCampaign = preload("res://Script/Level/run_level_pool.tres")
 const AIRBORNE_LEVEL_COUNT := 5
 const FULL_ASSAULT_LEVEL_COUNT := 7
@@ -30,6 +32,8 @@ var completed_level_count: int = 0
 var _route: Array[Dictionary] = []
 var _host_ref: WeakRef
 var _run_revision: int = 0
+## 首页只提交一个待启动模式；战斗宿主就绪后消费，避免创建玩家之前生成房间。
+var _menu_mode: int = -1
 
 
 ## 管理器在模式选择、暂停和结果页期间也可以接收重新开始请求；无逐帧轮询。
@@ -71,6 +75,9 @@ func detach_level_host(host: Node) -> void:
 func start_run(mode: int, seed_value: int = 0, pool: BattlefieldCampaign = null) -> bool:
 	if mode not in [AttackMode.AIRBORNE, AttackMode.FULL_ASSAULT]:
 		push_error("GameManager：未知进攻模式 %s。" % mode)
+		return false
+	if not _is_mode_unlocked(mode):
+		push_warning("强攻尚未解锁，需要先完整通关一次空降。")
 		return false
 	if run_state != RunState.IDLE:
 		push_warning("GameManager：当前不是待开始状态，请通过 restart_run 重建玩家并创建新局。")
@@ -171,16 +178,58 @@ func reset_run() -> void:
 	completed_level_count = 0
 	run_seed = 0
 	run_state = RunState.IDLE
+	_menu_mode = -1
 	_emit_snapshot()
 
 
-## 重开时重载持久战斗宿主，确保上一局的生命、背包、技能和积分不会带入新局。
+## 重开回到正式首页选择模式，确保上一局的生命、背包、技能和积分不会带入新局。
 func restart_run() -> void:
+	return_to_main_menu()
+
+
+## 首页启动入口：检查解锁和重复点击，再切换到战斗宿主，由宿主实际开始对局。
+func start_from_menu(mode: int) -> bool:
+	if run_state != RunState.IDLE or _menu_mode >= 0 or mode not in [AttackMode.AIRBORNE, AttackMode.FULL_ASSAULT] or not _is_mode_unlocked(mode):
+		return false
+	_menu_mode = mode
+	_run_revision += 1
+	_reload_run_scene.call_deferred(_run_revision)
+	return true
+
+
+## 宿主就绪后只读取一次首页选择；F6 独立调试战斗场景时返回 -1。
+func consume_menu_mode() -> int:
+	var mode := _menu_mode
+	_menu_mode = -1
+	return mode
+
+
+## 模式解锁集中校验；独立流程契约检查可用模拟管理器覆写，不修改真实账户。
+func _is_mode_unlocked(mode: int) -> bool:
+	return mode == AttackMode.AIRBORNE or CurrencyManager.is_assault_unlocked()
+
+
+## 结果页回首页前保留待存收益，只有保存成功才释放战斗宿主和本局钱包。
+func return_to_main_menu() -> void:
+	# 结算存盘失败时留在结果页并重试，不通过重开丢弃待存研究点数。
+	if CurrencyManager.has_pending_settlement() and not CurrencyManager.settle_run():
+		return
 	reset_run()
 	var host := _get_host()
 	if host != null:
 		detach_level_host(host)
-	_reload_run_scene.call_deferred(_run_revision)
+	CurrencyManager.close_run()
+	_open_main_menu.call_deferred(_run_revision)
+
+
+## 导航在按钮回调之后执行，防止信号派发期间释放当前场景。
+func _open_main_menu(revision: int) -> void:
+	if revision != _run_revision:
+		return
+	get_tree().paused = false
+	var error := get_tree().change_scene_to_file(MAIN_MENU_PATH)
+	if error != OK:
+		push_error("无法返回首页，错误码 %s。" % error)
 
 
 ## 返回不包含可修改主题资源的快照，HUD 和其他系统只读取同一份进度。
@@ -202,7 +251,7 @@ func get_current_stage_number() -> int:
 
 ## 模式名称集中定义，日志、HUD 和模式菜单使用相同规则。
 func get_mode_name(mode: int) -> String:
-	return "空降模式" if mode == AttackMode.AIRBORNE else "总攻模式"
+	return "空降模式" if mode == AttackMode.AIRBORNE else "强攻模式"
 
 
 ## 排除空资源和重复主题目录，保证抽取到的主题包含全部九种尺寸的两个样式。
@@ -267,4 +316,6 @@ func _reload_run_scene(revision: int) -> void:
 	get_tree().paused = false
 	var error := get_tree().change_scene_to_file(RUN_SCENE_PATH)
 	if error != OK:
+		_menu_mode = -1
+		sig_navigation_failed.emit("无法进入战场，错误码 %s，请检查资源与输出日志。" % error)
 		push_error("GameManager：无法重新加载对局场景，错误码 %s。" % error)

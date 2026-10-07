@@ -65,7 +65,10 @@ func _ready() -> void:
         if not GameManager.attach_level_host(self):
             return
         if GameManager.run_state not in [RogueRunManager.RunState.ACTIVE, RogueRunManager.RunState.TRANSITIONING]:
-            if show_run_mode_selection:
+            var requested_mode := GameManager.consume_menu_mode()
+            if requested_mode >= 0:
+                _on_run_mode_selected(requested_mode)
+            elif show_run_mode_selection:
                 _hud.show_run_mode_selection()
             else:
                 _on_run_mode_selected(initial_run_mode)
@@ -98,8 +101,10 @@ func _on_run_stage_requested(stage_number: int, theme: BattlefieldTheme, stage_s
 
 ## 胜利由全局路线完成触发；失败画面仍沿用通用控制器的玩家死亡处理。
 func _on_run_finished(won: bool) -> void:
-    if won and is_instance_valid(_hud):
-        _hud.show_run_victory(total_score)
+    if won:
+        CurrencyManager.settle_run(GameManager.attack_mode == RogueRunManager.AttackMode.AIRBORNE)
+        if is_instance_valid(_hud):
+            _hud.show_run_victory(total_score)
 
 
 ## 玩家死亡时同时关闭全局推进，避免排队中的下一关请求在战败后继续运行。
@@ -119,6 +124,8 @@ func _exit_tree() -> void:
 func start_level(new_level_number: int, seed: int) -> void:
     level_number = new_level_number
     random_seed = seed
+    # 配乐随主题而非难度编号选择；切换房间不会重播同一首曲。
+    GameSettings.play_level_music(battlefield_theme)
     # 主题由 GameManager 或独立测试场景指定；关卡编号只用于既有房间生成规则。
     _room_scene_variants.clear()
     boss_defeated = false
@@ -366,6 +373,7 @@ func _on_boss_exit_entered(body: Node2D) -> void:
     else:
         _level_completed = true
         sig_level_completed.emit(completed_level, 0)
+        CurrencyManager.settle_run()
         if _hud != null:
             _hud.show_run_victory(total_score, "本关完成")
 

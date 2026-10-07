@@ -85,6 +85,8 @@ const WEAPON_NAME_SHORTGUN := "霰弹枪 / SHOTGUN"
 @onready var _skill_contents: BoxContainer = $UIRoot/SkillPanel/SkillContents
 @onready var _skill_title: Label = $UIRoot/SkillPanel/SkillContents/SkillTitle
 @onready var _run_progress_panel: PanelContainer = %RunProgressPanel
+## 上方资源区域同步局内金钱、待结算研究和已经持久化的研究账户。
+@onready var _currency_value: Label = %ResourceValue
 @onready var _run_progress_label: Label = %RunProgressLabel
 @onready var _run_progress_bar: ProgressBar = %RunProgressBar
 @onready var _run_route: HBoxContainer = %RunRoute
@@ -127,6 +129,11 @@ func _ready() -> void:
     _defeat_restart_button.pressed.connect(GameManager.restart_run)
     %VictoryRestartButton.pressed.connect(GameManager.restart_run)
     %VictoryExitButton.pressed.connect(_exit_game)
+    %DefeatHomeButton.pressed.connect(GameManager.return_to_main_menu)
+    %VictoryHomeButton.pressed.connect(GameManager.return_to_main_menu)
+    GameSettings.sig_audio_changed.connect(_sync_volume_slider)
+    CurrencyManager.sig_currency_changed.connect(_on_currency_changed)
+    _on_currency_changed(CurrencyManager.get_snapshot())
     _configure_gamepad_bindings()
     _set_control_mode(_get_initial_control_mode())
     call_deferred("_cache_player")
@@ -525,6 +532,7 @@ func enable_run_ui() -> void:
     _run_ui_enabled = true
     _waiting_run_selection = true
     _defeat_restart_button.visible = true
+    %DefeatHomeButton.visible = true
     if not GameManager.sig_run_changed.is_connected(_on_run_changed):
         GameManager.sig_run_changed.connect(_on_run_changed)
     _on_run_changed(GameManager.get_run_snapshot())
@@ -536,7 +544,7 @@ func show_run_mode_selection() -> void:
     _mode_choice_pending = false
     _run_mode_error.text = ""
     _airborne_button.disabled = false
-    _assault_button.disabled = false
+    _assault_button.disabled = not CurrencyManager.is_assault_unlocked()
     _run_mode_overlay.visible = true
     get_tree().paused = true
     _airborne_button.grab_focus()
@@ -602,6 +610,7 @@ func show_run_victory(total_score: int, title: String = "任务完成") -> void:
         var snapshot := GameManager.get_run_snapshot()
         _victory_score.text += "\n%s · 完成 %d / %d 关" % [snapshot["mode_name"], snapshot["completed"], snapshot["total"]]
     %VictoryRestartButton.visible = _run_ui_enabled
+    %VictoryHomeButton.visible = _run_ui_enabled
     _victory_overlay.visible = true
     get_tree().paused = true
     if _run_ui_enabled:
@@ -673,8 +682,19 @@ func _on_run_changed(snapshot: Dictionary) -> void:
 
 
 ## 同步关卡总积分到 HUD 顶部得分栏。
+## 货币与积分分开显示，积分不会作为可消费余额。
 func set_score(total_score: int) -> void:
     _score_value.text = _format_score(total_score)
+
+
+## 钱包变更直接推送到 HUD；结果页也显示本局带出的研究与账户累计数。
+func _on_currency_changed(snapshot: Dictionary) -> void:
+    _currency_value.text = "金钱 $ %s\n研究 ◆ %s\n已存 ◆ %s" % [_format_score(int(snapshot["money"])), _format_score(int(snapshot["research_run"])), _format_score(int(snapshot["research_bank"]))]
+    var result := "带出研究 +%s\n研究账户 %s · 金钱不带出" % [_format_score(int(snapshot["research_run"])), _format_score(int(snapshot["research_bank"]))]
+    if bool(snapshot["settlement_failed"]):
+        result = "研究 +%s 尚未保存\n请点重新开始重试，或检查存档目录权限" % _format_score(int(snapshot["research_run"]))
+    %DefeatCurrency.text = result
+    %VictoryCurrency.text = result
 
 
 ## 首次显示 Boss 血条，并设置 Boss 名称、阶段和当前生命值。
@@ -719,34 +739,23 @@ func _format_score(value: int) -> String:
     return formatted
 
 
-## 从 Master 音频总线读取音量并同步菜单滑块。
+## 从统一音效设置读取音量并同步菜单滑块；音乐由首页独立控制。
 func _sync_volume_slider() -> void:
-    var master_bus := AudioServer.get_bus_index("Master")
-    if master_bus < 0:
-        push_warning("找不到 Master 音频总线，音量滑块无法同步。")
-        return
-    var volume_db := AudioServer.get_bus_volume_db(master_bus)
-    var volume_linear := db_to_linear(volume_db)
-    _volume_slider.value = clampf(volume_linear * 100.0, 0.0, 100.0)
+    _volume_slider.set_value_no_signal(GameSettings.sfx_volume * 100.0)
     _update_volume_label(_volume_slider.value)
 
 
-## 将滑块百分比应用到 Master 总线，并更新可读音量数值。
+## 将滑块百分比应用到 SFX 总线，不再同时改变音乐。
 func _on_volume_changed(value: float) -> void:
-    var master_bus := AudioServer.get_bus_index("Master")
-    if master_bus < 0:
-        return
-    AudioServer.set_bus_volume_db(master_bus, linear_to_db(maxf(value / 100.0, 0.0001)))
-    if value <= 0.0:
-        AudioServer.set_bus_mute(master_bus, true)
-    else:
-        AudioServer.set_bus_mute(master_bus, false)
+    GameSettings.set_sfx_volume(value / 100.0)
     _update_volume_label(value)
 
 
 ## 显示音量百分比。
 func _update_volume_label(value: float) -> void:
     _volume_label.text = "音效音量  %d%%" % roundi(value)
+    if GameSettings.sfx_muted:
+        _volume_label.text += "（静音）"
 
 
 ## 点击 HUD 右上角圆形菜单时打开暂停菜单。
@@ -758,6 +767,7 @@ func _on_menu_panel_gui_input(event: InputEvent) -> void:
 
 ## 退出当前游戏进程，并先解除暂停状态。
 func _exit_game() -> void:
+    GameSettings.save_now()
     get_tree().paused = false
     get_tree().quit()
 

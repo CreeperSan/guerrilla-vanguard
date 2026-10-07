@@ -5,6 +5,11 @@ extends SceneTree
 const MANAGER_SCRIPT = preload("res://Script/Global/game_manager.gd")
 const FINAL_THEME_PATH := "res://Scene/LevelUndergroundFortress/theme.tres"
 
+## 路线契约检查模拟已解锁进攻模式，避免依赖或修改用户的真实通关存档。
+class TestManager extends RogueRunManager:
+	func _is_mode_unlocked(_mode: int) -> bool:
+		return true
+
 ## 模拟宿主只记录切关请求，并允许测试独立控制安全出口条件与加载确认。
 class TestHost extends Node:
 	var cleared: bool = false
@@ -29,7 +34,7 @@ func _initialize() -> void:
 
 ## 顺序检查抽取规则、可复现性、推进锁、胜败、宿主替换及过期请求。
 func _run_tests() -> void:
-	var manager: RogueRunManager = MANAGER_SCRIPT.new()
+	var manager: RogueRunManager = TestManager.new()
 	root.add_child(manager)
 	for mode: int in [RogueRunManager.AttackMode.AIRBORNE, RogueRunManager.AttackMode.FULL_ASSAULT]:
 		var first: Array[Dictionary] = []

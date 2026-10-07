@@ -28,6 +28,9 @@ const SFX_FIRE_PISTOL: AudioStream = preload("res://Assets/Audio/SFX/pistol_fire
 const SFX_FIRE_SHORTGUN: AudioStream = preload("res://Assets/Audio/SFX/shortgun_fire.wav")
 const SFX_RELOAD: AudioStream = preload("res://Assets/Audio/SFX/reload.wav")
 const SFX_PICKUP: AudioStream = preload("res://Assets/Audio/SFX/pickup.wav")
+## 货币使用独立的金属音与研究提示音，复用玩家拾取播放器与现有音量控制。
+const SFX_MONEY_PICKUP: AudioStream = preload("res://Assets/Audio/SFX/money_pickup.wav")
+const SFX_RESEARCH_PICKUP: AudioStream = preload("res://Assets/Audio/SFX/research_pickup.wav")
 const SFX_GRENADE_THROW: AudioStream = preload("res://Assets/Audio/SFX/grenade_throw.wav")
 const SFX_MOLOTOV_THROW: AudioStream = preload("res://Assets/Audio/SFX/molotov_throw.wav")
 const SFX_SHIELD_RAISE: AudioStream = preload("res://Assets/Audio/SFX/shield_raise.wav")
@@ -522,10 +525,22 @@ func _emit_skill_updated() -> void:
     sig_skill_updated.emit(skill_type, _skill_cooldown_remaining, cooldown_duration, is_active)
 
 
+## 接收拾取区内的物品；货币与原有道具共用触碰流程，但播放各自的音效。
 func on_collect_item(item: Area2D):
     if item is LootItem:
         # 只有道具效果成功应用时才移除拾取物，避免满血或已满备弹时浪费道具。
         if item.apply_to(self):
             print('玩家拾取了', item.type, item.num)
-            node_pickup_audio.play()
+            if item.type in [LootItem.Type.CurrencyMoney, LootItem.Type.CurrencyResearch]:
+                var kind := RunCurrencyWallet.Kind.MONEY if item.type == LootItem.Type.CurrencyMoney else RunCurrencyWallet.Kind.RESEARCH
+                play_currency_pickup_sound(kind)
+            else:
+                node_pickup_audio.stream = SFX_PICKUP
+                node_pickup_audio.play()
             item.queue_free()
+
+
+## 拾取与 Boss 直接研究奖励都由玩家播放声音，避免掉落物销毁时截断音效。
+func play_currency_pickup_sound(kind: RunCurrencyWallet.Kind) -> void:
+    node_pickup_audio.stream = SFX_MONEY_PICKUP if kind == RunCurrencyWallet.Kind.MONEY else SFX_RESEARCH_PICKUP
+    node_pickup_audio.play()

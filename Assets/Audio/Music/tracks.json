@@ -1,0 +1,74 @@
+[
+  {
+    "file": "menu_command.wav",
+    "title": "首页 / 集结号",
+    "bpm": 92,
+    "bars": 16,
+    "seconds": 41.739,
+    "loop": "whole phrase; circular release and delay",
+    "seed": 20261007
+  },
+  {
+    "file": "level_fortress.wav",
+    "title": "要塞 / 突破防线",
+    "bpm": 112,
+    "bars": 16,
+    "seconds": 34.286,
+    "loop": "whole phrase; circular release and delay",
+    "seed": 20261008
+  },
+  {
+    "file": "level_jungle.wav",
+    "title": "丛林 / 绿色潜行",
+    "bpm": 124,
+    "bars": 16,
+    "seconds": 30.968,
+    "loop": "whole phrase; circular release and delay",
+    "seed": 20261009
+  },
+  {
+    "file": "level_village.wav",
+    "title": "村庄 / 黎明巡行",
+    "bpm": 96,
+    "bars": 16,
+    "seconds": 40.0,
+    "loop": "whole phrase; circular release and delay",
+    "seed": 20261010
+  },
+  {
+    "file": "level_valley.wav",
+    "title": "山谷 / 风之回声",
+    "bpm": 88,
+    "bars": 16,
+    "seconds": 43.636,
+    "loop": "whole phrase; circular release and delay",
+    "seed": 20261011
+  },
+  {
+    "file": "level_metropolis.wav",
+    "title": "都市 / 霓虹追击",
+    "bpm": 128,
+    "bars": 16,
+    "seconds": 30.0,
+    "loop": "whole phrase; circular release and delay",
+    "seed": 20261012
+  },
+  {
+    "file": "level_underground_fortress.wav",
+    "title": "地下要塞 / 铁幕核心",
+    "bpm": 108,
+    "bars": 16,
+    "seconds": 35.556,
+    "loop": "whole phrase; circular release and delay",
+    "seed": 20261013
+  },
+  {
+    "file": "level_mine_shaft.wav",
+    "title": "矿井 / 深层脉冲",
+    "bpm": 104,
+    "bars": 16,
+    "seconds": 36.923,
+    "loop": "whole phrase; circular release and delay",
+    "seed": 20261014
+  }
+]

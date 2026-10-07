@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BattlefieldTheme" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="BattlefieldTheme" load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://Script/Level/battlefield_theme.gd" id="1_theme"]
 [ext_resource type="Texture2D" path="res://Scene/LevelFortress/Terrain/ground.png" id="2_ground"]
@@ -6,6 +6,8 @@
 [ext_resource type="Texture2D" path="res://Scene/LevelFortress/Terrain/water.png" id="4_water"]
 [ext_resource type="Texture2D" path="res://Scene/LevelFortress/Terrain/box.png" id="5_box"]
 [ext_resource type="Texture2D" path="res://Scene/LevelFortress/Terrain/entrance.png" id="6_entrance"]
+
+[ext_resource type="AudioStream" path="res://Assets/Audio/Music/level_fortress.wav" id="music_theme"]
 
 [resource]
 script = ExtResource("1_theme")
@@ -18,3 +20,4 @@ box_texture = ExtResource("5_box")
 entrance_texture = ExtResource("6_entrance")
 secondary_style_tint = Color(0.78, 0.9, 0.88, 1)
 cover_count = 0
+background_music = ExtResource("music_theme")

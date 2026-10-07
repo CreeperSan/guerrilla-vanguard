@@ -207,10 +207,11 @@ theme_override_styles/panel = SubResource("StyleInsetPanel")
 mouse_filter = 2
 
 [node name="ResourceValue" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/ResourcePanel"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 12
-text = "◆ 106    ● 31"
+text = "金钱 $ 0\n研究 ◆ 0\n已存 ◆ 0"
 horizontal_alignment = 1
 mouse_filter = 2
 
@@ -860,6 +861,21 @@ custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "重新开始"
 
+[node name="DefeatCurrency" type="Label" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "带出研究 +0"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="DefeatHomeButton" type="Button" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "返回首页"
+
 [node name="StartOverlay" type="Control" parent="UIRoot"]
 visible = false
 z_index = 1
@@ -1043,7 +1059,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
 theme_override_font_sizes/font_size = 14
-text = "每局重新抽取一条路线，击败各关 Boss 后继续前进。\n地下要塞仅作为总攻的固定终点。"
+text = "每局重新抽取一条路线，击败各关 Boss 后继续前进。\n地下要塞仅作为强攻的固定终点。"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -1059,7 +1075,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-text = "总攻模式 · 随机 6 关 + 地下要塞"
+text = "强攻模式 · 随机 6 关 + 地下要塞"
 
 [node name="RunModeError" type="Label" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents"]
 unique_name_in_owner = true
@@ -1126,6 +1142,14 @@ theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 
+[node name="VictoryCurrency" type="Label" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "带出研究 +0"
+horizontal_alignment = 1
+mouse_filter = 2
+
 [node name="VictoryRestartButton" type="Button" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
@@ -1137,3 +1161,10 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "退出游戏"
+
+[node name="VictoryHomeButton" type="Button" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "返回首页"

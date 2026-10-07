@@ -1,10 +1,14 @@
-## 关卡主题配置：只描述美术和房间目录，生成、清场、拾取与传送规则由现有控制器复用。
+## 关卡主题配置：描述美术、配乐和房间目录，生成、清场、拾取与传送由现有控制器复用。
 class_name BattlefieldTheme
 extends Resource
 
 ## 展示名称和房间模板根目录；模板继续遵守 Room_宽x高_样式编号的命名。
 @export var display_name: String = ""
 @export_dir var room_template_root: String = ""
+
+@export_group("主题配乐")
+## 同一主题内房间切换不重播，进入新 Level 时由 GameSettings 交叉淡化并无限循环。
+@export var background_music: AudioStream
 
 @export_group("地形美术")
 ## 主题资源为空时，房间使用原有 Fortress 图片作为安全兜底。
