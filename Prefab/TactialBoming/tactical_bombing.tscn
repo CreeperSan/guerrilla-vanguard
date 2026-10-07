@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://c5a2fadx5kffq"]
+
+[ext_resource type="Script" uid="uid://cww24uupihr1o" path="res://Prefab/TactialBoming/tactical_bombing.gd" id="1_script"]
+
+[node name="TacticalBombing" type="Node2D" unique_id=942913451]
+script = ExtResource("1_script")
+player_foot_offset = Vector2(0, 7)
+strike_spacing = 30.0
+strike_count = 12
+strike_interval = 0.15

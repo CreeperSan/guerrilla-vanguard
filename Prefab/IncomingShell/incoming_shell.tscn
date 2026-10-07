@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Prefab/IncomingShell/incoming_shell.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://Prefab/IncomingShell/incoming_shell.png" id="2_texture"]
+
+[node name="IncomingShell" type="Node2D"]
+z_index = 10
+script = ExtResource("1_script")
+
+[node name="LandingShadow" type="Polygon2D" parent="."]
+z_index = -1
+polygon = PackedVector2Array(-12, 0, -11.1, -2.3, -8.5, -4.2, -4.6, -5.5, 0, -6, 4.6, -5.5, 8.5, -4.2, 11.1, -2.3, 12, 0, 11.1, 2.3, 8.5, 4.2, 4.6, 5.5, 0, 6, -4.6, 5.5, -8.5, 4.2, -11.1, 2.3)
+color = Color(0, 0, 0, 1)
+top_level = true
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_texture")
+scale = Vector2(1.6, 1.6)
+
+[node name="FallAudio" type="AudioStreamPlayer2D" parent="."]
+max_polyphony = 2

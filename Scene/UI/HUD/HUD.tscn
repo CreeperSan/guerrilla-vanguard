@@ -1,0 +1,672 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://Scene/UI/HUD/hud.gd" id="1_hud_script"]
+[ext_resource type="Texture2D" path="res://Assets/UI/hud_portrait.svg" id="2_portrait"]
+[ext_resource type="Texture2D" path="res://Prefab/Player/player_weapon_pistol.png" id="3_pistol"]
+
+[sub_resource type="StyleBoxFlat" id="StylePanel"]
+bg_color = Color(0.0627451, 0.0980392, 0.105882, 0.96)
+border_color = Color(0.321569, 0.403922, 0.356863, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleInsetPanel"]
+bg_color = Color(0.0784314, 0.12549, 0.129412, 1)
+border_color = Color(0.321569, 0.403922, 0.356863, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 9.0
+content_margin_top = 4.0
+content_margin_right = 9.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleCircle"]
+bg_color = Color(0.0627451, 0.0980392, 0.105882, 0.92)
+border_color = Color(0.321569, 0.403922, 0.356863, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 80
+corner_radius_top_right = 80
+corner_radius_bottom_right = 80
+corner_radius_bottom_left = 80
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleCircleAccent"]
+bg_color = Color(0.0627451, 0.0980392, 0.105882, 0.96)
+border_color = Color(0.741176, 0.823529, 0.541176, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 80
+corner_radius_top_right = 80
+corner_radius_bottom_right = 80
+corner_radius_bottom_left = 80
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleHealthTrack"]
+bg_color = Color(0.0784314, 0.12549, 0.129412, 1)
+border_color = Color(0.321569, 0.403922, 0.356863, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleHealthFill"]
+bg_color = Color(0.741176, 0.823529, 0.541176, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleReloadTrack"]
+bg_color = Color(0, 0, 0, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleReloadFill"]
+bg_color = Color(0.741176, 0.823529, 0.541176, 0.24)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="HUD" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_hud_script")
+
+[node name="UIRoot" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PlayerPanel" type="PanelContainer" parent="UIRoot"]
+layout_mode = 1
+anchors_preset = 0
+offset_left = 22.0
+offset_top = 18.0
+offset_right = 404.0
+offset_bottom = 110.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StylePanel")
+
+[node name="PlayerRow" type="HBoxContainer" parent="UIRoot/PlayerPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+mouse_filter = 2
+
+[node name="Portrait" type="TextureRect" parent="UIRoot/PlayerPanel/PlayerRow"]
+custom_minimum_size = Vector2(62, 62)
+layout_mode = 2
+texture = ExtResource("2_portrait")
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="PlayerDetails" type="VBoxContainer" parent="UIRoot/PlayerPanel/PlayerRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+mouse_filter = 2
+
+[node name="HealthHeading" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 12
+text = "生命状态  /  VITALS"
+mouse_filter = 2
+
+[node name="HealthBar" type="ProgressBar" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 13)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleHealthTrack")
+theme_override_styles/fill = SubResource("StyleHealthFill")
+show_percentage = false
+value = 100.0
+mouse_filter = 2
+
+[node name="PlayerStats" type="HBoxContainer" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails"]
+layout_mode = 2
+theme_override_constants/separation = 14
+mouse_filter = 2
+
+[node name="HealthCaption" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails/PlayerStats"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 12
+text = "耐久"
+mouse_filter = 2
+
+[node name="HealthValueLabel" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails/PlayerStats"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
+theme_override_font_sizes/font_size = 13
+text = "100 / 100"
+horizontal_alignment = 2
+mouse_filter = 2
+
+[node name="ResourcePanel" type="PanelContainer" parent="UIRoot/PlayerPanel/PlayerRow"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_styles/panel = SubResource("StyleInsetPanel")
+mouse_filter = 2
+
+[node name="ResourceValue" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/ResourcePanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 12
+text = "◆ 106    ● 31"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="ScorePanel" type="PanelContainer" parent="UIRoot"]
+custom_minimum_size = Vector2(184, 70)
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -92.0
+offset_top = 18.0
+offset_right = 92.0
+offset_bottom = 88.0
+theme_override_styles/panel = SubResource("StylePanel")
+mouse_filter = 2
+
+[node name="ScoreContents" type="VBoxContainer" parent="UIRoot/ScorePanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="ScoreHeading" type="Label" parent="UIRoot/ScorePanel/ScoreContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 12
+text = "得分  /  SCORE"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="ScoreValue" type="Label" parent="UIRoot/ScorePanel/ScoreContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 21
+text = "121,245,109"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="WeaponPanel" type="PanelContainer" parent="UIRoot"]
+custom_minimum_size = Vector2(304, 104)
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -382.0
+offset_top = 18.0
+offset_right = -78.0
+offset_bottom = 122.0
+theme_override_styles/panel = SubResource("StylePanel")
+mouse_filter = 2
+
+[node name="WeaponContents" type="Control" parent="UIRoot/WeaponPanel"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ReloadProgressBar" type="ProgressBar" parent="UIRoot/WeaponPanel/WeaponContents"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/background = SubResource("StyleReloadTrack")
+theme_override_styles/fill = SubResource("StyleReloadFill")
+fill_mode = 0
+show_percentage = false
+value = 100.0
+visible = false
+mouse_filter = 2
+
+[node name="WeaponRow" type="HBoxContainer" parent="UIRoot/WeaponPanel/WeaponContents"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 0.72
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+mouse_filter = 2
+
+[node name="PreviousWeapon" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow"]
+custom_minimum_size = Vector2(18, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 25
+text = "‹"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="WeaponIcon" type="TextureRect" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 48)
+layout_mode = 2
+texture = ExtResource("3_pistol")
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="WeaponDetails" type="VBoxContainer" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="WeaponName" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow/WeaponDetails"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 12
+text = "手枪  /  PISTOL"
+mouse_filter = 2
+
+[node name="AmmoValue" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow/WeaponDetails"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 18
+text = "12  /  ∞"
+mouse_filter = 2
+
+[node name="NextWeapon" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow"]
+custom_minimum_size = Vector2(18, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 25
+text = "›"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="SwitchProgressBar" type="ProgressBar" parent="UIRoot/WeaponPanel/WeaponContents"]
+unique_name_in_owner = true
+anchors_preset = 10
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = 8.0
+offset_top = 3.0
+offset_right = -8.0
+offset_bottom = 6.0
+theme_override_styles/background = SubResource("StyleReloadTrack")
+theme_override_styles/fill = SubResource("StyleReloadFill")
+show_percentage = false
+value = 100.0
+mouse_filter = 2
+
+[node name="SecondaryWeaponRow" type="HBoxContainer" parent="UIRoot/WeaponPanel/WeaponContents"]
+unique_name_in_owner = true
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -28.0
+offset_right = -12.0
+offset_bottom = -5.0
+theme_override_constants/separation = 6
+mouse_filter = 2
+
+[node name="SecondaryWeaponIcon" type="TextureRect" parent="UIRoot/WeaponPanel/WeaponContents/SecondaryWeaponRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 20)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+
+[node name="SecondaryWeaponName" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/SecondaryWeaponRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(95, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 11
+text = "未解锁后备武器"
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="SecondaryAmmoValue" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/SecondaryWeaponRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
+theme_override_font_sizes/font_size = 12
+text = ""
+horizontal_alignment = 2
+mouse_filter = 2
+
+[node name="MenuPanel" type="PanelContainer" parent="UIRoot"]
+custom_minimum_size = Vector2(54, 54)
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -66.0
+offset_top = 30.0
+offset_right = -12.0
+offset_bottom = 84.0
+theme_override_styles/panel = SubResource("StyleCircle")
+mouse_filter = 2
+
+[node name="MenuIcon" type="Label" parent="UIRoot/MenuPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 21
+text = "☰"
+horizontal_alignment = 1
+vertical_alignment = 1
+mouse_filter = 2
+
+[node name="MovementPanel" type="PanelContainer" parent="UIRoot"]
+custom_minimum_size = Vector2(154, 154)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 26.0
+offset_top = -180.0
+offset_right = 180.0
+offset_bottom = -26.0
+theme_override_styles/panel = SubResource("StyleCircle")
+mouse_filter = 2
+
+[node name="MovementContents" type="VBoxContainer" parent="UIRoot/MovementPanel"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MovementTitle" type="Label" parent="UIRoot/MovementPanel/MovementContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 17
+text = "移 动"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="MovementHint" type="Label" parent="UIRoot/MovementPanel/MovementContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 10
+text = "W A S D"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="AttackPanel" type="PanelContainer" parent="UIRoot"]
+custom_minimum_size = Vector2(142, 142)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -174.0
+offset_top = -172.0
+offset_right = -32.0
+offset_bottom = -30.0
+theme_override_styles/panel = SubResource("StyleCircleAccent")
+mouse_filter = 2
+
+[node name="AttackContents" type="VBoxContainer" parent="UIRoot/AttackPanel"]
+layout_mode = 2
+theme_override_constants/separation = 2
+mouse_filter = 2
+
+[node name="AttackTitle" type="Label" parent="UIRoot/AttackPanel/AttackContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 16
+text = "攻 击"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="AttackHint" type="Label" parent="UIRoot/AttackPanel/AttackContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 10
+text = "FIRE"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="ReloadPanel" type="PanelContainer" parent="UIRoot"]
+custom_minimum_size = Vector2(78, 78)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -218.0
+offset_top = -282.0
+offset_right = -140.0
+offset_bottom = -204.0
+theme_override_styles/panel = SubResource("StyleCircle")
+mouse_filter = 2
+
+[node name="ReloadContents" type="VBoxContainer" parent="UIRoot/ReloadPanel"]
+layout_mode = 2
+theme_override_constants/separation = 2
+mouse_filter = 2
+
+[node name="ReloadTitle" type="Label" parent="UIRoot/ReloadPanel/ReloadContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 12
+text = "换 弹"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="ReloadHint" type="Label" parent="UIRoot/ReloadPanel/ReloadContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 10
+text = "R"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="ItemPanel" type="PanelContainer" parent="UIRoot"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -352.0
+offset_top = -252.0
+offset_right = -252.0
+offset_bottom = -152.0
+theme_override_styles/panel = SubResource("StyleCircle")
+mouse_filter = 2
+
+[node name="ItemContents" type="VBoxContainer" parent="UIRoot/ItemPanel"]
+layout_mode = 2
+theme_override_constants/separation = 2
+mouse_filter = 2
+
+[node name="ItemTitle" type="Label" parent="UIRoot/ItemPanel/ItemContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 12
+text = "装 备"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="EquipmentIcon" type="TextureRect" parent="UIRoot/ItemPanel/ItemContents"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
+visible = false
+
+[node name="EquipmentValueLabel" type="Label" parent="UIRoot/ItemPanel/ItemContents"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 10
+text = "未装备"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="ItemHint" type="Label" parent="UIRoot/ItemPanel/ItemContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 10
+text = "U 使用"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="BattleSupportPanel" type="PanelContainer" parent="UIRoot"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -462.0
+offset_top = -252.0
+offset_right = -362.0
+offset_bottom = -152.0
+theme_override_styles/panel = SubResource("StyleCircle")
+mouse_filter = 2
+
+[node name="BattleSupportContents" type="VBoxContainer" parent="UIRoot/BattleSupportPanel"]
+layout_mode = 2
+theme_override_constants/separation = 2
+mouse_filter = 2
+
+[node name="BattleSupportTitle" type="Label" parent="UIRoot/BattleSupportPanel/BattleSupportContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 11
+text = "战场支援"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="BattleSupportIcon" type="TextureRect" parent="UIRoot/BattleSupportPanel/BattleSupportContents"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 34)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+visible = false
+mouse_filter = 2
+
+[node name="BattleSupportName" type="Label" parent="UIRoot/BattleSupportPanel/BattleSupportContents"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 10
+text = "无支援"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="BattleSupportHint" type="Label" parent="UIRoot/BattleSupportPanel/BattleSupportContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 10
+text = "E 使用"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="SkillPanel" type="PanelContainer" parent="UIRoot"]
+custom_minimum_size = Vector2(88, 100)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -352.0
+offset_top = -134.0
+offset_right = -264.0
+offset_bottom = -34.0
+theme_override_styles/panel = SubResource("StyleCircle")
+mouse_filter = 2
+
+[node name="SkillContents" type="VBoxContainer" parent="UIRoot/SkillPanel"]
+layout_mode = 2
+theme_override_constants/separation = 2
+mouse_filter = 2
+
+[node name="SkillTitle" type="Label" parent="UIRoot/SkillPanel/SkillContents"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 12
+text = "自身技能"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="SkillIcon" type="TextureRect" parent="UIRoot/SkillPanel/SkillContents"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+visible = false
+mouse_filter = 2
+
+[node name="SkillName" type="Label" parent="UIRoot/SkillPanel/SkillContents"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
+theme_override_font_sizes/font_size = 10
+text = "未装备"
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="SkillCooldownBar" type="ProgressBar" parent="UIRoot/SkillPanel/SkillContents"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(54, 4)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleReloadTrack")
+theme_override_styles/fill = SubResource("StyleReloadFill")
+show_percentage = false
+value = 100.0
+visible = false
+mouse_filter = 2
+
+[node name="SkillHint" type="Label" parent="UIRoot/SkillPanel/SkillContents"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
+theme_override_font_sizes/font_size = 10
+text = "拾取技能"
+horizontal_alignment = 1
+mouse_filter = 2

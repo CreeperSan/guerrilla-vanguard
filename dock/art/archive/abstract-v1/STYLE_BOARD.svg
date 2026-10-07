@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <title>Guerrilla Vanguard 美术风格板 v0.1</title>
+  <desc>明亮像素卡通的色板、形状语法与战斗画面层级示意，不是最终资产原型图。</desc>
+  <rect width="1200" height="760" fill="#FFF8E8"/>
+  <rect x="0" y="0" width="1200" height="12" fill="#59CFA7"/>
+  <g fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">
+    <text x="54" y="72" font-size="36" font-weight="800">岚谷前哨 · 美术风格板</text>
+    <text x="55" y="106" font-size="18">明亮像素卡通  /  俯视弹幕射击  /  小尺寸优先识别</text>
+  </g>
+
+  <rect x="40" y="142" width="523" height="264" rx="18" fill="#F4EBCF" stroke="#263F52" stroke-width="3"/>
+  <g font-family="PingFang SC, Noto Sans CJK SC, sans-serif" fill="#263F52">
+    <text x="64" y="177" font-size="21" font-weight="700">01 / 场景层级</text>
+    <text x="64" y="381" font-size="15">低对比地面 · 清楚的墙门 · 高对比弹幕</text>
+  </g>
+  <rect x="68" y="195" width="467" height="158" fill="#F4EBCF"/>
+  <path d="M68 195h467v30H68z M68 323h467v30H68z" fill="#8BC8C1" stroke="#263F52" stroke-width="4"/>
+  <path d="M68 195h26v158H68z M509 195h26v158h-26z" fill="#5D9F9D" stroke="#263F52" stroke-width="4"/>
+  <path d="M270 323h65v30h-65z" fill="#F4EBCF" stroke="#263F52" stroke-width="4"/>
+  <path d="M93 225h416 M93 257h416 M93 289h416" stroke="#E5DABB" stroke-width="2" stroke-dasharray="10 28"/>
+  <rect x="130" y="254" width="18" height="18" rx="3" fill="#E5DABB"/>
+  <rect x="438" y="279" width="18" height="18" rx="3" fill="#E5DABB"/>
+  <ellipse cx="235" cy="309" rx="20" ry="6" fill="#5D9F9D" opacity="0.45"/>
+  <rect x="221" y="260" width="28" height="26" rx="5" fill="#59CFA7" stroke="#263F52" stroke-width="4"/>
+  <rect x="223" y="281" width="24" height="23" rx="4" fill="#59CFA7" stroke="#263F52" stroke-width="4"/>
+  <path d="M229 268l6 5 6-5" fill="none" stroke="#FFF8E8" stroke-width="4"/>
+  <path d="M247 286h19" stroke="#263F52" stroke-width="8"/>
+  <path d="M247 289h19" stroke="#FFCA70" stroke-width="4"/>
+  <ellipse cx="395" cy="310" rx="18" ry="5" fill="#A64F65" opacity="0.3"/>
+  <rect x="383" y="264" width="24" height="22" rx="3" fill="#EF746B" stroke="#263F52" stroke-width="4"/>
+  <rect x="385" y="285" width="20" height="19" rx="2" fill="#A64F65" stroke="#263F52" stroke-width="4"/>
+  <circle cx="343" cy="284" r="8" fill="#EF5C72" stroke="#263F52" stroke-width="3"/>
+  <path d="M289 283l16-6-4 13z" fill="#F8D76D" stroke="#263F52" stroke-width="3"/>
+
+  <rect x="585" y="142" width="575" height="264" rx="18" fill="#FFF8E8" stroke="#263F52" stroke-width="3"/>
+  <g font-family="PingFang SC, Noto Sans CJK SC, sans-serif" fill="#263F52">
+    <text x="609" y="177" font-size="21" font-weight="700">02 / 阵营与功能色</text>
+  </g>
+  <g font-family="PingFang SC, Noto Sans CJK SC, sans-serif" fill="#263F52" font-size="14" font-weight="600">
+    <rect x="610" y="198" width="75" height="64" rx="8" fill="#59CFA7"/><text x="610" y="284">玩家</text>
+    <rect x="701" y="198" width="75" height="64" rx="8" fill="#EF746B"/><text x="701" y="284">敌人</text>
+    <rect x="792" y="198" width="75" height="64" rx="8" fill="#EF5C72"/><text x="792" y="284">危险</text>
+    <rect x="883" y="198" width="75" height="64" rx="8" fill="#F8D76D"/><text x="883" y="284">友弹</text>
+    <rect x="974" y="198" width="75" height="64" rx="8" fill="#7DAFE8"/><text x="974" y="284">情报</text>
+    <rect x="1065" y="198" width="70" height="64" rx="8" fill="#F0BB58"/><text x="1065" y="284">物资</text>
+  </g>
+  <path d="M610 314h524" stroke="#E5DABB" stroke-width="2"/>
+  <g font-family="PingFang SC, Noto Sans CJK SC, sans-serif" fill="#263F52" font-size="15">
+    <text x="610" y="343">颜色只负责第一眼分类；轮廓、图标和动效再确认含义。</text>
+    <text x="610" y="372">描边 #263F52  ·  地板 #F4EBCF  ·  墙体 #8BC8C1</text>
+  </g>
+
+  <rect x="40" y="428" width="1120" height="266" rx="18" fill="#FFF8E8" stroke="#263F52" stroke-width="3"/>
+  <g font-family="PingFang SC, Noto Sans CJK SC, sans-serif" fill="#263F52">
+    <text x="64" y="466" font-size="21" font-weight="700">03 / 形状与信息密度</text>
+    <text x="64" y="668" font-size="15">头:身约 1:1  ·  1–2 像素轮廓  ·  主体最多三档明度  ·  禁用噪点与写实纹理</text>
+  </g>
+  <g stroke="#263F52" stroke-width="5" stroke-linejoin="round">
+    <circle cx="155" cy="528" r="31" fill="#59CFA7"/>
+    <path d="M125 562h60l-8 61h-44z" fill="#59CFA7"/>
+    <path d="M141 526l14 11 14-11" fill="none" stroke="#FFF8E8" stroke-width="6"/>
+    <rect x="355" y="503" width="56" height="52" rx="8" fill="#EF746B"/>
+    <rect x="361" y="562" width="44" height="61" rx="5" fill="#A64F65"/>
+    <path d="M573 554l33-52 33 52z" fill="#EF746B"/>
+    <path d="M583 563h47l13 60h-74z" fill="#EF746B"/>
+    <rect x="775" y="501" width="91" height="61" rx="9" fill="#A64F65"/>
+    <rect x="789" y="568" width="63" height="55" rx="6" fill="#EF746B"/>
+    <circle cx="1020" cy="554" r="43" fill="#EF5C72" stroke-dasharray="10 9"/>
+    <circle cx="1020" cy="554" r="19" fill="#FFF8E8"/>
+  </g>
+  <g font-family="PingFang SC, Noto Sans CJK SC, sans-serif" fill="#263F52" font-size="16" text-anchor="middle" font-weight="600">
+    <text x="155" y="645">圆角 / 玩家</text>
+    <text x="383" y="645">窄矩形 / 步兵</text>
+    <text x="605" y="645">前倾三角 / 突击</text>
+    <text x="821" y="645">宽方形 / 重装</text>
+    <text x="1020" y="645">虚线范围 / 预警</text>
+  </g>
+  <g font-family="PingFang SC, Noto Sans CJK SC, sans-serif" fill="#5D9F9D" font-size="14">
+    <text x="42" y="732">STYLE BOARD v0.1 · 仅用于确认美术方向，资产原型与实机渲染将在后续步骤制作。</text>
+  </g>
+</svg>

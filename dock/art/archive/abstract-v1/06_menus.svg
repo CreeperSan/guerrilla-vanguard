@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="890" viewBox="0 0 1400 890">
+<title>主菜单、武器库、暂停、设置与剧情面板原型</title>
+<rect width="100%" height="100%" fill="#FFF8E8"/>
+<rect width="100%" height="9" fill="#59CFA7"/>
+<text x="42" y="62" font-size="32" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">06 菜单与叙事界面</text>
+<text x="43" y="92" font-size="16" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">主菜单、武器库、设置、暂停、任务简报与结局；所有按钮都有实际功能</text>
+<rect x="40" y="120" width="420" height="340" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="58" y="151" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">主菜单</text>
+<text x="58" y="174" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">清爽标识 + 明确入口</text>
+<rect x="55" y="187" width="390" height="255" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<rect x="490" y="120" width="420" height="340" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="508" y="151" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">武器库</text>
+<text x="508" y="174" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">四项物资分别领取</text>
+<rect x="505" y="187" width="390" height="255" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<rect x="940" y="120" width="420" height="340" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="958" y="151" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">设置</text>
+<text x="958" y="174" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">总音量可调整</text>
+<rect x="955" y="187" width="390" height="255" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<rect x="40" y="500" width="420" height="340" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="58" y="531" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">暂停</text>
+<text x="58" y="554" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">继续或放弃行动</text>
+<rect x="55" y="567" width="390" height="255" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<rect x="490" y="500" width="420" height="340" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="508" y="531" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">任务简报</text>
+<text x="508" y="554" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">短文本 + 出击目标</text>
+<rect x="505" y="567" width="390" height="255" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<rect x="940" y="500" width="420" height="340" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="958" y="531" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">胜利结局</text>
+<text x="958" y="554" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">文本后进入结算</text>
+<rect x="955" y="567" width="390" height="255" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="87" y="235" font-size="36" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">岚谷前哨</text>
+<text x="89" y="263" font-size="15" font-weight="700" fill="#339D83" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">GUERRILLA VANGUARD</text>
+<rect x="86" y="296" width="323" height="35" rx="6" fill="#59CFA7" stroke="#263F52" stroke-width="2"/>
+<text x="247.5" y="320" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">开始行动</text>
+<rect x="86" y="339" width="155" height="35" rx="6" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="163.5" y="363" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">设置</text>
+<rect x="253" y="339" width="156" height="35" rx="6" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="331.0" y="363" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">退出游戏</text>
+<rect x="520" y="210" width="359" height="44" rx="5" fill="#FFFFFF" stroke="#D8D1BE" stroke-width="1"/>
+<text x="533" y="237" font-size="17" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">随机武器</text>
+<text x="784" y="237" font-size="13" font-weight="500" fill="#339D83" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">未领取</text>
+<rect x="520" y="264" width="359" height="44" rx="5" fill="#FFFFFF" stroke="#D8D1BE" stroke-width="1"/>
+<text x="533" y="291" font-size="17" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">全枪弹药</text>
+<text x="784" y="291" font-size="13" font-weight="500" fill="#339D83" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">未领取</text>
+<rect x="520" y="318" width="359" height="44" rx="5" fill="#FFFFFF" stroke="#D8D1BE" stroke-width="1"/>
+<text x="533" y="345" font-size="17" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">医疗包</text>
+<text x="784" y="345" font-size="13" font-weight="500" fill="#339D83" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">未领取</text>
+<rect x="520" y="372" width="359" height="44" rx="5" fill="#FFFFFF" stroke="#D8D1BE" stroke-width="1"/>
+<text x="533" y="399" font-size="17" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">手雷包</text>
+<text x="784" y="399" font-size="13" font-weight="500" fill="#339D83" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">未领取</text>
+<text x="969" y="239" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">总音量</text>
+<rect x="968" y="266" width="322" height="15" rx="6" fill="#C5D4D8" stroke="#263F52" stroke-width="2"/>
+<rect x="968" y="266" width="240" height="15" rx="6" fill="#59CFA7" stroke="#263F52" stroke-width="2"/>
+<circle cx="1208" cy="273" r="13" fill="#FFF8E8" stroke="#263F52" stroke-width="3"/>
+<text x="969" y="321" font-size="18" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">75%</text>
+<rect x="968" y="360" width="322" height="35" rx="6" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="1129.0" y="384" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">返回</text>
+<text x="89" y="620" font-size="30" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">行动已暂停</text>
+<rect x="87" y="654" width="322" height="35" rx="6" fill="#59CFA7" stroke="#263F52" stroke-width="2"/>
+<text x="248.0" y="678" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">继续游戏</text>
+<rect x="87" y="700" width="322" height="35" rx="6" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="248.0" y="724" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">放弃行动并结算</text>
+<text x="89" y="789" font-size="14" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">局内进度无法在重启后继续</text>
+<text x="537" y="619" font-size="23" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">外围哨站 · 任务简报</text>
+<text x="537" y="655" font-size="16" font-weight="500" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">夺取敌方数据，改善指挥部支援能力。</text>
+<text x="537" y="683" font-size="16" font-weight="500" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">找到最终空降的行动窗口。</text>
+<rect x="536" y="729" width="319" height="35" rx="6" fill="#59CFA7" stroke="#263F52" stroke-width="2"/>
+<text x="695.5" y="753" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">开始普通行动</text>
+<text x="985" y="618" font-size="24" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">通信网络已切断</text>
+<text x="985" y="657" font-size="16" font-weight="500" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">敌军失去统一指挥，</text>
+<text x="985" y="685" font-size="16" font-weight="500" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">岚谷封锁解除。</text>
+<rect x="984" y="729" width="319" height="35" rx="6" fill="#7DAFE8" stroke="#263F52" stroke-width="2"/>
+<text x="1143.5" y="753" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">查看行动结算</text>
+</svg>

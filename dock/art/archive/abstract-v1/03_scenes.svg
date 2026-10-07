@@ -1,0 +1,324 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1100" viewBox="0 0 1400 1100">
+<title>六类场景与三类出口原型</title>
+<rect width="100%" height="100%" fill="#FFF8E8"/>
+<rect width="100%" height="9" fill="#59CFA7"/>
+<text x="42" y="62" font-size="32" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">03 场景与出口原型</text>
+<text x="43" y="92" font-size="16" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">环境各有地表、边界和光感；图中同一玩家/敌人在六种地表上保持一致识别</text>
+<rect x="40" y="120" width="420" height="316" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="58" y="151" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">森林外围哨站</text>
+<text x="58" y="174" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">浅草 + 树影 / 路牌</text>
+<rect x="52" y="183" width="396" height="204" rx="0" fill="#CAE6AA"/>
+<path d="M207 387l25-150h43l30 150z" fill="#F4EBCF" />
+<rect x="77" y="215" width="12" height="37" rx="0" fill="#856E57"/>
+<path d="M67 230l16-34 17 34z" fill="#65B980" stroke="#263F52" stroke-width="2" />
+<rect x="134" y="315" width="12" height="37" rx="0" fill="#856E57"/>
+<path d="M124 330l16-34 17 34z" fill="#65B980" stroke="#263F52" stroke-width="2" />
+<rect x="377" y="219" width="12" height="37" rx="0" fill="#856E57"/>
+<path d="M367 234l16-34 17 34z" fill="#65B980" stroke="#263F52" stroke-width="2" />
+<rect x="404" y="308" width="12" height="37" rx="0" fill="#856E57"/>
+<path d="M394 323l16-34 17 34z" fill="#65B980" stroke="#263F52" stroke-width="2" />
+<rect x="150" y="227" width="8" height="8" rx="0" fill="#79C98D"/>
+<rect x="312" y="274" width="8" height="8" rx="0" fill="#79C98D"/>
+<rect x="102" y="347" width="8" height="8" rx="0" fill="#79C98D"/>
+<rect x="245.0" y="217" width="10" height="65" rx="0" fill="#856E57"/>
+<path d="M211.0 194h76v31h-76z" fill="#F0BB58" stroke="#263F52" stroke-width="4" />
+<path d="M226.0 209h46m0 0l-10-8m10 8l-10 8" fill="none" stroke="#263F52" stroke-width="5" />
+<g transform="translate(197 293) scale(1.5)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="30" rx="11" ry="3" fill="#5D9F9D" opacity="0.4"/>
+<rect x="7" y="17" width="18" height="12" rx="0" fill="#263F52"/>
+<rect x="9" y="18" width="14" height="10" rx="0" fill="#59CFA7"/>
+<rect x="9" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="19" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="6" y="4" width="21" height="15" rx="0" fill="#263F52"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#59CFA7"/>
+<rect x="10" y="4" width="13" height="3" rx="0" fill="#95E8C9"/>
+<rect x="12" y="9" width="10" height="3" rx="0" fill="#339D83"/>
+<rect x="14" y="18" width="7" height="3" rx="0" fill="#FFCA70"/>
+<g transform="rotate(-90 16 17)" shape-rendering="crispEdges">
+<rect x="17" y="14" width="12" height="6" rx="0" fill="#263F52"/>
+<rect x="19" y="15" width="8" height="4" rx="0" fill="#879CA4"/>
+<rect x="28" y="15" width="4" height="4" rx="0" fill="#263F52"/>
+</g>
+</g>
+<g transform="translate(307 300) scale(1.55)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="31" rx="12" ry="3" fill="#A64F65" opacity="0.25"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#263F52"/>
+<rect x="10" y="7" width="13" height="9" rx="0" fill="#EF746B"/>
+<rect x="7" y="5" width="19" height="4" rx="0" fill="#A64F65"/>
+<rect x="11" y="11" width="3" height="2" rx="0" fill="#FFF8E8"/>
+<rect x="9" y="18" width="15" height="11" rx="0" fill="#263F52"/>
+<rect x="11" y="19" width="11" height="8" rx="0" fill="#A64F65"/>
+<rect x="23" y="20" width="9" height="4" rx="0" fill="#263F52"/>
+</g>
+<text x="58" y="417" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">玩家与敌人颜色不随场景变化</text>
+<rect x="480" y="120" width="420" height="316" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="498" y="151" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">乡村补给营地</text>
+<text x="498" y="174" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">暖土 + 篱笆 / 马路</text>
+<rect x="492" y="183" width="396" height="204" rx="0" fill="#C9DFAC"/>
+<path d="M647 387l25-150h43l30 150z" fill="#D7AD79" />
+<rect x="520" y="228" width="6" height="45" rx="0" fill="#8C755C"/>
+<rect x="552" y="228" width="6" height="45" rx="0" fill="#8C755C"/>
+<rect x="808" y="228" width="6" height="45" rx="0" fill="#8C755C"/>
+<rect x="840" y="228" width="6" height="45" rx="0" fill="#8C755C"/>
+<rect x="514" y="240" width="66" height="5" rx="0" fill="#8C755C"/>
+<rect x="799" y="240" width="66" height="5" rx="0" fill="#8C755C"/>
+<rect x="523" y="305" width="41" height="28" rx="0" fill="#F0BB58" stroke="#263F52" stroke-width="2"/>
+<path d="M517 305l27-18 27 18z" fill="#EF746B" stroke="#263F52" stroke-width="2" />
+<path d="M655.0 268l15-80h40l15 80" fill="#8FADB8" />
+<path d="M690.0 200v20m0 17v20" fill="none" stroke="#FFF8E8" stroke-width="5" />
+<path d="M690.0 192v-18m0 0l-11 11m11-11l11 11" fill="none" stroke="#263F52" stroke-width="5" />
+<g transform="translate(637 293) scale(1.5)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="30" rx="11" ry="3" fill="#5D9F9D" opacity="0.4"/>
+<rect x="7" y="17" width="18" height="12" rx="0" fill="#263F52"/>
+<rect x="9" y="18" width="14" height="10" rx="0" fill="#59CFA7"/>
+<rect x="9" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="19" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="6" y="4" width="21" height="15" rx="0" fill="#263F52"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#59CFA7"/>
+<rect x="10" y="4" width="13" height="3" rx="0" fill="#95E8C9"/>
+<rect x="12" y="9" width="10" height="3" rx="0" fill="#339D83"/>
+<rect x="14" y="18" width="7" height="3" rx="0" fill="#FFCA70"/>
+<g transform="rotate(-90 16 17)" shape-rendering="crispEdges">
+<rect x="17" y="14" width="12" height="6" rx="0" fill="#263F52"/>
+<rect x="19" y="15" width="8" height="4" rx="0" fill="#879CA4"/>
+<rect x="28" y="15" width="4" height="4" rx="0" fill="#263F52"/>
+</g>
+</g>
+<g transform="translate(747 300) scale(1.55)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="31" rx="12" ry="3" fill="#A64F65" opacity="0.25"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#263F52"/>
+<rect x="10" y="7" width="13" height="9" rx="0" fill="#EF746B"/>
+<rect x="7" y="5" width="19" height="4" rx="0" fill="#A64F65"/>
+<rect x="11" y="11" width="3" height="2" rx="0" fill="#FFF8E8"/>
+<rect x="9" y="18" width="15" height="11" rx="0" fill="#263F52"/>
+<rect x="11" y="19" width="11" height="8" rx="0" fill="#A64F65"/>
+<rect x="23" y="20" width="9" height="4" rx="0" fill="#263F52"/>
+</g>
+<text x="498" y="417" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">玩家与敌人颜色不随场景变化</text>
+<rect x="920" y="120" width="420" height="316" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="938" y="151" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">通信要塞</text>
+<text x="938" y="174" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">冷色金属 / 门口</text>
+<rect x="932" y="183" width="396" height="204" rx="0" fill="#B5D9DB"/>
+<path d="M932 183h396" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M932 223h396" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M932 263h396" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M932 303h396" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M932 343h396" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M972 183v204" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M1012 183v204" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M1052 183v204" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M1092 183v204" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M1132 183v204" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M1172 183v204" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M1212 183v204" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M1252 183v204" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<path d="M1292 183v204" fill="none" stroke="#5D9F9D" stroke-width="2" />
+<rect x="932" y="183" width="396" height="20" rx="0" fill="#5D9F9D"/>
+<rect x="932" y="183" width="22" height="204" rx="0" fill="#5D9F9D"/>
+<rect x="1306" y="183" width="22" height="204" rx="0" fill="#5D9F9D"/>
+<rect x="1091.0" y="185" width="78" height="65" rx="0" fill="#263F52"/>
+<rect x="1099.0" y="193" width="62" height="57" rx="0" fill="#F4EBCF"/>
+<path d="M1130.0 234v-25m0 0l-12 12m12-12l12 12" fill="none" stroke="#339D83" stroke-width="5" />
+<g transform="translate(1077 293) scale(1.5)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="30" rx="11" ry="3" fill="#5D9F9D" opacity="0.4"/>
+<rect x="7" y="17" width="18" height="12" rx="0" fill="#263F52"/>
+<rect x="9" y="18" width="14" height="10" rx="0" fill="#59CFA7"/>
+<rect x="9" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="19" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="6" y="4" width="21" height="15" rx="0" fill="#263F52"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#59CFA7"/>
+<rect x="10" y="4" width="13" height="3" rx="0" fill="#95E8C9"/>
+<rect x="12" y="9" width="10" height="3" rx="0" fill="#339D83"/>
+<rect x="14" y="18" width="7" height="3" rx="0" fill="#FFCA70"/>
+<g transform="rotate(-90 16 17)" shape-rendering="crispEdges">
+<rect x="17" y="14" width="12" height="6" rx="0" fill="#263F52"/>
+<rect x="19" y="15" width="8" height="4" rx="0" fill="#879CA4"/>
+<rect x="28" y="15" width="4" height="4" rx="0" fill="#263F52"/>
+</g>
+</g>
+<g transform="translate(1187 300) scale(1.55)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="31" rx="12" ry="3" fill="#A64F65" opacity="0.25"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#263F52"/>
+<rect x="10" y="7" width="13" height="9" rx="0" fill="#EF746B"/>
+<rect x="7" y="5" width="19" height="4" rx="0" fill="#A64F65"/>
+<rect x="11" y="11" width="3" height="2" rx="0" fill="#FFF8E8"/>
+<rect x="9" y="18" width="15" height="11" rx="0" fill="#263F52"/>
+<rect x="11" y="19" width="11" height="8" rx="0" fill="#A64F65"/>
+<rect x="23" y="20" width="9" height="4" rx="0" fill="#263F52"/>
+</g>
+<text x="938" y="417" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">玩家与敌人颜色不随场景变化</text>
+<rect x="40" y="455" width="420" height="316" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="58" y="486" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">沙滩海岸</text>
+<text x="58" y="509" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">金沙 + 海浪 / 路牌</text>
+<rect x="52" y="518" width="396" height="204" rx="0" fill="#F6DEAA"/>
+<path d="M207 722l25-150h43l30 150z" fill="#F4EBCF" />
+<rect x="52" y="518" width="86" height="204" rx="0" fill="#77D5D2"/>
+<path d="M138 518v204" fill="none" stroke="#C8F1E8" stroke-width="10" />
+<path d="M171 555l9-5 8 8-7 4z" fill="#FFF8E8" stroke="#D7B479" stroke-width="2" />
+<path d="M370 597l9-5 8 8-7 4z" fill="#FFF8E8" stroke="#D7B479" stroke-width="2" />
+<path d="M124 677l9-5 8 8-7 4z" fill="#FFF8E8" stroke="#D7B479" stroke-width="2" />
+<rect x="245.0" y="552" width="10" height="65" rx="0" fill="#856E57"/>
+<path d="M211.0 529h76v31h-76z" fill="#F0BB58" stroke="#263F52" stroke-width="4" />
+<path d="M226.0 544h46m0 0l-10-8m10 8l-10 8" fill="none" stroke="#263F52" stroke-width="5" />
+<g transform="translate(197 628) scale(1.5)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="30" rx="11" ry="3" fill="#5D9F9D" opacity="0.4"/>
+<rect x="7" y="17" width="18" height="12" rx="0" fill="#263F52"/>
+<rect x="9" y="18" width="14" height="10" rx="0" fill="#59CFA7"/>
+<rect x="9" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="19" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="6" y="4" width="21" height="15" rx="0" fill="#263F52"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#59CFA7"/>
+<rect x="10" y="4" width="13" height="3" rx="0" fill="#95E8C9"/>
+<rect x="12" y="9" width="10" height="3" rx="0" fill="#339D83"/>
+<rect x="14" y="18" width="7" height="3" rx="0" fill="#FFCA70"/>
+<g transform="rotate(-90 16 17)" shape-rendering="crispEdges">
+<rect x="17" y="14" width="12" height="6" rx="0" fill="#263F52"/>
+<rect x="19" y="15" width="8" height="4" rx="0" fill="#879CA4"/>
+<rect x="28" y="15" width="4" height="4" rx="0" fill="#263F52"/>
+</g>
+</g>
+<g transform="translate(307 635) scale(1.55)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="31" rx="12" ry="3" fill="#A64F65" opacity="0.25"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#263F52"/>
+<rect x="10" y="7" width="13" height="9" rx="0" fill="#EF746B"/>
+<rect x="7" y="5" width="19" height="4" rx="0" fill="#A64F65"/>
+<rect x="11" y="11" width="3" height="2" rx="0" fill="#FFF8E8"/>
+<rect x="9" y="18" width="15" height="11" rx="0" fill="#263F52"/>
+<rect x="11" y="19" width="11" height="8" rx="0" fill="#A64F65"/>
+<rect x="23" y="20" width="9" height="4" rx="0" fill="#263F52"/>
+</g>
+<text x="58" y="752" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">玩家与敌人颜色不随场景变化</text>
+<rect x="480" y="455" width="420" height="316" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="498" y="486" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">城市街区</text>
+<text x="498" y="509" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">灰蓝街面 / 马路</text>
+<rect x="492" y="518" width="396" height="204" rx="0" fill="#C5D4D8"/>
+<rect x="492" y="518" width="99" height="204" rx="0" fill="#7DAFE8"/>
+<rect x="789" y="518" width="99" height="204" rx="0" fill="#8BC8C1"/>
+<rect x="601" y="518" width="178" height="204" rx="0" fill="#819BA9"/>
+<rect x="687.0" y="540" width="6" height="26" rx="0" fill="#FFF8E8"/>
+<rect x="687.0" y="594" width="6" height="26" rx="0" fill="#FFF8E8"/>
+<rect x="687.0" y="648" width="6" height="26" rx="0" fill="#FFF8E8"/>
+<rect x="687.0" y="702" width="6" height="26" rx="0" fill="#FFF8E8"/>
+<rect x="516" y="550" width="19" height="22" rx="0" fill="#FFF8E8"/>
+<rect x="551" y="550" width="19" height="22" rx="0" fill="#FFF8E8"/>
+<rect x="816" y="550" width="19" height="22" rx="0" fill="#FFF8E8"/>
+<rect x="851" y="550" width="19" height="22" rx="0" fill="#FFF8E8"/>
+<path d="M655.0 603l15-80h40l15 80" fill="#8FADB8" />
+<path d="M690.0 535v20m0 17v20" fill="none" stroke="#FFF8E8" stroke-width="5" />
+<path d="M690.0 527v-18m0 0l-11 11m11-11l11 11" fill="none" stroke="#263F52" stroke-width="5" />
+<g transform="translate(637 628) scale(1.5)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="30" rx="11" ry="3" fill="#5D9F9D" opacity="0.4"/>
+<rect x="7" y="17" width="18" height="12" rx="0" fill="#263F52"/>
+<rect x="9" y="18" width="14" height="10" rx="0" fill="#59CFA7"/>
+<rect x="9" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="19" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="6" y="4" width="21" height="15" rx="0" fill="#263F52"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#59CFA7"/>
+<rect x="10" y="4" width="13" height="3" rx="0" fill="#95E8C9"/>
+<rect x="12" y="9" width="10" height="3" rx="0" fill="#339D83"/>
+<rect x="14" y="18" width="7" height="3" rx="0" fill="#FFCA70"/>
+<g transform="rotate(-90 16 17)" shape-rendering="crispEdges">
+<rect x="17" y="14" width="12" height="6" rx="0" fill="#263F52"/>
+<rect x="19" y="15" width="8" height="4" rx="0" fill="#879CA4"/>
+<rect x="28" y="15" width="4" height="4" rx="0" fill="#263F52"/>
+</g>
+</g>
+<g transform="translate(747 635) scale(1.55)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="31" rx="12" ry="3" fill="#A64F65" opacity="0.25"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#263F52"/>
+<rect x="10" y="7" width="13" height="9" rx="0" fill="#EF746B"/>
+<rect x="7" y="5" width="19" height="4" rx="0" fill="#A64F65"/>
+<rect x="11" y="11" width="3" height="2" rx="0" fill="#FFF8E8"/>
+<rect x="9" y="18" width="15" height="11" rx="0" fill="#263F52"/>
+<rect x="11" y="19" width="11" height="8" rx="0" fill="#A64F65"/>
+<rect x="23" y="20" width="9" height="4" rx="0" fill="#263F52"/>
+</g>
+<text x="498" y="752" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">玩家与敌人颜色不随场景变化</text>
+<rect x="920" y="455" width="420" height="316" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="938" y="486" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">地牢内室</text>
+<text x="938" y="509" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">浅紫石砖 / 门口</text>
+<rect x="932" y="518" width="396" height="204" rx="0" fill="#B9B8D1"/>
+<path d="M932 518h396" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M932 558h396" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M932 598h396" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M932 638h396" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M932 678h396" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M972 518v204" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M1012 518v204" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M1052 518v204" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M1092 518v204" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M1132 518v204" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M1172 518v204" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M1212 518v204" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M1252 518v204" fill="none" stroke="#777B9A" stroke-width="2" />
+<path d="M1292 518v204" fill="none" stroke="#777B9A" stroke-width="2" />
+<rect x="932" y="518" width="396" height="20" rx="0" fill="#777B9A"/>
+<rect x="932" y="518" width="22" height="204" rx="0" fill="#777B9A"/>
+<rect x="1306" y="518" width="22" height="204" rx="0" fill="#777B9A"/>
+<rect x="1091.0" y="520" width="78" height="65" rx="0" fill="#263F52"/>
+<rect x="1099.0" y="528" width="62" height="57" rx="0" fill="#F4EBCF"/>
+<path d="M1130.0 569v-25m0 0l-12 12m12-12l12 12" fill="none" stroke="#339D83" stroke-width="5" />
+<g transform="translate(1077 628) scale(1.5)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="30" rx="11" ry="3" fill="#5D9F9D" opacity="0.4"/>
+<rect x="7" y="17" width="18" height="12" rx="0" fill="#263F52"/>
+<rect x="9" y="18" width="14" height="10" rx="0" fill="#59CFA7"/>
+<rect x="9" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="19" y="27" width="5" height="3" rx="0" fill="#263F52"/>
+<rect x="6" y="4" width="21" height="15" rx="0" fill="#263F52"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#59CFA7"/>
+<rect x="10" y="4" width="13" height="3" rx="0" fill="#95E8C9"/>
+<rect x="12" y="9" width="10" height="3" rx="0" fill="#339D83"/>
+<rect x="14" y="18" width="7" height="3" rx="0" fill="#FFCA70"/>
+<g transform="rotate(-90 16 17)" shape-rendering="crispEdges">
+<rect x="17" y="14" width="12" height="6" rx="0" fill="#263F52"/>
+<rect x="19" y="15" width="8" height="4" rx="0" fill="#879CA4"/>
+<rect x="28" y="15" width="4" height="4" rx="0" fill="#263F52"/>
+</g>
+</g>
+<g transform="translate(1187 635) scale(1.55)" shape-rendering="crispEdges">
+<ellipse cx="16" cy="31" rx="12" ry="3" fill="#A64F65" opacity="0.25"/>
+<rect x="8" y="6" width="17" height="11" rx="0" fill="#263F52"/>
+<rect x="10" y="7" width="13" height="9" rx="0" fill="#EF746B"/>
+<rect x="7" y="5" width="19" height="4" rx="0" fill="#A64F65"/>
+<rect x="11" y="11" width="3" height="2" rx="0" fill="#FFF8E8"/>
+<rect x="9" y="18" width="15" height="11" rx="0" fill="#263F52"/>
+<rect x="11" y="19" width="11" height="8" rx="0" fill="#A64F65"/>
+<rect x="23" y="20" width="9" height="4" rx="0" fill="#263F52"/>
+</g>
+<text x="938" y="752" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">玩家与敌人颜色不随场景变化</text>
+<rect x="40" y="796" width="1320" height="260" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="58" y="827" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">出口状态规范</text>
+<text x="58" y="850" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">同一套 E 互动与确认面板；形体不同，阻断 / 开放必须可在无色环境下区分</text>
+<rect x="72" y="858" width="398" height="166" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<rect x="133" y="882" width="78" height="65" rx="0" fill="#263F52"/>
+<rect x="141" y="890" width="62" height="57" rx="0" fill="#5D9F9D"/>
+<rect x="168" y="890" width="8" height="57" rx="0" fill="#263F52"/>
+<rect x="142" y="912" width="60" height="5" rx="0" fill="#263F52"/>
+<rect x="333" y="882" width="78" height="65" rx="0" fill="#263F52"/>
+<rect x="341" y="890" width="62" height="57" rx="0" fill="#F4EBCF"/>
+<path d="M372 931v-25m0 0l-12 12m12-12l12 12" fill="none" stroke="#339D83" stroke-width="5" />
+<text x="172" y="1009" font-size="14" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">阻断</text>
+<text x="372" y="1009" font-size="14" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">开放</text>
+<text x="271" y="1045" font-size="18" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">门口</text>
+<rect x="499" y="858" width="398" height="166" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<rect x="594" y="909" width="10" height="65" rx="0" fill="#856E57"/>
+<path d="M560 886h76v31h-76z" fill="#AAB2A9" stroke="#263F52" stroke-width="4" />
+<path d="M575 901h46m0 0l-10-8m10 8l-10 8" fill="none" stroke="#263F52" stroke-width="5" />
+<path d="M559 921l80 40" fill="none" stroke="#EF5C72" stroke-width="8" />
+<rect x="794" y="909" width="10" height="65" rx="0" fill="#856E57"/>
+<path d="M760 886h76v31h-76z" fill="#F0BB58" stroke="#263F52" stroke-width="4" />
+<path d="M775 901h46m0 0l-10-8m10 8l-10 8" fill="none" stroke="#263F52" stroke-width="5" />
+<text x="599" y="1009" font-size="14" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">阻断</text>
+<text x="799" y="1009" font-size="14" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">开放</text>
+<text x="698" y="1045" font-size="18" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">路牌</text>
+<rect x="926" y="858" width="398" height="166" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<path d="M991 962l15-80h40l15 80" fill="#A4A9A7" />
+<path d="M1026 894v20m0 17v20" fill="none" stroke="#FFF8E8" stroke-width="5" />
+<rect x="978" y="912" width="96" height="16" rx="0" fill="#EF5C72" stroke="#263F52" stroke-width="3"/>
+<path d="M1191 962l15-80h40l15 80" fill="#8FADB8" />
+<path d="M1226 894v20m0 17v20" fill="none" stroke="#FFF8E8" stroke-width="5" />
+<path d="M1226 886v-18m0 0l-11 11m11-11l11 11" fill="none" stroke="#263F52" stroke-width="5" />
+<text x="1026" y="1009" font-size="14" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">阻断</text>
+<text x="1226" y="1009" font-size="14" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">开放</text>
+<text x="1125" y="1045" font-size="18" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">马路</text>
+</svg>

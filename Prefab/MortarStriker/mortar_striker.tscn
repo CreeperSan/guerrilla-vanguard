@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://c2sot7xqas2qb"]
+
+[ext_resource type="Script" uid="uid://p8618n5hq6uf" path="res://Prefab/MortarStriker/mortar_striker.gd" id="1_script"]
+
+[node name="MortarStriker" type="Node2D" unique_id=260049109]
+script = ExtResource("1_script")
+strike_radius = 120.0
+strike_interval = 0.15000000000000002
+shell_count = 80
+shell_fall_height = 120.0
+shell_fall_duration = 0.6

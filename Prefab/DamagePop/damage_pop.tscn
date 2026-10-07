@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Prefab/DamagePop/damage_pop.gd" id="1_damage_pop"]
+[ext_resource type="FontFile" path="res://Font/fusion-pixel-12-zh-hans.ttf" id="2_font"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_damage_pop"]
+font = ExtResource("2_font")
+outline_size = 3
+outline_color = Color(0, 0, 0, 1)
+
+[node name="DamagePop" type="Sprite2D"]
+script = ExtResource("1_damage_pop")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -20.0
+offset_top = -12.0
+offset_right = 20.0
+offset_bottom = 12.0
+text = "0"
+label_settings = SubResource("LabelSettings_damage_pop")
+horizontal_alignment = 1
+vertical_alignment = 1

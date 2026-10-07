@@ -10,12 +10,12 @@ extends Area2D
 
 
 func _ready() -> void:
-	pass
+    pass
 
 
 
 enum State {
-	NONE,	# 不警觉
-	LOCK,	# 锁定目标
-	RANGE,	# 范围检测
+    NONE,	# 不警觉
+    LOCK,	# 锁定目标
+    RANGE,	# 范围检测
 }

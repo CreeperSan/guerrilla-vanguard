@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1080" viewBox="0 0 1400 1080">
+<title>HUD、指挥部、商店、结算与地图 UI 原型</title>
+<rect width="100%" height="100%" fill="#FFF8E8"/>
+<rect width="100%" height="9" fill="#59CFA7"/>
+<text x="42" y="62" font-size="32" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">05 界面原型</text>
+<text x="43" y="92" font-size="16" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">画面数值为排版样例；真实数据由游戏状态驱动。功能图标始终配中文名称。</text>
+<rect x="40" y="120" width="1320" height="230" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="58" y="151" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">战斗 HUD</text>
+<text x="58" y="174" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">浅色底板 + 深色文字；避免遮住战斗中心</text>
+<rect x="61" y="181" width="1278" height="146" rx="0" fill="#C9DFAC"/>
+<rect x="74" y="193" width="1252" height="70" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="3"/>
+<rect x="88" y="209" width="170" height="35" rx="6" fill="#75D6BE" stroke="#263F52" stroke-width="2"/>
+<text x="173.0" y="233" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">✚ 生命 76 / 100</text>
+<rect x="273" y="209" width="214" height="35" rx="6" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="380.0" y="233" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">手枪  08 / 36</text>
+<rect x="502" y="209" width="200" height="35" rx="6" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="602.0" y="233" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">① 手枪  ② 冲锋枪</text>
+<rect x="718" y="209" width="147" height="35" rx="6" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="791.5" y="233" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">③ 空槽</text>
+<rect x="881" y="209" width="109" height="35" rx="6" fill="#F0BB58" stroke="#263F52" stroke-width="2"/>
+<text x="935.5" y="233" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">◆  物资 38</text>
+<rect x="1005" y="209" width="112" height="35" rx="6" fill="#7DAFE8" stroke="#263F52" stroke-width="2"/>
+<text x="1061.0" y="233" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">▣  情报 28</text>
+<rect x="1132" y="209" width="178" height="35" rx="6" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="1221.0" y="233" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">手雷 × 2</text>
+<text x="88" y="301" font-size="17" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">外围哨站  /  房间 3 · 6</text>
+<text x="987" y="301" font-size="15" font-weight="500" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">R 换弹    E 交互    Tab 地图</text>
+<rect x="40" y="370" width="641" height="348" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="58" y="401" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">指挥部</text>
+<text x="58" y="424" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">菜单式基地；永久情报与本轮资源明确分开</text>
+<rect x="59" y="431" width="603" height="268" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="80" y="467" font-size="25" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">前哨指挥部</text>
+<text x="462" y="467" font-size="16" font-weight="700" fill="#7DAFE8" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">永久情报  160</text>
+<rect x="77" y="488" width="562" height="45" rx="5" fill="#FFFFFF" stroke="#D8D1BE" stroke-width="1"/>
+<text x="88" y="507" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">医疗保障  Lv.1</text>
+<text x="88" y="525" font-size="12" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">最大生命 110 → 120   /   70 情报</text>
+<rect x="77" y="542" width="562" height="45" rx="5" fill="#FFFFFF" stroke="#D8D1BE" stroke-width="1"/>
+<text x="88" y="561" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">基础武器校准  Lv.0</text>
+<text x="88" y="579" font-size="12" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">手枪伤害 10 → 12   /   40 情报</text>
+<rect x="77" y="596" width="562" height="45" rx="5" fill="#FFFFFF" stroke="#D8D1BE" stroke-width="1"/>
+<text x="88" y="615" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">前线补给  Lv.0</text>
+<text x="88" y="633" font-size="12" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">初始物资 0 → 10   /   40 情报</text>
+<rect x="77" y="663" width="169" height="35" rx="6" fill="#59CFA7" stroke="#263F52" stroke-width="2"/>
+<text x="161.5" y="687" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">普通行动</text>
+<rect x="258" y="663" width="177" height="35" rx="6" fill="#7DAFE8" stroke="#263F52" stroke-width="2"/>
+<text x="346.5" y="687" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">最终行动  ×1</text>
+<rect x="447" y="663" width="191" height="35" rx="6" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="542.5" y="687" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">选择初始武器</text>
+<rect x="704" y="370" width="656" height="348" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="722" y="401" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">商店 / 武器库</text>
+<text x="722" y="424" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">实际效果、价格、库存与领取条件同时出现</text>
+<rect x="723" y="431" width="618" height="268" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="745" y="468" font-size="25" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">补给商店</text>
+<text x="1160" y="468" font-size="16" font-weight="700" fill="#A4752F" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">本轮物资 38</text>
+<rect x="743" y="486" width="577" height="51" rx="5" fill="#FFFFFF" stroke="#D8D1BE" stroke-width="1"/>
+<text x="758" y="508" font-size="17" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">医疗包</text>
+<text x="881" y="508" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">立即恢复 25 HP</text>
+<rect x="1228" y="494" width="77" height="35" rx="6" fill="#F0BB58" stroke="#263F52" stroke-width="2"/>
+<text x="1266.5" y="518" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">15</text>
+<rect x="743" y="545" width="577" height="51" rx="5" fill="#FFFFFF" stroke="#D8D1BE" stroke-width="1"/>
+<text x="758" y="567" font-size="17" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">弹药</text>
+<text x="881" y="567" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">所选枪 +2 弹匣备弹</text>
+<rect x="1228" y="553" width="77" height="35" rx="6" fill="#F0BB58" stroke="#263F52" stroke-width="2"/>
+<text x="1266.5" y="577" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">10</text>
+<rect x="743" y="604" width="577" height="51" rx="5" fill="#FFFFFF" stroke="#D8D1BE" stroke-width="1"/>
+<text x="758" y="626" font-size="17" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">霰弹枪</text>
+<text x="881" y="626" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">满匣 + 初始备弹</text>
+<rect x="1228" y="612" width="77" height="35" rx="6" fill="#B7BEC0" stroke="#263F52" stroke-width="2"/>
+<text x="1266.5" y="636" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">35</text>
+<text x="747" y="681" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">灰色示例：当前物资不足；按 E 打开后暂停战斗</text>
+<rect x="40" y="739" width="641" height="296" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="58" y="770" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">结算 / 失败 / 撤离</text>
+<text x="58" y="793" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">原因先行，再列本轮情报与最终资格变化</text>
+<rect x="59" y="801" width="603" height="215" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<text x="81" y="844" font-size="24" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">行动结算 · 普通三关完成</text>
+<text x="82" y="879" font-size="17" font-weight="500" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">到达：通信要塞出口     击杀：42</text>
+<text x="82" y="911" font-size="17" font-weight="700" fill="#7DAFE8" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">本轮情报：128  +  通关奖励：32  =  160</text>
+<text x="82" y="943" font-size="17" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">最终行动资格：0 → 1</text>
+<rect x="82" y="963" width="177" height="35" rx="6" fill="#59CFA7" stroke="#263F52" stroke-width="2"/>
+<text x="170.5" y="987" font-size="15" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif" text-anchor="middle">返回指挥部</text>
+<rect x="704" y="739" width="656" height="296" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="722" y="770" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">地图 / 暂停提示</text>
+<text x="722" y="793" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">地图按住 Tab 展示完整简图；图形先于文字说明</text>
+<rect x="723" y="801" width="618" height="215" rx="8" fill="#FFF8E8" stroke="#263F52" stroke-width="2"/>
+<rect x="809" y="858" width="59" height="55" rx="5" fill="#59CFA7" stroke="#263F52" stroke-width="3"/>
+<rect x="897" y="858" width="59" height="55" rx="5" fill="#8BC8C1" stroke="#263F52" stroke-width="3"/>
+<rect x="985" y="858" width="59" height="55" rx="5" fill="#EF746B" stroke="#263F52" stroke-width="3"/>
+<rect x="985" y="929" width="59" height="55" rx="5" fill="#F0BB58" stroke="#263F52" stroke-width="3"/>
+<rect x="1073" y="858" width="59" height="55" rx="5" fill="#7DAFE8" stroke="#263F52" stroke-width="3"/>
+<path d="M868 885L897 885" fill="none" stroke="#263F52" stroke-width="4" />
+<path d="M956 885L985 885" fill="none" stroke="#263F52" stroke-width="4" />
+<path d="M1044 885L1073 885" fill="none" stroke="#263F52" stroke-width="4" />
+<path d="M1015 913L1015 929" fill="none" stroke="#263F52" stroke-width="4" />
+<text x="1160" y="856" font-size="14" font-weight="700" fill="#339D83" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">● 当前</text>
+<text x="1160" y="884" font-size="14" font-weight="700" fill="#EF746B" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">◆ 战斗</text>
+<text x="1160" y="912" font-size="14" font-weight="700" fill="#A4752F" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">▣ 商店</text>
+<text x="747" y="994" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">Esc 暂停 / 继续 / 放弃行动</text>
+</svg>

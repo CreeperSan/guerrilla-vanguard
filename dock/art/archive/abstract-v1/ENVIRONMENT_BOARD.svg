@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+  <title>岚谷前哨环境与出口风格板</title>
+  <desc>六类环境各有渲染色调，出口分别以门口、路牌或马路表现。仅为风格示意。</desc>
+  <rect width="1200" height="760" fill="#FFF8E8"/>
+  <rect width="1200" height="12" fill="#59CFA7"/>
+  <g font-family="PingFang SC, Noto Sans CJK SC, sans-serif" fill="#263F52">
+    <text x="42" y="66" font-size="34" font-weight="800">同一场战斗，六种环境气质</text>
+    <text x="43" y="99" font-size="17">地表材质、边界与光感随地点变化；出口的形态也跟着场景变化。</text>
+  </g>
+
+  <!-- Fortress -->
+  <g transform="translate(40 132)" shape-rendering="crispEdges">
+    <rect width="355" height="276" rx="14" fill="#FFFFFF" stroke="#263F52" stroke-width="3"/>
+    <rect x="12" y="12" width="331" height="205" fill="#B5D9DB"/>
+    <path d="M12 64h331M12 116h331M12 168h331M66 12v205M120 12v205M174 12v205M228 12v205M282 12v205" stroke="#8BC8C1" stroke-width="3"/>
+    <rect x="12" y="12" width="331" height="27" fill="#5D9F9D"/>
+    <rect x="128" y="12" width="99" height="79" fill="#263F52"/>
+    <rect x="140" y="25" width="75" height="66" fill="#F4EBCF"/>
+    <rect x="128" y="12" width="99" height="12" fill="#7DAFE8"/>
+    <path d="M177 128v-28m0 0l-13 13m13-13l13 13" stroke="#263F52" stroke-width="5" fill="none"/>
+    <text x="20" y="248" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, sans-serif">要塞 / 门口</text>
+    <text x="230" y="248" font-size="14" fill="#5D9F9D" font-family="PingFang SC, sans-serif">冷色金属</text>
+  </g>
+
+  <!-- Forest -->
+  <g transform="translate(423 132)" shape-rendering="crispEdges">
+    <rect width="355" height="276" rx="14" fill="#FFFFFF" stroke="#263F52" stroke-width="3"/>
+    <rect x="12" y="12" width="331" height="205" fill="#CAE6AA"/>
+    <path d="M12 173h331v44H12z" fill="#B2D68D"/>
+    <path d="M138 217l24-125h78l31 125z" fill="#E8D9A6"/>
+    <rect x="34" y="64" width="20" height="102" fill="#856E57"/>
+    <path d="M12 82l30-65 33 65zM8 112l36-72 39 72z" fill="#65B980" stroke="#263F52" stroke-width="3"/>
+    <rect x="296" y="74" width="18" height="93" fill="#856E57"/>
+    <path d="M270 90l34-70 34 70zM263 120l42-73 41 73z" fill="#65B980" stroke="#263F52" stroke-width="3"/>
+    <rect x="173" y="49" width="10" height="72" fill="#856E57"/>
+    <path d="M138 49h89v39h-89z" fill="#F0BB58" stroke="#263F52" stroke-width="4"/>
+    <path d="M154 68h52m0 0l-13-10m13 10l-13 10" stroke="#263F52" stroke-width="5" fill="none"/>
+    <rect x="103" y="152" width="8" height="8" fill="#79C98D"/><rect x="278" y="184" width="8" height="8" fill="#79C98D"/>
+    <text x="20" y="248" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, sans-serif">森林 / 路牌</text>
+    <text x="230" y="248" font-size="14" fill="#5D9F9D" font-family="PingFang SC, sans-serif">草地树影</text>
+  </g>
+
+  <!-- Beach -->
+  <g transform="translate(806 132)" shape-rendering="crispEdges">
+    <rect width="355" height="276" rx="14" fill="#FFFFFF" stroke="#263F52" stroke-width="3"/>
+    <rect x="12" y="12" width="331" height="205" fill="#F6DEAA"/>
+    <path d="M12 12h331v70H12z" fill="#77D5D2"/>
+    <path d="M12 82h331v14H12z" fill="#C8F1E8"/>
+    <path d="M12 106h331" stroke="#E5C98F" stroke-width="3" stroke-dasharray="24 12"/>
+    <path d="M141 217l26-109h77l23 109z" fill="#FCEBC5"/>
+    <rect x="177" y="51" width="10" height="78" fill="#9D795C"/>
+    <path d="M143 54h83v37h-83z" fill="#F0BB58" stroke="#263F52" stroke-width="4"/>
+    <path d="M159 73h50m0 0l-12-10m12 10l-12 10" stroke="#263F52" stroke-width="5" fill="none"/>
+    <path d="M77 155l11-6 10 7-8 6zM290 176l8-8 8 9-8 6z" fill="#FFF8E8" stroke="#D7B479" stroke-width="3"/>
+    <text x="20" y="248" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, sans-serif">沙滩 / 路牌</text>
+    <text x="230" y="248" font-size="14" fill="#5D9F9D" font-family="PingFang SC, sans-serif">金沙海浪</text>
+  </g>
+
+  <!-- Dungeon -->
+  <g transform="translate(40 427)" shape-rendering="crispEdges">
+    <rect width="355" height="276" rx="14" fill="#FFFFFF" stroke="#263F52" stroke-width="3"/>
+    <rect x="12" y="12" width="331" height="205" fill="#B9B8D1"/>
+    <path d="M12 55h331M12 101h331M12 147h331M12 193h331M83 12v43M180 55v46M275 101v46M116 147v46" stroke="#9293AF" stroke-width="3"/>
+    <rect x="12" y="12" width="331" height="27" fill="#777B9A"/>
+    <rect x="120" y="12" width="115" height="92" fill="#263F52"/>
+    <rect x="136" y="26" width="83" height="78" fill="#DAD9E4"/>
+    <rect x="120" y="12" width="115" height="12" fill="#F0BB58"/>
+    <rect x="60" y="125" width="25" height="41" fill="#777B9A"/><rect x="270" y="128" width="25" height="38" fill="#777B9A"/>
+    <path d="M177 138v-29m0 0l-12 12m12-12l12 12" stroke="#263F52" stroke-width="5" fill="none"/>
+    <text x="20" y="248" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, sans-serif">地牢 / 门口</text>
+    <text x="230" y="248" font-size="14" fill="#5D9F9D" font-family="PingFang SC, sans-serif">浅紫石砖</text>
+  </g>
+
+  <!-- City -->
+  <g transform="translate(423 427)" shape-rendering="crispEdges">
+    <rect width="355" height="276" rx="14" fill="#FFFFFF" stroke="#263F52" stroke-width="3"/>
+    <rect x="12" y="12" width="331" height="205" fill="#C5D4D8"/>
+    <rect x="12" y="12" width="81" height="96" fill="#7DAFE8"/>
+    <rect x="262" y="12" width="81" height="96" fill="#8BC8C1"/>
+    <rect x="27" y="30" width="22" height="26" fill="#FFF8E8"/><rect x="59" y="30" width="22" height="26" fill="#FFF8E8"/>
+    <rect x="277" y="30" width="22" height="26" fill="#FFF8E8"/><rect x="307" y="30" width="22" height="26" fill="#FFF8E8"/>
+    <path d="M90 12h175v205H90z" fill="#8FADB8"/>
+    <path d="M103 12h150v205H103z" fill="#819BA9"/>
+    <path d="M177 33v34M177 104v34M177 176v34" stroke="#FFF8E8" stroke-width="7"/>
+    <path d="M103 83h150" stroke="#E5DABB" stroke-width="4"/>
+    <path d="M112 87v25m23-25v25m23-25v25m23-25v25m23-25v25m23-25v25" stroke="#FFF8E8" stroke-width="7"/>
+    <path d="M177 46v-23m0 0l-12 12m12-12l12 12" stroke="#263F52" stroke-width="5" fill="none"/>
+    <text x="20" y="248" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, sans-serif">城市 / 马路</text>
+    <text x="230" y="248" font-size="14" fill="#5D9F9D" font-family="PingFang SC, sans-serif">灰蓝街区</text>
+  </g>
+
+  <!-- Countryside -->
+  <g transform="translate(806 427)" shape-rendering="crispEdges">
+    <rect width="355" height="276" rx="14" fill="#FFFFFF" stroke="#263F52" stroke-width="3"/>
+    <rect x="12" y="12" width="331" height="205" fill="#C9DFAC"/>
+    <path d="M12 103h331M12 159h331" stroke="#B7D399" stroke-width="4"/>
+    <path d="M108 217l42-205h61l42 205z" fill="#D7AD79"/>
+    <path d="M140 217l35-205h10l35 205" fill="none" stroke="#EBC79A" stroke-width="6" stroke-dasharray="12 14"/>
+    <path d="M12 48h96M12 61h96M253 70h90M253 83h90" stroke="#8C755C" stroke-width="5"/>
+    <path d="M31 33v42M83 33v42M274 55v42M322 55v42" stroke="#8C755C" stroke-width="6"/>
+    <rect x="32" y="127" width="48" height="35" fill="#F0BB58" stroke="#263F52" stroke-width="4"/>
+    <path d="M25 127l31-25 31 25z" fill="#EF746B" stroke="#263F52" stroke-width="4"/>
+    <path d="M179 54v-26m0 0l-12 12m12-12l12 12" stroke="#263F52" stroke-width="5" fill="none"/>
+    <text x="20" y="248" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, sans-serif">乡村 / 马路</text>
+    <text x="230" y="248" font-size="14" fill="#5D9F9D" font-family="PingFang SC, sans-serif">暖土乡道</text>
+  </g>
+
+  <text x="42" y="740" font-size="13" fill="#5D9F9D" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">STYLE BOARD v0.2 · 六类环境示意；当前三关建议先用森林、乡村、要塞。角色、弹幕与 HUD 保持统一识别规则。</text>
+</svg>

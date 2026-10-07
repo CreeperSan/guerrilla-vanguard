@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="885" viewBox="0 0 1400 885">
+<title>武器、道具与交互物原型</title>
+<rect width="100%" height="100%" fill="#FFF8E8"/>
+<rect width="100%" height="9" fill="#59CFA7"/>
+<text x="42" y="62" font-size="32" font-weight="800" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">02 武器与物品原型</text>
+<text x="43" y="92" font-size="16" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">不同枪型用轮廓和长度识别；拾取物使用统一黑蓝描边、清晰符号</text>
+<rect x="40" y="120" width="1320" height="320" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="58" y="151" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">五种枪械</text>
+<text x="58" y="174" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">源像素轮廓示意；枪口统一朝右，角色持枪时随面向旋转</text>
+<rect x="61" y="186" width="238" height="220" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(97 240) scale(3.4)" shape-rendering="crispEdges">
+<rect x="3" y="7" width="19" height="5" rx="0" fill="#263F52"/>
+<rect x="6" y="8" width="14" height="3" rx="0" fill="#7895A2"/>
+<rect x="8" y="12" width="5" height="11" rx="0" fill="#263F52"/>
+<rect x="9" y="13" width="3" height="8" rx="0" fill="#B1C7C9"/>
+</g>
+<text x="80" y="361" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">手枪</text>
+<text x="80" y="387" font-size="14" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">短枪身</text>
+<rect x="319" y="186" width="238" height="220" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(355 240) scale(3.4)" shape-rendering="crispEdges">
+<rect x="2" y="6" width="30" height="6" rx="0" fill="#263F52"/>
+<rect x="4" y="7" width="24" height="4" rx="0" fill="#7895A2"/>
+<rect x="12" y="12" width="6" height="15" rx="0" fill="#263F52"/>
+<rect x="13" y="12" width="4" height="11" rx="0" fill="#59CFA7"/>
+<rect x="3" y="12" width="5" height="5" rx="0" fill="#263F52"/>
+</g>
+<text x="338" y="361" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">冲锋枪</text>
+<text x="338" y="387" font-size="14" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">直弹匣</text>
+<rect x="577" y="186" width="238" height="220" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(613 240) scale(3.1)" shape-rendering="crispEdges">
+<rect x="2" y="5" width="37" height="7" rx="0" fill="#263F52"/>
+<rect x="4" y="6" width="32" height="4" rx="0" fill="#B1C7C9"/>
+<rect x="2" y="13" width="20" height="5" rx="0" fill="#F0BB58"/>
+<rect x="11" y="18" width="5" height="9" rx="0" fill="#263F52"/>
+<rect x="35" y="4" width="7" height="9" rx="0" fill="#263F52"/>
+</g>
+<text x="596" y="361" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">霰弹枪</text>
+<text x="596" y="387" font-size="14" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">双管短粗</text>
+<rect x="835" y="186" width="238" height="220" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(871 240) scale(3.1)" shape-rendering="crispEdges">
+<rect x="1" y="7" width="44" height="4" rx="0" fill="#263F52"/>
+<rect x="3" y="8" width="40" height="2" rx="0" fill="#7895A2"/>
+<rect x="16" y="2" width="15" height="5" rx="0" fill="#263F52"/>
+<rect x="20" y="3" width="7" height="3" rx="0" fill="#7DAFE8"/>
+<rect x="12" y="11" width="5" height="12" rx="0" fill="#263F52"/>
+<rect x="43" y="6" width="8" height="6" rx="0" fill="#263F52"/>
+</g>
+<text x="854" y="361" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">狙击步枪</text>
+<text x="854" y="387" font-size="14" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">长枪管 + 镜</text>
+<rect x="1093" y="186" width="238" height="220" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(1129 240) scale(3.1)" shape-rendering="crispEdges">
+<rect x="1" y="5" width="43" height="9" rx="0" fill="#263F52"/>
+<rect x="4" y="7" width="35" height="5" rx="0" fill="#7895A2"/>
+<rect x="18" y="14" width="13" height="12" rx="0" fill="#263F52"/>
+<rect x="20" y="15" width="9" height="9" rx="0" fill="#F0BB58"/>
+<rect x="5" y="14" width="6" height="8" rx="0" fill="#263F52"/>
+<rect x="40" y="4" width="8" height="11" rx="0" fill="#263F52"/>
+</g>
+<text x="1112" y="361" font-size="19" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">重机枪</text>
+<text x="1112" y="387" font-size="14" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">宽机匣 + 弹盒</text>
+<rect x="40" y="460" width="858" height="385" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="58" y="491" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">首版拾取物与可互动装置</text>
+<text x="58" y="514" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">满血/满库存时不消耗；物资自动拾取，其他对象按 E</text>
+<rect x="59" y="526" width="185" height="132" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(109 534) scale(2.7)" shape-rendering="crispEdges">
+<rect x="2" y="3" width="24" height="22" rx="0" fill="#263F52"/>
+<rect x="4" y="5" width="20" height="18" rx="0" fill="#FFF8E8"/>
+<rect x="11" y="8" width="6" height="12" rx="0" fill="#59CFA7"/>
+<rect x="8" y="11" width="12" height="6" rx="0" fill="#59CFA7"/>
+</g>
+<text x="72" y="631" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">医疗包</text>
+<text x="163" y="631" font-size="12" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">25 HP</text>
+<rect x="265" y="526" width="185" height="132" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(315 534) scale(2.7)" shape-rendering="crispEdges">
+<rect x="10" y="1" width="8" height="6" rx="0" fill="#263F52"/>
+<rect x="6" y="7" width="16" height="18" rx="0" fill="#263F52"/>
+<rect x="8" y="9" width="12" height="14" rx="0" fill="#7FAD86"/>
+<rect x="8" y="14" width="12" height="3" rx="0" fill="#339D83"/>
+<rect x="18" y="3" width="9" height="3" rx="0" fill="#263F52"/>
+</g>
+<text x="278" y="631" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">手雷</text>
+<text x="369" y="631" font-size="12" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">范围伤害</text>
+<rect x="471" y="526" width="185" height="132" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(521 534) scale(2.7)" shape-rendering="crispEdges">
+<rect x="2" y="7" width="24" height="17" rx="0" fill="#263F52"/>
+<rect x="4" y="9" width="20" height="13" rx="0" fill="#F0BB58"/>
+<rect x="8" y="4" width="12" height="5" rx="0" fill="#263F52"/>
+<rect x="10" y="5" width="8" height="3" rx="0" fill="#FFF8E8"/>
+<rect x="8" y="13" width="12" height="4" rx="0" fill="#263F52"/>
+<rect x="12" y="10" width="4" height="10" rx="0" fill="#263F52"/>
+</g>
+<text x="484" y="631" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">弹药箱</text>
+<text x="575" y="631" font-size="12" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">补备弹</text>
+<rect x="677" y="526" width="185" height="132" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(727 534) scale(2.7)" shape-rendering="crispEdges">
+<path d="M5 4h17v17l-5 5H5z" fill="#263F52" />
+<path d="M7 6h13v13l-5 5H7z" fill="#7DAFE8" />
+<rect x="10" y="9" width="7" height="3" rx="0" fill="#FFF8E8"/>
+<rect x="10" y="15" width="7" height="3" rx="0" fill="#FFF8E8"/>
+</g>
+<text x="690" y="631" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">情报</text>
+<text x="781" y="631" font-size="12" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">清房上传</text>
+<rect x="59" y="676" width="185" height="132" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(109 684) scale(2.7)" shape-rendering="crispEdges">
+<path d="M7 4h14l6 10-6 10H7L1 14z" fill="#263F52" />
+<path d="M8 7h12l4 7-4 7H8l-4-7z" fill="#F0BB58" />
+<rect x="12" y="9" width="4" height="10" rx="0" fill="#FFF8E8"/>
+</g>
+<text x="72" y="781" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">物资</text>
+<text x="163" y="781" font-size="12" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">接触拾取</text>
+<rect x="265" y="676" width="185" height="132" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(315 684) scale(2.7)" shape-rendering="crispEdges">
+<rect x="1" y="6" width="26" height="19" rx="0" fill="#263F52"/>
+<rect x="3" y="8" width="22" height="15" rx="0" fill="#F0BB58"/>
+<rect x="1" y="12" width="26" height="4" rx="0" fill="#263F52"/>
+<rect x="11" y="11" width="7" height="9" rx="0" fill="#FFF8E8"/>
+</g>
+<text x="278" y="781" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">武器箱</text>
+<text x="369" y="781" font-size="12" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">按 E 领取</text>
+<rect x="471" y="676" width="185" height="132" rx="8" fill="#F4EBCF" stroke="#D7CFB2" stroke-width="1"/>
+<g transform="translate(521 684) scale(2.7)" shape-rendering="crispEdges">
+<rect x="3" y="11" width="22" height="15" rx="0" fill="#263F52"/>
+<rect x="5" y="13" width="18" height="11" rx="0" fill="#FFF8E8"/>
+<path d="M3 11l4-7h14l4 7z" fill="#EF746B" />
+<rect x="10" y="17" width="8" height="7" rx="0" fill="#F0BB58"/>
+</g>
+<text x="484" y="781" font-size="16" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">商店</text>
+<text x="575" y="781" font-size="12" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">按 E 打开</text>
+<rect x="920" y="460" width="440" height="385" rx="13" fill="#FFFFFF" stroke="#263F52" stroke-width="2"/>
+<text x="938" y="491" font-size="20" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">v1.1 预留</text>
+<text x="938" y="514" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">不在首版 HUD 与商店中显示未实现项</text>
+<rect x="947" y="525" width="57" height="53" rx="6" fill="#F4EBCF" stroke="#263F52" stroke-width="2"/>
+<g transform="translate(951 526) scale(1.8)" shape-rendering="crispEdges">
+<rect x="11" y="1" width="7" height="7" rx="0" fill="#263F52"/>
+<rect x="7" y="8" width="15" height="18" rx="0" fill="#263F52"/>
+<rect x="9" y="10" width="11" height="13" rx="0" fill="#F0BB58"/>
+<path d="M14 4l7-6 2 7" fill="none" stroke="#EF5C72" stroke-width="3" />
+<path d="M14 15l-3 5h7z" fill="#EF5C72" />
+</g>
+<text x="1024" y="548" font-size="18" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">燃烧瓶</text>
+<text x="1024" y="570" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">持续火区</text>
+<rect x="947" y="598" width="57" height="53" rx="6" fill="#F4EBCF" stroke="#263F52" stroke-width="2"/>
+<g transform="translate(951 599) scale(1.8)" shape-rendering="crispEdges">
+<path d="M14 1l12 5v10l-12 11L2 16V6z" fill="#263F52" />
+<path d="M14 5l8 4v6l-8 7-8-7V9z" fill="#7DAFE8" />
+<rect x="12" y="9" width="4" height="9" rx="0" fill="#FFF8E8"/>
+</g>
+<text x="1024" y="621" font-size="18" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">盾牌</text>
+<text x="1024" y="643" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">短时免伤</text>
+<rect x="947" y="671" width="57" height="53" rx="6" fill="#F4EBCF" stroke="#263F52" stroke-width="2"/>
+<g transform="translate(951 672) scale(1.8)" shape-rendering="crispEdges">
+<path d="M3 22L19 3l6 6L9 26z" fill="#263F52" />
+<path d="M7 21L19 7l2 2L9 23z" fill="#FFF8E8" />
+<path d="M10 17L2 14v8zM17 10l1-8 8 1z" fill="#EF5C72" />
+</g>
+<text x="1024" y="694" font-size="18" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">导弹</text>
+<text x="1024" y="716" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">范围标记</text>
+<rect x="947" y="744" width="57" height="53" rx="6" fill="#F4EBCF" stroke="#263F52" stroke-width="2"/>
+<g transform="translate(951 745) scale(1.8)" shape-rendering="crispEdges">
+<rect x="4" y="14" width="20" height="12" rx="0" fill="#263F52"/>
+<rect x="6" y="16" width="16" height="8" rx="0" fill="#59CFA7"/>
+<path d="M2 7Q14-4 26 7l-5 5H7z" fill="#FFF8E8" stroke="#263F52" stroke-width="2" />
+<path d="M7 12l2 4m12-4l-2 4" fill="none" stroke="#263F52" stroke-width="2" />
+<rect x="12" y="17" width="5" height="6" rx="0" fill="#F0BB58"/>
+</g>
+<text x="1024" y="767" font-size="18" font-weight="700" fill="#263F52" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">重机枪空投</text>
+<text x="1024" y="789" font-size="13" font-weight="400" fill="#5D7480" font-family="PingFang SC, Noto Sans CJK SC, sans-serif">落点补给</text>
+</svg>
