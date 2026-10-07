@@ -17,8 +17,16 @@ const BOSS_SCENE: PackedScene = preload("res://Prefab/BossGeneral/boss_general.t
 @export var random_seed: int = 0
 ## 为空时沿用原要塞关卡；新主题场景通过配置复用同一套房间和战斗管理。
 @export var battlefield_theme: BattlefieldTheme
-## 可选的主题推进顺序；Boss 出口推进关卡时保留玩家、装备、分数与 HUD 节点。
+## 保留旧主题场景的资源字段；正式对局推进由 GameManager 随机流程统一管理。
 @export var campaign: BattlefieldCampaign
+
+@export_group("对局流程")
+## 正式 GameRun 场景开启，单独 F6 运行主题场景时只测试当前 Level。
+@export var managed_run: bool = false
+@export var show_run_mode_selection: bool = true
+@export_enum("空降模式", "总攻模式") var initial_run_mode: int = 0
+## 0 表示每局随机；固定整数同时复现主题顺序和房间布局。
+@export var run_seed: int = 0
 
 var level_map: Dictionary = {}
 var current_room_id: int = -1
@@ -34,6 +42,8 @@ var _door_transition_locked: bool = false
 var _boss_exit: Area2D
 var _player: Node2D
 var _hud: GameHUD
+## 异步清理时记录加载版本；重开后的新请求可替换旧请求，不会卡在等待状态。
+var _run_stage_revision: int = -1
 
 
 ## 解析玩家和 HUD 并生成第一关；外部也可稍后调用 start_level 切换关卡。
@@ -45,18 +55,71 @@ func _ready() -> void:
         controlled_camera.follow_smooth_speed = 0.0
         controlled_camera.dead_zone_enabled = true
         controlled_camera.fit_bounds_to_viewport = true
+    if managed_run:
+        if _hud == null:
+            push_error("正式对局缺少 HUD，无法选择进攻模式。")
+            return
+        _hud.enable_run_ui()
+        _hud.sig_run_mode_selected.connect(_on_run_mode_selected)
+        GameManager.sig_run_finished.connect(_on_run_finished)
+        if not GameManager.attach_level_host(self):
+            return
+        if GameManager.run_state not in [RogueRunManager.RunState.ACTIVE, RogueRunManager.RunState.TRANSITIONING]:
+            if show_run_mode_selection:
+                _hud.show_run_mode_selection()
+            else:
+                _on_run_mode_selected(initial_run_mode)
+        return
     start_level(level_number, random_seed if random_seed != 0 else randi())
+
+
+## 菜单只提交模式，真正的抽取、种子和加载请求由全局管理器创建。
+func _on_run_mode_selected(mode: int) -> void:
+    if not GameManager.start_run(mode, run_seed):
+        _hud.show_run_start_error("无法开始对局，请检查主题池配置和输出日志。")
+
+
+## 接收全局关卡请求：暂停战斗，清理上一关，保留玩家与 HUD，再按本局序号生成地图。
+func _on_run_stage_requested(stage_number: int, theme: BattlefieldTheme, stage_seed: int, revision: int) -> void:
+    if not managed_run or revision == _run_stage_revision or not GameManager.is_stage_request_current(self, stage_number, revision):
+        return
+    _run_stage_revision = revision
+    _hud.prepare_run_stage(stage_number, theme.display_name)
+    _clear_generated_level()
+    # 等到旧房间和效果真正释放后再生成，避免同帧节点重名与旧子弹命中新关角色。
+    await get_tree().process_frame
+    if _run_stage_revision != revision or not GameManager.is_stage_request_current(self, stage_number, revision):
+        return
+    battlefield_theme = theme
+    start_level(stage_number, stage_seed)
+    if GameManager.confirm_stage_ready(self, stage_number, revision):
+        _hud.start_run_stage(stage_number, theme.display_name)
+
+
+## 胜利由全局路线完成触发；失败画面仍沿用通用控制器的玩家死亡处理。
+func _on_run_finished(won: bool) -> void:
+    if won and is_instance_valid(_hud):
+        _hud.show_run_victory(total_score)
+
+
+## 玩家死亡时同时关闭全局推进，避免排队中的下一关请求在战败后继续运行。
+func _on_player_died() -> void:
+    if managed_run:
+        GameManager.fail_run(self)
+    super._on_player_died()
+
+
+## 退出宿主时解除全局关联；单关调试场景不会参与正式对局的信号管理。
+func _exit_tree() -> void:
+    if managed_run:
+        GameManager.detach_level_host(self)
 
 
 ## 清除旧布局，按同一随机种子生成房间物理占地和路线 UI。
 func start_level(new_level_number: int, seed: int) -> void:
     level_number = new_level_number
     random_seed = seed
-    # 只更新模板和主题资源，旧房间仍按原流程清理，敌人仍由首次进入时实例化。
-    if campaign != null:
-        var next_theme := campaign.get_theme(level_number)
-        if next_theme != null:
-            battlefield_theme = next_theme
+    # 主题由 GameManager 或独立测试场景指定；关卡编号只用于既有房间生成规则。
     _room_scene_variants.clear()
     boss_defeated = false
     _level_completed = false
@@ -64,15 +127,7 @@ func start_level(new_level_number: int, seed: int) -> void:
     visited_room_ids.clear()
     _door_data.clear()
     _door_transition_locked = false
-    if is_instance_valid(_boss_exit):
-        _boss_exit.queue_free()
-    # 只清理上次生成的房间，保留关卡场景中的玩家、HUD 和相机节点。
-    for room_value: Variant in _room_nodes.values():
-        var old_room := room_value as Node
-        if is_instance_valid(old_room):
-            old_room.queue_free()
-    _room_nodes.clear()
-    _world_room_origins.clear()
+    _clear_generated_level()
     level_map = FortressRoomGenerator.generate_level(level_number, random_seed)
     _calculate_world_room_origins()
     _build_room_door_data()
@@ -84,6 +139,25 @@ func start_level(new_level_number: int, seed: int) -> void:
     _move_player_to_room(current_room_id)
     _update_minimap()
     _emit_room_state(current_room_id)
+
+
+## 只清理上次生成的房间与临时战斗内容，保留关卡场景中的玩家、HUD 和相机节点。
+func _clear_generated_level() -> void:
+    if _room_visibility_tween != null and _room_visibility_tween.is_running():
+        _room_visibility_tween.kill()
+    if is_instance_valid(_boss_exit):
+        _boss_exit.queue_free()
+    _boss_exit = null
+    for room_value: Variant in _room_nodes.values():
+        var old_room := room_value as Node
+        if is_instance_valid(old_room):
+            old_room.queue_free()
+    _room_nodes.clear()
+    _world_room_origins.clear()
+    _registered_enemy_ids.clear()
+    for effect: Node in get_children():
+        if effect is ProjectileBullet or effect is ProjectileExplosion or effect is BurningEffect or effect is IncomingShell or effect is MortarStriker or effect is TacticalBombing or effect is DamagePop or effect is LootItem:
+            effect.queue_free()
 
 
 ## 根據相鄰矩形邊界，為每間房匯總各方向真實開啟的門槽。
@@ -278,17 +352,28 @@ func _create_boss_exit(room: FortressRoomTemplate, room_data: Dictionary) -> Are
     return exit_area
 
 
-## 仅在 Boss 已被击败且玩家实际触碰出口时进入下一关。
+## 仅在 Boss 已被击败且玩家实际触碰出口时请求全局推进，单关调试则显示本关完成。
 func _on_boss_exit_entered(body: Node2D) -> void:
-    var boss_room := _room_nodes.get(int(level_map.get("boss_room_id", -1))) as FortressRoomTemplate
-    if _level_completed or not boss_defeated or body != _player or boss_room == null or not boss_room.is_room_safe():
+    if _level_completed or body != _player or not is_current_level_cleared():
         return
-    _level_completed = true
     var completed_level := level_number
-    var next_level := mini(level_number + 1, 6)
-    sig_level_completed.emit(completed_level, next_level)
-    if level_number < 6:
-        start_level(next_level, random_seed + 1)
+    if managed_run:
+        if not GameManager.report_level_cleared(self, completed_level):
+            return
+        _level_completed = true
+        var next_level := GameManager.get_current_stage_number() if GameManager.run_state != RogueRunManager.RunState.COMPLETED else 0
+        sig_level_completed.emit(completed_level, next_level)
+    else:
+        _level_completed = true
+        sig_level_completed.emit(completed_level, 0)
+        if _hud != null:
+            _hud.show_run_victory(total_score, "本关完成")
+
+
+## 全局管理器复核安全出口条件，防止其他系统在未清场时绕过房间规则推进。
+func is_current_level_cleared() -> bool:
+    var boss_room := _room_nodes.get(int(level_map.get("boss_room_id", -1))) as FortressRoomTemplate
+    return boss_defeated and boss_room != null and boss_room.is_room_safe()
 
 
 ## 把玩家移至新关起点房中心，保持玩家节点由外部场景拥有。

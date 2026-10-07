@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Guerrilla Vanguard"
-run/main_scene="uid://b0jih5xsapfuv"
+run/main_scene="res://Scene/GameRun/GameRun.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -26,6 +26,7 @@ window/stretch/aspect="expand"
 
 PrefabManager="*uid://shaobo7fdqqv"
 Global="*uid://dy2hssl1cel62"
+GameManager="*res://Script/Global/game_manager.gd"
 
 [dotnet]
 

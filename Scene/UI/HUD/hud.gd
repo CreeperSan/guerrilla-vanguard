@@ -2,6 +2,9 @@
 class_name GameHUD
 extends CanvasLayer
 
+## 模式菜单只提交玩家选择，不在 HUD 内随机生成或推进路线。
+signal sig_run_mode_selected(mode: int)
+
 ## 当前操作设备；HUD 会按最后一次真实输入即时切换提示与屏幕控件。
 enum ControlMode { KEYBOARD_MOUSE, GAMEPAD, TOUCH }
 
@@ -81,6 +84,18 @@ const WEAPON_NAME_SHORTGUN := "霰弹枪 / SHOTGUN"
 @onready var _support_title: Label = $UIRoot/BattleSupportPanel/BattleSupportContents/BattleSupportTitle
 @onready var _skill_contents: BoxContainer = $UIRoot/SkillPanel/SkillContents
 @onready var _skill_title: Label = $UIRoot/SkillPanel/SkillContents/SkillTitle
+@onready var _run_progress_panel: PanelContainer = %RunProgressPanel
+@onready var _run_progress_label: Label = %RunProgressLabel
+@onready var _run_progress_bar: ProgressBar = %RunProgressBar
+@onready var _run_route: HBoxContainer = %RunRoute
+@onready var _run_mode_overlay: Control = %RunModeOverlay
+@onready var _run_mode_error: Label = %RunModeError
+@onready var _airborne_button: Button = %AirborneButton
+@onready var _assault_button: Button = %AssaultButton
+@onready var _victory_overlay: Control = %VictoryOverlay
+@onready var _victory_title: Label = %VictoryTitle
+@onready var _victory_score: Label = %VictoryScore
+@onready var _defeat_restart_button: Button = %DefeatRestartButton
 
 var _game_started: bool = false
 var _game_over: bool = false
@@ -93,6 +108,10 @@ var _primary_weapon: PlayerWeaponSlot
 var _secondary_weapon_slot: PlayerWeaponSlot
 var _control_mode_initialized: bool = false
 var _player: Player
+var _run_ui_enabled: bool = false
+var _waiting_run_selection: bool = false
+var _mode_choice_pending: bool = false
+var _start_sequence_id: int = 0
 
 
 ## 复制场景中的血条样式，避免运行时改色影响其他 HUD 实例。
@@ -103,6 +122,11 @@ func _ready() -> void:
     $UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents/ExitButton.pressed.connect(_exit_game)
     _volume_slider.value_changed.connect(_on_volume_changed)
     _menu_panel.gui_input.connect(_on_menu_panel_gui_input)
+    _airborne_button.pressed.connect(_choose_run_mode.bind(RogueRunManager.AttackMode.AIRBORNE))
+    _assault_button.pressed.connect(_choose_run_mode.bind(RogueRunManager.AttackMode.FULL_ASSAULT))
+    _defeat_restart_button.pressed.connect(GameManager.restart_run)
+    %VictoryRestartButton.pressed.connect(GameManager.restart_run)
+    %VictoryExitButton.pressed.connect(_exit_game)
     _configure_gamepad_bindings()
     _set_control_mode(_get_initial_control_mode())
     call_deferred("_cache_player")
@@ -437,15 +461,21 @@ func _clear_touch_input() -> void:
 
 ## 播放开场 3、2、1 倒计时；倒计时期间暂停游戏场景但保持 HUD 可交互。
 func _start_game_countdown() -> void:
-    if _game_over:
+    if _game_over or _waiting_run_selection:
         return
+    _start_sequence_id += 1
+    var sequence := _start_sequence_id
     get_tree().paused = true
     _start_overlay.visible = true
     for count: int in [3, 2, 1]:
         _countdown_label.text = str(count)
         await get_tree().create_timer(1.0, true).timeout
+        if _game_over or sequence != _start_sequence_id:
+            return
     _countdown_label.text = "开始"
     await get_tree().create_timer(0.65, true).timeout
+    if _game_over or sequence != _start_sequence_id:
+        return
     _start_overlay.visible = false
     _game_started = true
     get_tree().paused = false
@@ -475,12 +505,171 @@ func show_defeat(total_score: int) -> void:
     if _game_over:
         return
     _game_over = true
+    _start_sequence_id += 1
     _game_started = false
+    _clear_touch_input()
     _pause_overlay.visible = false
     _start_overlay.visible = false
     _defeat_score_label.text = "总积分  %s" % _format_score(total_score)
+    if _run_ui_enabled:
+        var snapshot := GameManager.get_run_snapshot()
+        _defeat_score_label.text += "\n%s · 已完成 %d / %d 关" % [snapshot["mode_name"], snapshot["completed"], snapshot["total"]]
     _defeat_overlay.visible = true
     get_tree().paused = true
+    if _run_ui_enabled:
+        _defeat_restart_button.grab_focus()
+
+
+## 正式对局由宿主启用流程界面；单关场景不显示全局路线和重新开始入口。
+func enable_run_ui() -> void:
+    _run_ui_enabled = true
+    _waiting_run_selection = true
+    _defeat_restart_button.visible = true
+    if not GameManager.sig_run_changed.is_connected(_on_run_changed):
+        GameManager.sig_run_changed.connect(_on_run_changed)
+    _on_run_changed(GameManager.get_run_snapshot())
+
+
+## 在开场倒计时前选择进攻模式；暂停场景但 HUD 始终可以接收键盘、手柄和触控。
+func show_run_mode_selection() -> void:
+    _waiting_run_selection = true
+    _mode_choice_pending = false
+    _run_mode_error.text = ""
+    _airborne_button.disabled = false
+    _assault_button.disabled = false
+    _run_mode_overlay.visible = true
+    get_tree().paused = true
+    _airborne_button.grab_focus()
+
+
+## 防止连按按钮重复创建路线；配置失败时由 show_run_start_error 恢复菜单。
+func _choose_run_mode(mode: int) -> void:
+    if _mode_choice_pending:
+        return
+    _mode_choice_pending = true
+    _airborne_button.disabled = true
+    _assault_button.disabled = true
+    sig_run_mode_selected.emit(mode)
+
+
+## 抽取配置不完整时留在模式菜单，玩家可以查看错误而不是进入空关卡。
+func show_run_start_error(message: String) -> void:
+    show_run_mode_selection()
+    _run_mode_error.text = message
+
+
+## 开始生成下一关前冻结战斗并清理虚拟按键，避免切关期间继续发射或使用道具。
+func prepare_run_stage(stage_number: int, theme_name: String) -> void:
+    _start_sequence_id += 1
+    _game_started = false
+    _clear_touch_input()
+    _run_mode_overlay.visible = false
+    _pause_overlay.visible = false
+    _start_overlay.visible = true
+    _countdown_label.text = "第 %d 关\n%s" % [stage_number, theme_name]
+    get_tree().paused = true
+
+
+## 首关播放既有 3、2、1 倒计时，其余关卡短暂显示主题后恢复同一个玩家和 HUD。
+func start_run_stage(stage_number: int, theme_name: String) -> void:
+    _waiting_run_selection = false
+    if stage_number == 1:
+        _start_game_countdown.call_deferred()
+        return
+    _start_sequence_id += 1
+    var sequence := _start_sequence_id
+    _countdown_label.text = "第 %d 关\n%s" % [stage_number, theme_name]
+    await get_tree().create_timer(0.65, true).timeout
+    if _game_over or sequence != _start_sequence_id:
+        return
+    _start_overlay.visible = false
+    _game_started = true
+    get_tree().paused = false
+
+
+## 最后一个 Level 的安全出口完成后显示胜利；单关测试也可以使用同一结果页。
+func show_run_victory(total_score: int, title: String = "任务完成") -> void:
+    _game_over = true
+    _game_started = false
+    _start_sequence_id += 1
+    _clear_touch_input()
+    _start_overlay.visible = false
+    _pause_overlay.visible = false
+    _run_mode_overlay.visible = false
+    _victory_title.text = title
+    _victory_score.text = "总积分  %s" % _format_score(total_score)
+    if _run_ui_enabled:
+        var snapshot := GameManager.get_run_snapshot()
+        _victory_score.text += "\n%s · 完成 %d / %d 关" % [snapshot["mode_name"], snapshot["completed"], snapshot["total"]]
+    %VictoryRestartButton.visible = _run_ui_enabled
+    _victory_overlay.visible = true
+    get_tree().paused = true
+    if _run_ui_enabled:
+        %VictoryRestartButton.grab_focus()
+    else:
+        %VictoryExitButton.grab_focus()
+
+
+## 从全局快照更新整局直线路线，完成节点绿色、当前黄色、失败红色，固定终点额外标记。
+func _on_run_changed(snapshot: Dictionary) -> void:
+    if not _run_ui_enabled:
+        return
+    var total := int(snapshot.get("total", 0))
+    _run_progress_panel.visible = total > 0
+    _run_progress_bar.max_value = maxi(total, 1)
+    _run_progress_bar.value = int(snapshot.get("completed", 0))
+    for child: Node in _run_route.get_children():
+        _run_route.remove_child(child)
+        child.queue_free()
+    if total == 0:
+        return
+    var levels: Array = snapshot.get("levels", [])
+    var current := int(snapshot["current"])
+    var current_name := str(levels[clampi(current - 1, 0, levels.size() - 1)]["name"])
+    _run_progress_label.text = "%s · 第 %d / %d 关 · %s · 已完成 %d" % [snapshot["mode_name"], current, total, current_name, snapshot["completed"]]
+    for index: int in range(levels.size()):
+        var level: Dictionary = levels[index]
+        if index > 0:
+            var arrow := Label.new()
+            arrow.text = "→"
+            arrow.add_theme_font_size_override("font_size", 10)
+            arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+            _run_route.add_child(arrow)
+        var panel := PanelContainer.new()
+        panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        var color := Color(0.6, 0.66, 0.61)
+        var marker := "○"
+        match str(level["status"]):
+            "completed":
+                color = Color(0.64, 0.78, 0.47)
+                marker = "✓"
+            "current":
+                color = Color(0.96, 0.79, 0.35)
+                marker = "▶"
+            "failed":
+                color = Color(0.86, 0.4, 0.35)
+                marker = "×"
+        var style := StyleBoxFlat.new()
+        style.bg_color = Color(color.r, color.g, color.b, 0.14)
+        style.border_color = color
+        style.set_border_width_all(1)
+        style.set_corner_radius_all(4)
+        style.content_margin_left = 4.0
+        style.content_margin_right = 4.0
+        style.content_margin_top = 3.0
+        style.content_margin_bottom = 3.0
+        panel.add_theme_stylebox_override("panel", style)
+        var label := Label.new()
+        label.text = "%s %s" % [marker, level["name"]]
+        if bool(level.get("fixed", false)):
+            label.text += "\n固定终点"
+        label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        label.add_theme_color_override("font_color", color)
+        label.add_theme_font_size_override("font_size", 10)
+        label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        panel.add_child(label)
+        _run_route.add_child(panel)
 
 
 ## 同步关卡总积分到 HUD 顶部得分栏。

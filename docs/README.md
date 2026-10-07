@@ -11,6 +11,7 @@
 3. [关卡与扩展约定](LEVEL_AND_SYSTEMS.md)：随机地图的低风险做法、房间清单、系统边界、存档。
    - 该文档的第 6 节记录了六关 Boss 路线、500 单位矩形房间、每种尺寸至少两种样式的目录规则与门位规则；生成器、`FortressLevel.tscn` 运行控制器和模板位于 `Scene/LevelFortress/`。
    - [多主题关卡与键盘操作](LEVEL_THEMES.md)：六个主题关卡入口、主题配置、素材目录，以及 WASD 移动与方向键射击的操作表。
+   - [Roguelike 对局流程](RUN_FLOW.md)：当前已接入的随机直线 Level 路线、空降 5 关、总攻 6 关加固定地下要塞、GameManager 接口、进度 HUD 和测试方法；关卡递进以此处的最新规则为准。
 4. [开发与验收](DEVELOPMENT_PLAN.md)：从当前原型出发的任务顺序、完成标准与检查清单。
 5. [旧稿复核](DESIGN_REVIEW.md)：哪些原型可复用、旧稿有哪些问题。
 

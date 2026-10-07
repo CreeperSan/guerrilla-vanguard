@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://Scene/LevelFortress/FortressLevel.tscn" id="1_host"]
+
+[node name="GameRun" instance=ExtResource("1_host")]
+managed_run = true
+show_run_mode_selection = true
