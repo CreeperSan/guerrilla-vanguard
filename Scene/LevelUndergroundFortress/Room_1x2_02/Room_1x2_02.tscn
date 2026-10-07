@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scene/LevelFortress/room_template.gd" id="1_room"]
+[ext_resource type="Resource" path="res://Scene/LevelUndergroundFortress/theme.tres" id="2_theme"]
+
+[node name="Room_1x2_02" type="Node2D"]
+script = ExtResource("1_room")
+room_size_units = Vector2i(1, 2)
+room_style_index = 2
+populate_on_first_entry = true
+battlefield_theme = ExtResource("2_theme")

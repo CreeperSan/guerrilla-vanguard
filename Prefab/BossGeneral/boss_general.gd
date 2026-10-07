@@ -63,6 +63,7 @@ var _is_defeated: bool = false
 ## 初始化第一阶段生命与弹药，并在 Boss 最终死亡时回收场景实例。
 func _ready() -> void:
 	add_to_group("enemies")
+	collision_mask |= Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
 	health_component.sig_die.connect(_on_phase_depleted)
 	_apply_phase_settings(true)
 	_emit_phase_changed()

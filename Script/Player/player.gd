@@ -9,6 +9,9 @@ enum EquipmentType {
     SHIELD,
 }
 
+## 记录最后使用的瞄准设备，避免移动方向覆盖方向键、手柄右摇杆或触控瞄准。
+enum AimDevice { KEYBOARD, GAMEPAD, TOUCH }
+
 ## 对外转发生命值变化，关卡控制器可以连接 HUD，而不依赖 Health 子节点路径。
 signal sig_health_updated(current_health: int, max_health: int)
 ## 装备槽变化：装备类型、数量/护盾生命、护盾是否处于启用状态。
@@ -50,6 +53,12 @@ const SFX_BATTLE_SUPPORT: AudioStream = preload("res://Assets/Audio/SFX/battle_s
 
 
 var facing_direction : Vector2
+var _aim_device: AimDevice = AimDevice.KEYBOARD
+var _gamepad_aim_valid: bool = false
+var _touch_aim_valid: bool = false
+var _gamepad_device_id: int = -1
+var _last_move_direction: Vector2 = Vector2.DOWN
+const AIM_STICK_DEADZONE: float = 0.2
 
 ## 玩家唯一装备槽内容；手雷和燃烧瓶按数量消耗，护盾记录当前护盾生命。
 var equipment_type: EquipmentType = EquipmentType.NONE
@@ -89,6 +98,8 @@ var health_max: int:
 func _ready() -> void:
     # 加入统一玩家分组，供敌人 AI 在关卡中查找追击目标。
     add_to_group("player")
+    # 玩家只与地形和水发生实体碰撞；敌我角色的命中继续由子弹和 HurtBox 单独处理。
+    collision_mask = Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
     facing_direction = Vector2.DOWN
     # 拾取区域事件检测
     node_collect_box.area_entered.connect(on_collect_item)
@@ -258,10 +269,8 @@ func _play_equipment_audio(stream: AudioStream) -> void:
     node_equipment_audio.play()
 
 
-## 战场支援槽不可叠加；拾取新支援只在槽位为空时成功。
+## 战场支援槽不可叠加；已有支援时拾取新类型会替换槽位内容。
 func obtain_battle_support_from_loot(loot_type: LootItem.Type) -> bool:
-    if battle_support_type != LootItem.Type.Empty:
-        return false
     if loot_type not in [LootItem.Type.SupportMortarStriker, LootItem.Type.SupportTacticalBombing]:
         return false
     battle_support_type = loot_type
@@ -323,11 +332,81 @@ func _on_reload_started(_weapon: PlayerWeaponSlot) -> void:
     node_reload_audio.play()
 
 
+## 按当前操作设备更新瞄准；键盘使用方向键，手柄使用右摇杆，触控由 HUD 虚拟摇杆提供。
+func _input(event: InputEvent) -> void:
+    if event is InputEventKey and (event as InputEventKey).pressed:
+        _set_aim_device(AimDevice.KEYBOARD)
+    elif event is InputEventJoypadButton and (event as InputEventJoypadButton).pressed:
+        _set_aim_device(AimDevice.GAMEPAD)
+        _gamepad_device_id = (event as InputEventJoypadButton).device
+    elif event is InputEventJoypadMotion:
+        var stick_event := event as InputEventJoypadMotion
+        if absf(stick_event.axis_value) >= AIM_STICK_DEADZONE:
+            _set_aim_device(AimDevice.GAMEPAD)
+            _gamepad_device_id = stick_event.device
+            if stick_event.axis == JOY_AXIS_RIGHT_X or stick_event.axis == JOY_AXIS_RIGHT_Y:
+                _update_gamepad_aim()
+    elif event is InputEventScreenTouch or event is InputEventScreenDrag:
+        _set_aim_device(AimDevice.TOUCH)
+
+
+## 切换瞄准设备时清除旧设备的有效状态，并以最近移动方向作为新设备的初始朝向。
+func _set_aim_device(device: AimDevice) -> void:
+    if _aim_device == device:
+        return
+    _aim_device = device
+    facing_direction = _last_move_direction
+    if device == AimDevice.GAMEPAD:
+        _gamepad_aim_valid = false
+    elif device == AimDevice.TOUCH:
+        _touch_aim_valid = false
+
+
+## 触控开火区拖动时由 HUD 提交方向，保留最近方向供点按开火时沿用。
+func set_touch_aim_direction(direction: Vector2) -> void:
+    if direction.length_squared() <= AIM_STICK_DEADZONE * AIM_STICK_DEADZONE:
+        return
+    _set_aim_device(AimDevice.TOUCH)
+    _touch_aim_valid = true
+    facing_direction = direction.normalized()
+
+
+## 使用当前手柄的右摇杆方向瞄准；摇杆回中后保留最近方向，便于持续开火。
+func _update_gamepad_aim() -> void:
+    if _gamepad_device_id < 0:
+        return
+    var aim_vector := Vector2(
+        Input.get_joy_axis(_gamepad_device_id, JOY_AXIS_RIGHT_X),
+        Input.get_joy_axis(_gamepad_device_id, JOY_AXIS_RIGHT_Y)
+    )
+    if aim_vector.length() > AIM_STICK_DEADZONE:
+        _gamepad_aim_valid = true
+        facing_direction = aim_vector.normalized()
+
+
+## 方向键同时决定瞄准与连续开火；组合方向归一化后支持八向射击。
+func _update_keyboard_aim() -> bool:
+    var shoot_direction := Input.get_vector("shoot_left", "shoot_right", "shoot_up", "shoot_down")
+    if shoot_direction == Vector2.ZERO:
+        return false
+    facing_direction = shoot_direction
+    return true
+
+
 func _physics_process(delta: float) -> void:
     var move_input: Vector2 = Input.get_vector('move_left', 'move_right', 'move_up', 'move_down')
+    if move_input:
+        _last_move_direction = move_input
 
-    # 玩家朝向仍跟随移动输入更新；闪避方向在启动时锁定，不受后续输入影响。
-    if move_input and not dodge_active:
+    # 方向键优先决定射击朝向；没有方向键输入时，键盘模式继续沿用移动朝向。
+    if _aim_device == AimDevice.KEYBOARD:
+        if not _update_keyboard_aim() and move_input:
+            facing_direction = move_input
+    elif _aim_device == AimDevice.GAMEPAD:
+        _update_gamepad_aim()
+        if not _gamepad_aim_valid and move_input:
+            facing_direction = move_input
+    elif not _touch_aim_valid and move_input:
         facing_direction = move_input
 
     if dodge_active:
@@ -372,7 +451,9 @@ func _process(delta: float) -> void:
     _update_skill_input(delta)
 
     # 奔跑期间禁止开火、使用装备和呼叫战场支援。
-    if not sprint_active and Input.is_action_pressed("fire"):
+    # 发射前再次读取方向键，避免渲染帧先于物理帧时首发仍使用上一帧方向。
+    var fire_requested := _update_keyboard_aim() if _aim_device == AimDevice.KEYBOARD else Input.is_action_pressed("fire")
+    if not sprint_active and fire_requested:
         node_weapon_manager.action_fire(self)
 
     # 数字键选择两个正式武器槽，R 键对当前武器手动换弹。

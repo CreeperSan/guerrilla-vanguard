@@ -1,0 +1,25 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://Scene/LevelFortress/fortress_level_controller.gd" id="1_controller"]
+[ext_resource type="PackedScene" path="res://Prefab/Player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://Prefab/Camera/follow_camera.tscn" id="3_camera"]
+[ext_resource type="PackedScene" path="res://Scene/UI/HUD/HUD.tscn" id="4_hud"]
+[ext_resource type="Resource" path="res://Scene/LevelValley/theme.tres" id="5_theme"]
+[ext_resource type="Resource" path="res://Script/Level/themed_campaign.tres" id="6_campaign"]
+
+[node name="ValleyLevel" type="Node2D"]
+script = ExtResource("1_controller")
+player_path = NodePath("Player")
+hud_path = NodePath("HUD")
+camera_path = NodePath("FollowCamera")
+level_number = 3
+battlefield_theme = ExtResource("5_theme")
+campaign = ExtResource("6_campaign")
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+
+[node name="FollowCamera" parent="." instance=ExtResource("3_camera")]
+zoom = Vector2(2, 2)
+target_path = NodePath("../Player")
+
+[node name="HUD" parent="." instance=ExtResource("4_hud")]

@@ -12,7 +12,8 @@
 [ext_resource type="Script" uid="uid://rmpokh5qpiuj" path="res://Prefab/burning/burning.gd" id="13_urxmj"]
 [ext_resource type="PackedScene" path="res://Prefab/EnemySoilder/enemy_soilder.tscn" id="14_enemy"]
 [ext_resource type="PackedScene" path="res://Prefab/Camera/follow_camera.tscn" id="15_camera"]
-[ext_resource type="PackedScene" path="res://Prefab/BossGeneral/boss_general.tscn" id="16_general"]
+[ext_resource type="PackedScene" uid="uid://dg5es33hm0syl" path="res://Prefab/BossGeneral/boss_general.tscn" id="16_general"]
+[ext_resource type="PackedScene" path="res://Prefab/Terrain/terrain_room.tscn" id="17_terrain"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ne4hw"]
 radius = 5.0
@@ -316,6 +317,11 @@ radius = 27.0
 
 [node name="TestLevel" type="Node2D" unique_id=1099688576]
 script = ExtResource("9_controller")
+player_path = NodePath("Player")
+hud_path = NodePath("HUD")
+camera_path = NodePath("FollowCamera")
+
+[node name="TerrainRoom" parent="." unique_id=584912968 instance=ExtResource("17_terrain")]
 
 [node name="FollowCamera" parent="." unique_id=484385439 instance=ExtResource("15_camera")]
 zoom = Vector2(2, 2)

@@ -24,6 +24,8 @@ const SFX_MOLOTOV_EXPLOSION: AudioStream = preload("res://Assets/Audio/SFX/molot
 
 ## 启动持续伤害循环；循环中会重新查询重叠对象以同步进入和离开的目标。
 func _ready() -> void:
+    # 燃烧范围也检测可破坏地形层，让箱子能受到持续伤害。
+    collision_mask |= Definition.PHYSICS_LAYER_TERRAIN
     if node_ignition_audio != null:
         node_ignition_audio.stream = SFX_MOLOTOV_EXPLOSION
         node_ignition_audio.play()

@@ -50,6 +50,8 @@ var _is_burst_active: bool = false
 
 ## 初始化血量、感知显示范围和巡逻位置，并连接死亡回收。
 func _ready() -> void:
+    # 敌人只与地形和水发生实体碰撞；玩家伤害由子弹命中 HurtBox 判定，避免角色互相卡住。
+    collision_mask = Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
     _spawn_position = global_position
     _wander_target = _spawn_position
     _ammo_in_magazine = maxi(magazine_size, 1)

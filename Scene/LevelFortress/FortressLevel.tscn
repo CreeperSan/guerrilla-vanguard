@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://bn2vn06uddyos"]
+
+[ext_resource type="Script" uid="uid://qtmredahxj7p" path="res://Scene/LevelFortress/fortress_level_controller.gd" id="1_controller"]
+[ext_resource type="PackedScene" path="res://Prefab/Player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://Prefab/Camera/follow_camera.tscn" id="3_camera"]
+[ext_resource type="PackedScene" path="res://Scene/UI/HUD/HUD.tscn" id="4_hud"]
+
+[node name="FortressLevel" type="Node2D" unique_id=1287687271]
+script = ExtResource("1_controller")
+player_path = NodePath("Player")
+hud_path = NodePath("HUD")
+camera_path = NodePath("FollowCamera")
+
+[node name="Player" parent="." unique_id=40977073 instance=ExtResource("2_player")]
+
+[node name="FollowCamera" parent="." unique_id=341711407 instance=ExtResource("3_camera")]
+zoom = Vector2(2, 2)
+target_path = NodePath("../Player")
+
+[node name="HUD" parent="." unique_id=2102949062 instance=ExtResource("4_hud")]

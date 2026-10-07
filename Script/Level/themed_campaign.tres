@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="BattlefieldCampaign" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://Script/Level/battlefield_campaign.gd" id="1_campaign"]
+[ext_resource type="Script" path="res://Script/Level/battlefield_theme.gd" id="2_theme_type"]
+[ext_resource type="Resource" path="res://Scene/LevelJungle/theme.tres" id="3_theme"]
+[ext_resource type="Resource" path="res://Scene/LevelVillage/theme.tres" id="4_theme"]
+[ext_resource type="Resource" path="res://Scene/LevelValley/theme.tres" id="5_theme"]
+[ext_resource type="Resource" path="res://Scene/LevelMetropolis/theme.tres" id="6_theme"]
+[ext_resource type="Resource" path="res://Scene/LevelUndergroundFortress/theme.tres" id="7_theme"]
+[ext_resource type="Resource" path="res://Scene/LevelMineShaft/theme.tres" id="8_theme"]
+
+[resource]
+script = ExtResource("1_campaign")
+themes = Array[ExtResource("2_theme_type")]([ExtResource("3_theme"), ExtResource("4_theme"), ExtResource("5_theme"), ExtResource("6_theme"), ExtResource("7_theme"), ExtResource("8_theme")])

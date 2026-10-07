@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Prefab/Terrain/room_entrance.gd" id="1_entrance"]
+[ext_resource type="Texture2D" path="res://Scene/LevelFortress/Terrain/entrance.png" id="2_entrance_texture"]
+
+[sub_resource type="RectangleShape2D" id="DoorShape"]
+size = Vector2(20, 48)
+
+[sub_resource type="CircleShape2D" id="AreaShape"]
+radius = 22.0
+
+[node name="RoomEntrance" type="Node2D"]
+script = ExtResource("1_entrance")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_entrance_texture")
+
+[node name="DoorBody" type="StaticBody2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DoorBody"]
+shape = SubResource("DoorShape")
+
+[node name="EntranceArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EntranceArea"]
+shape = SubResource("AreaShape")

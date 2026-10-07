@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Prefab/Terrain/box_crate.gd" id="1_box"]
+[ext_resource type="Texture2D" path="res://Scene/LevelFortress/Terrain/box.png" id="2_box_texture"]
+[ext_resource type="Script" path="res://Script/Component/health_component.gd" id="3_health"]
+
+[sub_resource type="RectangleShape2D" id="BoxShape"]
+size = Vector2(16, 16)
+
+[node name="BoxCrate" type="StaticBody2D"]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("1_box")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_box_texture")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("BoxShape")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("3_health")

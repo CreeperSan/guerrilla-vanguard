@@ -20,6 +20,8 @@ var damaged_targets: Dictionary[int, bool] = {}
 
 ## 初始化一次性动画、范围检测和生命周期信号。
 func _ready() -> void:
+    # 爆炸范围也检测可破坏地形层，让箱子能受到范围伤害。
+    collision_mask |= Definition.PHYSICS_LAYER_TERRAIN
     area_entered.connect(_on_area_entered)
     body_entered.connect(_on_body_entered)
     node_animation.animation_finished.connect(_on_animation_finished)

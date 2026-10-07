@@ -1,5 +1,9 @@
 class_name Definition
 
+## 物理层位掩码；水层单独分离，供角色碰撞但不加入子弹检测掩码。
+const PHYSICS_LAYER_TERRAIN: int = 1 << 3
+const PHYSICS_LAYER_WATER: int = 1 << 5
+
 # 阵营
 enum Faction {
     Player, # 玩家阵营

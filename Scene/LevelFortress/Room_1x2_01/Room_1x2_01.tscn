@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Scene/LevelFortress/room_template.gd" id="1_room"]
+
+[node name="Room_1x2_01" type="Node2D"]
+script = ExtResource("1_room")
+room_size_units = Vector2i(1, 2)
+room_style_index = 1
+populate_on_first_entry = true

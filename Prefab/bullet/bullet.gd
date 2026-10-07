@@ -43,6 +43,8 @@ var _is_finished: bool = false
 func _ready() -> void:
     area_entered.connect(_on_area_entered)
     body_entered.connect(_on_body_entered)
+    # 玩家和敌方子弹都能命中墙；水层不加入掩码，因此子弹可以穿过水面。
+    collision_mask = (2 if bullet_from == Definition.Faction.Player else 3) | Definition.PHYSICS_LAYER_TERRAIN
     _remaining_penetration = maxi(bullet_penetration, 0)
     bullet_direction = bullet_direction.normalized()
     if bullet_direction == Vector2.ZERO:
@@ -89,6 +91,9 @@ func _on_area_entered(area: Area2D) -> void:
 func _on_body_entered(body: Node2D) -> void:
     if body.get_node_or_null("Health") is HealthComponent:
         _handle_hit(body)
+    elif (body.collision_layer & Definition.PHYSICS_LAYER_TERRAIN) != 0:
+        # 墙体会截停普通弹丸；爆炸类弹丸则在接触墙面的位置触发范围效果。
+        _finish_at(global_position)
 
 
 ## 依据子弹类型直接伤害或生成效果，并应用穿透次数。
@@ -97,7 +102,8 @@ func _handle_hit(target: Node) -> void:
         return
 
     var target_root: Node = target.get_parent() if target is HurtBox else target
-    if target_root == null or _is_same_side(target_root):
+    var is_damageable_terrain: bool = target_root != null and target_root.is_in_group("damageable_terrain")
+    if target_root == null or (_is_same_side(target_root) and not is_damageable_terrain):
         return
     # 闪避期间不结算命中，也不消耗子弹，让炮弹继续通过玩家位置。
     var player_target: Player = target_root as Player

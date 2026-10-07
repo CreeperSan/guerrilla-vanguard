@@ -105,6 +105,20 @@ func create_damage_pop(
     return damage_pop
 
 
+## 创建并配置统一拾取物；调用方负责设置位置并将节点加入场景树。
+func create_loot_item(loot_type: LootItem.Type, amount: int = 1) -> LootItem:
+    var packed_scene: PackedScene = _get_or_create_as("res://Prefab/Item/loot_item.tscn")
+    if packed_scene == null:
+        return null
+    var loot_item: LootItem = packed_scene.instantiate() as LootItem
+    if loot_item == null:
+        push_error("拾取物预制体实例不是 LootItem 类型，请检查场景根节点脚本。")
+        return null
+    loot_item.type = loot_type
+    loot_item.num = maxi(amount, 1)
+    return loot_item
+
+
 ## 创建迫击炮持续打击预制体；调用方负责指定固定打击中心并加入场景树。
 func create_mortar_striker() -> Node2D:
     return _create_support("res://Prefab/MortarStriker/mortar_striker.tscn", "MortarStriker")
