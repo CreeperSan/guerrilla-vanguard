@@ -6,6 +6,9 @@ extends Node2D
 @onready var node_explosion: Area2D = $Explosion
 @onready var node_weapon_manager: PlayerWeaponManager = $Player/WeaponManager
 @onready var node_player_health: HealthComponent = $Player/Health
+@onready var node_boss: BossGeneral = $General
+
+var total_score: int = 0
 
 
 ## 连接生命值信号，并在连接时主动同步一次初始状态。
@@ -44,12 +47,26 @@ func _ready() -> void:
     node_player_health.sig_health_change.connect(
         _on_target_health_change.bind(node_player, Definition.Faction.Player)
     )
+    node_player_health.sig_die.connect(_on_player_died)
     for enemy: Node2D in get_tree().get_nodes_in_group("enemies"):
         var enemy_health: HealthComponent = enemy.get_node_or_null("Health") as HealthComponent
         if enemy_health != null:
             enemy_health.sig_health_change.connect(
                 _on_target_health_change.bind(enemy, Definition.Faction.Enemy)
             )
+            var boss_enemy: BossGeneral = enemy as BossGeneral
+            if boss_enemy != null:
+                boss_enemy.sig_defeated.connect(_on_boss_defeated)
+            else:
+                enemy_health.sig_die.connect(_on_enemy_died)
+    node_boss.health_component.sig_health_updated.connect(node_hud.set_boss_health)
+    node_boss.sig_phase_changed.connect(node_hud.set_boss_phase)
+    node_hud.show_boss_health(
+        "GENERAL",
+        node_boss.health_component.health,
+        node_boss.health_component.health_max,
+        node_boss.current_phase
+    )
 
 
 ## 为受伤目标创建伤害飘字，并放置在目标当前位置。
@@ -62,3 +79,21 @@ func _on_target_health_change(health_change: int, target: Node2D, faction: Defin
         return
     add_child(damage_pop)
     damage_pop.global_position = target.global_position
+
+
+## 敌人被击败时累计积分并同步 HUD；每名敌人奖励 100 分。
+func _on_enemy_died() -> void:
+    total_score += 100
+    node_hud.set_score(total_score)
+
+
+## 玩家生命值耗尽时显示战败菜单和本局累计积分。
+func _on_player_died() -> void:
+    node_hud.show_defeat(total_score)
+
+
+## 最终击败 General 时奖励 500 分，并隐藏 Boss 血条。
+func _on_boss_defeated() -> void:
+    total_score += 500
+    node_hud.set_score(total_score)
+    node_hud.hide_boss_health()

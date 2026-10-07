@@ -37,11 +37,175 @@ const WEAPON_NAME_SHORTGUN := "霰弹枪 / SHOTGUN"
 @onready var _skill_hint: Label = %SkillHint
 @onready var _equipment_icon: TextureRect = %EquipmentIcon
 @onready var _equipment_value: Label = %EquipmentValueLabel
+@onready var _score_value: Label = $UIRoot/ScorePanel/ScoreContents/ScoreValue
+@onready var _pause_overlay: Control = $UIRoot/PauseOverlay
+@onready var _defeat_overlay: Control = $UIRoot/DefeatOverlay
+@onready var _start_overlay: Control = $UIRoot/StartOverlay
+@onready var _countdown_label: Label = %CountdownLabel
+@onready var _volume_slider: HSlider = %VolumeSlider
+@onready var _volume_label: Label = %VolumeLabel
+@onready var _defeat_score_label: Label = %ScoreLabel
+@onready var _menu_panel: PanelContainer = $UIRoot/MenuPanel
+@onready var _boss_health_panel: PanelContainer = %BossHealthPanel
+@onready var _boss_name_label: Label = %BossNameLabel
+@onready var _boss_health_bar: ProgressBar = %BossHealthBar
+
+var _game_started: bool = false
+var _game_over: bool = false
 
 
 ## 复制场景中的血条样式，避免运行时改色影响其他 HUD 实例。
 func _ready() -> void:
     _health_bar.add_theme_stylebox_override("fill", _health_fill_style)
+    $UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents/ContinueButton.pressed.connect(resume_game)
+    $UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents/ExitButton.pressed.connect(_exit_game)
+    $UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents/ExitButton.pressed.connect(_exit_game)
+    _volume_slider.value_changed.connect(_on_volume_changed)
+    _menu_panel.gui_input.connect(_on_menu_panel_gui_input)
+    set_score(0)
+    _sync_volume_slider()
+    call_deferred("_start_game_countdown")
+
+
+## 按 Escape 或点击右上角菜单按钮时切换暂停状态。
+func _input(event: InputEvent) -> void:
+    var is_key_echo: bool = event is InputEventKey and (event as InputEventKey).echo
+    if event.is_action_pressed("ui_cancel") and not is_key_echo:
+        toggle_pause()
+        get_viewport().set_input_as_handled()
+
+
+## 播放开场 3、2、1 倒计时；倒计时期间暂停游戏场景但保持 HUD 可交互。
+func _start_game_countdown() -> void:
+    if _game_over:
+        return
+    get_tree().paused = true
+    _start_overlay.visible = true
+    for count: int in [3, 2, 1]:
+        _countdown_label.text = str(count)
+        await get_tree().create_timer(1.0, true).timeout
+    _countdown_label.text = "开始"
+    await get_tree().create_timer(0.65, true).timeout
+    _start_overlay.visible = false
+    _game_started = true
+    get_tree().paused = false
+
+
+## 在游戏运行和暂停菜单之间切换；战败或开场倒计时期间不允许暂停。
+func toggle_pause() -> void:
+    if _game_over or not _game_started:
+        return
+    if get_tree().paused:
+        resume_game()
+    else:
+        _pause_overlay.visible = true
+        get_tree().paused = true
+
+
+## 关闭暂停菜单并恢复游戏运行。
+func resume_game() -> void:
+    if _game_over:
+        return
+    _pause_overlay.visible = false
+    get_tree().paused = false
+
+
+## 显示战败结果并冻结关卡，避免角色死亡后继续操作。
+func show_defeat(total_score: int) -> void:
+    if _game_over:
+        return
+    _game_over = true
+    _game_started = false
+    _pause_overlay.visible = false
+    _start_overlay.visible = false
+    _defeat_score_label.text = "总积分  %s" % _format_score(total_score)
+    _defeat_overlay.visible = true
+    get_tree().paused = true
+
+
+## 同步关卡总积分到 HUD 顶部得分栏。
+func set_score(total_score: int) -> void:
+    _score_value.text = _format_score(total_score)
+
+
+## 首次显示 Boss 血条，并设置 Boss 名称、阶段和当前生命值。
+func show_boss_health(boss_name: String, current_health: int, max_health: int, phase: int) -> void:
+    _boss_name_label.text = "%s  /  PHASE %02d" % [boss_name, phase]
+    set_boss_health(current_health, max_health)
+    _boss_health_panel.visible = true
+
+
+## 更新 Boss 血条；阶段切换时最大值和当前值会一起重置。
+func set_boss_health(current_health: int, max_health: int) -> void:
+    var safe_max_health := maxi(max_health, 1)
+    _boss_health_bar.max_value = safe_max_health
+    _boss_health_bar.value = clampi(current_health, 0, safe_max_health)
+
+
+## 阶段切换时同步血条标题和生命值。
+func set_boss_phase(phase: int, current_health: int, max_health: int) -> void:
+    _boss_name_label.text = "GENERAL  /  PHASE %02d" % phase
+    set_boss_health(current_health, max_health)
+    _boss_health_panel.visible = true
+
+
+## Boss 最终被击败时隐藏魂类风格血条。
+func hide_boss_health() -> void:
+    _boss_health_panel.visible = false
+
+
+## 将积分转换为带千位分隔符的展示文本。
+func _format_score(value: int) -> String:
+    var digits := str(maxi(value, 0))
+    var formatted := ""
+    for index: int in range(digits.length()):
+        if index > 0 and (digits.length() - index) % 3 == 0:
+            formatted += ","
+        formatted += digits[index]
+    return formatted
+
+
+## 从 Master 音频总线读取音量并同步菜单滑块。
+func _sync_volume_slider() -> void:
+    var master_bus := AudioServer.get_bus_index("Master")
+    if master_bus < 0:
+        push_warning("找不到 Master 音频总线，音量滑块无法同步。")
+        return
+    var volume_db := AudioServer.get_bus_volume_db(master_bus)
+    var volume_linear := db_to_linear(volume_db)
+    _volume_slider.value = clampf(volume_linear * 100.0, 0.0, 100.0)
+    _update_volume_label(_volume_slider.value)
+
+
+## 将滑块百分比应用到 Master 总线，并更新可读音量数值。
+func _on_volume_changed(value: float) -> void:
+    var master_bus := AudioServer.get_bus_index("Master")
+    if master_bus < 0:
+        return
+    AudioServer.set_bus_volume_db(master_bus, linear_to_db(maxf(value / 100.0, 0.0001)))
+    if value <= 0.0:
+        AudioServer.set_bus_mute(master_bus, true)
+    else:
+        AudioServer.set_bus_mute(master_bus, false)
+    _update_volume_label(value)
+
+
+## 显示音量百分比。
+func _update_volume_label(value: float) -> void:
+    _volume_label.text = "音效音量  %d%%" % roundi(value)
+
+
+## 点击 HUD 右上角圆形菜单时打开暂停菜单。
+func _on_menu_panel_gui_input(event: InputEvent) -> void:
+    if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+        toggle_pause()
+        _menu_panel.accept_event()
+
+
+## 退出当前游戏进程，并先解除暂停状态。
+func _exit_game() -> void:
+    get_tree().paused = false
+    get_tree().quit()
 
 
 ## 根据玩家当前生命值和上限更新血条与数值。

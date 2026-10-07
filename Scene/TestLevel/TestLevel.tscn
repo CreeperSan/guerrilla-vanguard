@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://rmpokh5qpiuj" path="res://Prefab/burning/burning.gd" id="13_urxmj"]
 [ext_resource type="PackedScene" path="res://Prefab/EnemySoilder/enemy_soilder.tscn" id="14_enemy"]
 [ext_resource type="PackedScene" path="res://Prefab/Camera/follow_camera.tscn" id="15_camera"]
+[ext_resource type="PackedScene" path="res://Prefab/BossGeneral/boss_general.tscn" id="16_general"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ne4hw"]
 radius = 5.0
@@ -393,6 +394,9 @@ uniform_color = Color(1, 0.9, 0.25, 1)
 weapon_damage = 2
 fire_interval = 0.25
 magazine_size = 18
+
+[node name="General" parent="." unique_id=1196830116 instance=ExtResource("16_general")]
+position = Vector2(-220, 0)
 
 [node name="LootItem" type="Area2D" parent="." unique_id=2128499296]
 position = Vector2(100, 100)
