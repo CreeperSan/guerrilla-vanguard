@@ -15,9 +15,13 @@ const WATER_TEXTURE: Texture2D = preload("res://Assets/Art/MilitaryArcade/World/
 const ENTRANCE_TEXTURE: Texture2D = preload("res://Assets/Art/MilitaryArcade/World/entrance.png")
 const ENEMY_SCENE: PackedScene = preload("res://Prefab/EnemySoilder/enemy_soilder.tscn")
 const BOX_SCENE: PackedScene = preload("res://Prefab/Terrain/box_crate.tscn")
+const BATTLE_SUPPLY_CACHE_SCENE: PackedScene = preload("res://Prefab/BattleSupplyCache/battle_supply_cache.tscn")
 const LOOT_TYPES: Array[LootItem.Type] = [
 	LootItem.Type.WeaponSMG,
 	LootItem.Type.WeaponShortgun,
+	LootItem.Type.WeaponSniper,
+	LootItem.Type.WeaponRPG,
+	LootItem.Type.WeaponFlamethrower,
 	LootItem.Type.EquipmentGrenade,
 	LootItem.Type.EquipmentMolotov,
 	LootItem.Type.EquipmentShield,
@@ -30,7 +34,7 @@ const LOOT_TYPES: Array[LootItem.Type] = [
 ## 模板的网格尺寸；每个网格单元为 500×500 世界单位。
 @export var room_size_units: Vector2i = Vector2i.ONE
 ## 该场景对应的房间类型；boss 类型才允许生成 Boss。
-@export_enum("combat", "boss", "merchant") var room_type: String = "combat"
+@export_enum("combat", "combat_supply", "boss", "merchant", "mercenary") var room_type: String = "combat"
 ## 同尺寸模板的美术样式编号，由关卡种子决定并与场景后缀对应。
 @export_range(1, 99, 1) var room_style_index: int = 1
 ## 首次进入房间时才实例化的遭遇、拾取物等内容；位置与场景按索引对应。
@@ -55,6 +59,8 @@ var _door_markers: Array[Sprite2D] = []
 var _contents_initialized: bool = false
 var _clear_signal_sent: bool = false
 var _tracked_enemy_ids: Dictionary = {}
+## 战斗补给房的宝箱在首次激活时生成，清场时才打开并释放拾取物。
+var _battle_supply_cache: BattleSupplyCache
 
 
 ## 配置房间身份和路线连接，并重建门洞，未连接的门位保持墙体封闭。
@@ -83,6 +89,15 @@ func activate_room() -> void:
 		content_root.add_child(shop)
 		_check_room_cleared()
 		return
+	# 雇佣兵房使用专属场景内的招募点，不生成敌群、免费物资或普通随机战利品。
+	if room_type == "mercenary":
+		_check_room_cleared()
+		return
+	if room_type == "combat_supply":
+		_battle_supply_cache = BATTLE_SUPPLY_CACHE_SCENE.instantiate() as BattleSupplyCache
+		if _battle_supply_cache != null:
+			_battle_supply_cache.position = Vector2(0.0, -12.0)
+			content_root.add_child(_battle_supply_cache)
 	for index: int in range(lazy_content_scenes.size()):
 		var content_scene := lazy_content_scenes[index]
 		if content_scene == null:
@@ -133,6 +148,10 @@ func _check_room_cleared() -> void:
 	if not _contents_initialized or _clear_signal_sent or not is_room_safe():
 		return
 	_clear_signal_sent = true
+	if room_type == "combat_supply" and is_instance_valid(_battle_supply_cache):
+		var content_root := get_node_or_null("LazyContent") as Node2D
+		if content_root != null:
+			_battle_supply_cache.open_and_release_rewards(content_root, population_seed)
 	_open_room_doors()
 	sig_room_cleared.emit(room_id)
 
@@ -164,10 +183,14 @@ func _populate_room(content_root: Node2D) -> void:
 	var enemy_count: int = 1 if room_type == "start" else 2 + mini(int(area_units / 2), 4)
 	if room_type == "boss":
 		enemy_count = 2 + mini(int(area_units / 3), 3)
+	elif room_type == "combat_supply":
+		# 补给房至少七名敌人；大房间增加敌群但限制上限，避免生成负担失控。
+		enemy_count = 7 + mini(area_units - 1, 5)
 	for enemy_index: int in range(enemy_count):
 		_spawn_enemy(content_root, _random_inner_position(rng, half_bounds, 118.0), enemy_index, rng)
 
-	var crate_count: int = 1 + mini(int(area_units / 4), 3)
+	# 补给房的奖励必须等清场后开启，因而不放置可提前破坏并掉落物品的木箱。
+	var crate_count: int = 0 if room_type == "combat_supply" else 1 + mini(int(area_units / 4), 3)
 	for crate_index: int in range(crate_count):
 		var crate := BOX_SCENE.instantiate() as TerrainBoxCrate
 		if crate == null:
@@ -179,13 +202,13 @@ func _populate_room(content_root: Node2D) -> void:
 		crate.appearance_texture = _get_terrain_texture(&"box_texture", null)
 		content_root.add_child(crate)
 
-	var water_count: int = 1 + mini(int(area_units / 5), 2)
+	var water_count: int = 0 if room_type == "combat_supply" else 1 + mini(int(area_units / 5), 2)
 	for water_index: int in range(water_count):
 		var water_size := Vector2(rng.randf_range(64.0, 118.0), rng.randf_range(44.0, 90.0))
 		var water_position := _random_inner_position(rng, half_bounds, maxf(water_size.x, water_size.y))
 		_add_water_patch(content_root, water_position, water_size, water_index)
 
-	var loot_count: int = 1 if room_type == "start" else 1 + int(rng.randf() > 0.55)
+	var loot_count: int = 0 if room_type == "combat_supply" else (1 if room_type == "start" else 1 + int(rng.randf() > 0.55))
 	# 物品类型使用独立的房间种子随机流，各类型等概率抽取，起始房也能生成 SMG。
 	# 不消耗布局随机流，保持敌人、木箱、水域及补给位置的既有生成结果。
 	var loot_rng := RandomNumberGenerator.new()
@@ -297,7 +320,7 @@ func _spawn_enemy(content_root: Node2D, spawn_position: Vector2, enemy_index: in
 	enemy.name = "RoomEnemy%d" % enemy_index
 	enemy.position = spawn_position
 	enemy.health = 6 + mini(room_size_units.x + room_size_units.y, 6)
-	enemy.weapon_damage = 2 if room_type == "boss" else 1
+	enemy.weapon_damage = 4 if room_type == "boss" else 2
 	enemy.fire_interval = 0.65 if room_type == "start" else rng.randf_range(0.42, 0.72)
 	enemy.fire_duration = 1.2
 	enemy.magazine_size = 8

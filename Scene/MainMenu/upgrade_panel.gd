@@ -22,7 +22,10 @@ func _ready() -> void:
 	set_tab_title(0, "手枪")
 	set_tab_title(1, "SMG")
 	set_tab_title(2, "霰弹枪")
-	set_tab_title(3, "战场收益")
+	set_tab_title(3, "狙击步枪")
+	set_tab_title(4, "RPG")
+	set_tab_title(5, "喷火枪")
+	set_tab_title(6, "战场收益")
 	CurrencyManager.sig_currency_changed.connect(_refresh)
 	_refresh(CurrencyManager.get_snapshot())
 

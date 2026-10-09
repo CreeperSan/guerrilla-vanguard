@@ -8,6 +8,8 @@ signal sig_level_completed(completed_level: int, next_level: int)
 
 const ROOM_TEMPLATE_ROOT := "res://Scene/LevelFortress"
 const MIN_ROOM_STYLE_VARIANTS := 2
+const MERCENARY_ROOM_SCENE: PackedScene = preload("res://Scene/LevelFortress/Room_Mercenary/Room_Mercenary.tscn")
+const MERCENARY_SCENE: PackedScene = preload("res://Prefab/Mercenary/mercenary.tscn")
 ## 房间切换时使用短暂交叉淡化，避免传送后房间内容突然闪现。
 const ROOM_FADE_DURATION := 0.32
 ## Boss 池由场景配置；默认 General 与坦克等概率抽取。
@@ -148,6 +150,7 @@ func start_level(new_level_number: int, seed: int) -> void:
     _activate_room_contents(current_room_id)
     _set_room_visibility(current_room_id)
     _move_player_to_room(current_room_id)
+    _move_hired_mercenary_to_player()
     _update_minimap()
     _emit_room_state(current_room_id)
 
@@ -186,15 +189,16 @@ func _build_room_door_data() -> void:
 func _build_rooms() -> void:
     for room_data: Dictionary in level_map.get("rooms", []):
         var room_size: Vector2i = room_data.get("size", Vector2i.ONE)
+        var room_type := str(room_data.get("type", "combat"))
         var room_variants: Array[PackedScene] = _get_room_scene_variants(room_size)
-        if room_variants.is_empty():
+        if room_variants.is_empty() and room_type != "mercenary":
             push_error("找不到房间尺寸模板：%s" % room_size)
             continue
         var style_rng := RandomNumberGenerator.new()
         style_rng.seed = int(level_map.get("seed", 0)) + (int(room_data.id) + 1) * 7919
-        var style_index := style_rng.randi_range(1, room_variants.size())
+        var style_index := style_rng.randi_range(1, room_variants.size()) if room_type != "mercenary" else 1
         room_data["style_index"] = style_index
-        var room_scene: PackedScene = room_variants[style_index - 1]
+        var room_scene: PackedScene = MERCENARY_ROOM_SCENE if room_type == "mercenary" else room_variants[style_index - 1]
         if room_scene == null:
             push_error("房间样式资源无效：尺寸 %s，样式 %d" % [room_size, style_index])
             continue
@@ -272,6 +276,7 @@ func _complete_room_transition(room_id: int, entry_side: String, entry_slot: int
     var previous_room_id := current_room_id
     _activate_room_contents(room_id)
     _player.global_position = room.global_position + _door_landing_position(room, entry_side, entry_slot)
+    _move_hired_mercenary_to_player()
     current_room_id = room_id
     _transition_room_visibility(previous_room_id, room_id)
     if not visited_room_ids.has(room_id):
@@ -429,6 +434,45 @@ func _move_player_to_room(room_id: int) -> void:
         return
     _player.global_position = room.global_position
     _set_camera_room(room, false)
+
+
+## 雇佣佣兵由关卡控制器持有；新房间或新关开始时将其安全带回玩家附近。
+func _move_hired_mercenary_to_player() -> void:
+    if not is_instance_valid(_player):
+        return
+    var mercenary := get_tree().get_first_node_in_group("hired_mercenaries") as HiredMercenary
+    if mercenary == null or mercenary.is_queued_for_deletion():
+        return
+    mercenary.global_position = _player.global_position + Vector2(-24.0, 18.0)
+
+
+## 在佣兵房扣款并把房内预览角色转为唯一盟友；再次招募时让旧佣兵离场。
+func hire_mercenary(candidate: HiredMercenary = null) -> bool:
+    if not is_instance_valid(_player) or MERCENARY_SCENE == null:
+        return false
+    var is_room_candidate := is_instance_valid(candidate)
+    var new_mercenary := candidate if is_room_candidate else MERCENARY_SCENE.instantiate() as HiredMercenary
+    if new_mercenary == null:
+        push_error("雇佣兵场景根节点必须挂载 HiredMercenary。")
+        return false
+    var previous_mercenary := get_tree().get_first_node_in_group("hired_mercenaries") as HiredMercenary
+    if previous_mercenary == new_mercenary:
+        return false
+    if not CurrencyManager.try_spend_money(HiredMercenary.HIRE_COST):
+        if not is_room_candidate:
+            new_mercenary.free()
+        return false
+
+    if previous_mercenary != null:
+        previous_mercenary.depart_and_remove()
+    new_mercenary.activate_for_hire()
+    if new_mercenary.get_parent() == null:
+        add_child(new_mercenary)
+    elif new_mercenary.get_parent() != self:
+        new_mercenary.reparent(self, true)
+    new_mercenary.global_position = _player.global_position + Vector2(-24.0, 18.0)
+    register_hired_mercenary(new_mercenary)
+    return true
 
 
 ## 由房间 ID 查找生成器记录，避免 UI、玩家出生点各自维护一份拓扑。

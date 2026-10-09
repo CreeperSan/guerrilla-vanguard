@@ -47,7 +47,7 @@ func _run() -> void:
 	get_tree().root.add_child(wallet)
 	wallet.banked_research = 10000
 	var entries: Dictionary = BattlefieldUpgradeConfig.get_config().get("upgrades", {})
-	_check(entries.size() == 16 and not entries.has("pistol.reserve"), "手枪四项、其他武器五项、收益两项")
+	_check(entries.size() == 31 and not entries.has("pistol.reserve"), "手枪四项、五把主武器各五项、收益两项")
 	for id: String in entries:
 		for level: int in range(1, 4):
 			var before := wallet.banked_research
@@ -124,11 +124,11 @@ func _run() -> void:
 	get_tree().root.add_child(menu)
 	await get_tree().process_frame
 	var tabs: TabContainer = menu.get_node("UpgradePage/UpgradeTabs")
-	_check(tabs.get_tab_count() == 4, "升级菜单四组可加载")
-	for index: int in range(4):
+	_check(tabs.get_tab_count() == 7, "升级菜单七组可加载")
+	for index: int in range(7):
 		tabs.current_tab = index
 		var list := tabs.get_child(index).get_node("Items")
-		_check(list.get_child_count() == [4, 5, 5, 2][index], "各组展示正确项目数量")
+		_check(list.get_child_count() == [4, 5, 5, 5, 5, 5, 2][index], "各组展示正确项目数量")
 	menu.queue_free()
 	wallet.queue_free()
 	await get_tree().process_frame

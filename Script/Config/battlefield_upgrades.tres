@@ -203,6 +203,216 @@ upgrades = {
       1.24
     ]
   },
+  "sniper.range": {
+    "group": "sniper",
+    "name": "射程",
+    "costs": [
+      40,
+      80,
+      130
+    ],
+    "multipliers": [
+      1.1,
+      1.2,
+      1.3
+    ]
+  },
+  "sniper.fire_rate": {
+    "group": "sniper",
+    "name": "射速",
+    "costs": [
+      40,
+      80,
+      130
+    ],
+    "multipliers": [
+      1.08,
+      1.16,
+      1.24
+    ]
+  },
+  "sniper.reserve": {
+    "group": "sniper",
+    "name": "备弹数量",
+    "costs": [
+      40,
+      80,
+      130
+    ],
+    "multipliers": [
+      1.2,
+      1.4,
+      1.6
+    ]
+  },
+  "sniper.reload": {
+    "group": "sniper",
+    "name": "换弹速度",
+    "costs": [
+      40,
+      80,
+      130
+    ],
+    "multipliers": [
+      1.1,
+      1.2,
+      1.3
+    ]
+  },
+  "sniper.magazine": {
+    "group": "sniper",
+    "name": "弹匣容量",
+    "costs": [
+      40,
+      80,
+      130
+    ],
+    "multipliers": [
+      1.15,
+      1.3,
+      1.45
+    ]
+  },
+  "rpg.range": {
+    "group": "rpg",
+    "name": "射程",
+    "costs": [
+      50,
+      100,
+      160
+    ],
+    "multipliers": [
+      1.1,
+      1.2,
+      1.3
+    ]
+  },
+  "rpg.damage": {
+    "group": "rpg",
+    "name": "爆炸伤害",
+    "costs": [
+      50,
+      100,
+      160
+    ],
+    "multipliers": [
+      1.15,
+      1.3,
+      1.45
+    ]
+  },
+  "rpg.reserve": {
+    "group": "rpg",
+    "name": "备弹数量",
+    "costs": [
+      50,
+      100,
+      160
+    ],
+    "multipliers": [
+      1.2,
+      1.4,
+      1.6
+    ]
+  },
+  "rpg.reload": {
+    "group": "rpg",
+    "name": "换弹速度",
+    "costs": [
+      50,
+      100,
+      160
+    ],
+    "multipliers": [
+      1.1,
+      1.2,
+      1.3
+    ]
+  },
+  "rpg.blast": {
+    "group": "rpg",
+    "name": "爆炸半径",
+    "costs": [
+      50,
+      100,
+      160
+    ],
+    "multipliers": [
+      1.15,
+      1.3,
+      1.45
+    ]
+  },
+  "flamethrower.range": {
+    "group": "flamethrower",
+    "name": "射程",
+    "costs": [
+      35,
+      70,
+      120
+    ],
+    "multipliers": [
+      1.1,
+      1.2,
+      1.3
+    ]
+  },
+  "flamethrower.fire_rate": {
+    "group": "flamethrower",
+    "name": "射速",
+    "costs": [
+      35,
+      70,
+      120
+    ],
+    "multipliers": [
+      1.08,
+      1.16,
+      1.24
+    ]
+  },
+  "flamethrower.reserve": {
+    "group": "flamethrower",
+    "name": "备弹数量",
+    "costs": [
+      35,
+      70,
+      120
+    ],
+    "multipliers": [
+      1.2,
+      1.4,
+      1.6
+    ]
+  },
+  "flamethrower.reload": {
+    "group": "flamethrower",
+    "name": "换弹速度",
+    "costs": [
+      35,
+      70,
+      120
+    ],
+    "multipliers": [
+      1.1,
+      1.2,
+      1.3
+    ]
+  },
+  "flamethrower.magazine": {
+    "group": "flamethrower",
+    "name": "弹匣容量",
+    "costs": [
+      35,
+      70,
+      120
+    ],
+    "multipliers": [
+      1.15,
+      1.3,
+      1.45
+    ]
+  },
   "battlefield.research": {
     "group": "battlefield",
     "name": "研究点数获取效率",

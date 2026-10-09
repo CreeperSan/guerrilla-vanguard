@@ -435,6 +435,39 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
+[node name="sniper" type="ScrollContainer" parent="UpgradePage/UpgradeTabs"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+follow_focus = true
+visible = false
+
+[node name="Items" type="VBoxContainer" parent="UpgradePage/UpgradeTabs/sniper"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="rpg" type="ScrollContainer" parent="UpgradePage/UpgradeTabs"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+follow_focus = true
+visible = false
+
+[node name="Items" type="VBoxContainer" parent="UpgradePage/UpgradeTabs/rpg"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="flamethrower" type="ScrollContainer" parent="UpgradePage/UpgradeTabs"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+follow_focus = true
+visible = false
+
+[node name="Items" type="VBoxContainer" parent="UpgradePage/UpgradeTabs/flamethrower"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
 [node name="battlefield" type="ScrollContainer" parent="UpgradePage/UpgradeTabs"]
 layout_mode = 2
 horizontal_scroll_mode = 0

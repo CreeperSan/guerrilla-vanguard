@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scene/LevelFortress/room_template.gd" id="1_room"]
+[ext_resource type="PackedScene" path="res://Prefab/Mercenary/mercenary_recruitment.tscn" id="2_recruitment"]
+[ext_resource type="PackedScene" path="res://Prefab/Mercenary/mercenary.tscn" id="3_mercenary"]
+
+[node name="Room_Mercenary" type="Node2D"]
+script = ExtResource("1_room")
+room_size_units = Vector2i(1, 1)
+room_type = "mercenary"
+populate_on_first_entry = false
+
+[node name="RecruitmentPoint" parent="." instance=ExtResource("2_recruitment")]
+position = Vector2(-52, -20)
+
+[node name="HireableMercenary" parent="." instance=ExtResource("3_mercenary")]
+position = Vector2(78, 0)
+starts_hired = false

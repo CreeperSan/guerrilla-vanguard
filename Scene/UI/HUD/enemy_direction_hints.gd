@@ -54,9 +54,11 @@ func _update_visual_hints(delta: float) -> void:
     _center_initialized = true
     var selected: Dictionary = {}
     for hint: Dictionary in hints:
-        var enemy := hint["enemy"] as Node2D
-        if not is_instance_valid(enemy):
+        # 目标可能在低频刷新之间被释放；先验证 Variant，再进行 Node2D 强转。
+        var enemy_value: Variant = hint.get("enemy")
+        if not is_instance_valid(enemy_value) or not (enemy_value is Node2D):
             continue
+        var enemy := enemy_value as Node2D
         var id := enemy.get_instance_id()
         selected[id] = true
         if not _visual_hints.has(id):
@@ -64,9 +66,14 @@ func _update_visual_hints(delta: float) -> void:
     var screen := get_viewport_rect()
     for id: int in _visual_hints.keys():
         var state: Dictionary = _visual_hints[id]
-        var enemy := state["enemy"] as Node2D
+        # _visual_hints 保留敌人对象引用；被释放的引用不能在检查前直接转换类型。
+        var enemy_value: Variant = state.get("enemy")
+        if not is_instance_valid(enemy_value) or not (enemy_value is Node2D):
+            _visual_hints.erase(id)
+            continue
+        var enemy := enemy_value as Node2D
         # 死亡、切房或释放立即移除；仅正常接近和筛选切换使用渐隐。
-        if not is_instance_valid(enemy) or enemy.is_queued_for_deletion() or not _belongs_to_current_room(enemy):
+        if enemy.is_queued_for_deletion() or not _belongs_to_current_room(enemy):
             _visual_hints.erase(id)
             continue
         var health := enemy.get_node_or_null("Health") as HealthComponent
@@ -99,8 +106,10 @@ func refresh_hints() -> void:
     var player_screen := player.get_global_transform_with_canvas().origin
     var sectors: Dictionary = {}
     for node: Node in get_tree().get_nodes_in_group("enemies"):
+        if not is_instance_valid(node) or not (node is Node2D):
+            continue
         var enemy := node as Node2D
-        if not is_instance_valid(enemy) or enemy.is_queued_for_deletion() or not _belongs_to_current_room(enemy):
+        if enemy.is_queued_for_deletion() or not _belongs_to_current_room(enemy):
             continue
         var health := enemy.get_node_or_null("Health") as HealthComponent
         if health != null and health.health <= 0:

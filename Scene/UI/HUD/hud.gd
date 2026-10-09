@@ -814,7 +814,10 @@ func set_weapon(weapon: PlayerWeaponSlot) -> void:
     if weapon == null:
         return
 
-    if weapon is PlayerWeaponPistol:
+    if weapon.weapon_icon != null:
+        _weapon_icon.texture = weapon.weapon_icon
+        _weapon_name.text = weapon.display_name
+    elif weapon is PlayerWeaponPistol:
         _weapon_icon.texture = WEAPON_ICON_PISTOL
         _weapon_name.text = WEAPON_NAME_PISTOL
     elif weapon is PlayerWeaponSMG:
@@ -836,7 +839,10 @@ func set_weapon_slots(primary: PlayerWeaponSlot, secondary: PlayerWeaponSlot) ->
         _secondary_name.text = "%s · 未解锁" % switch_hint
         _secondary_ammo.text = ""
         return
-    if secondary is PlayerWeaponPistol:
+    if secondary.weapon_icon != null:
+        _secondary_icon.texture = secondary.weapon_icon
+        _secondary_name.text = "%s · %s" % [switch_hint, secondary.display_name]
+    elif secondary is PlayerWeaponPistol:
         _secondary_icon.texture = WEAPON_ICON_PISTOL
         _secondary_name.text = "%s · 手枪" % switch_hint
     elif secondary is PlayerWeaponSMG:

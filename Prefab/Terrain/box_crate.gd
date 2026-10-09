@@ -15,6 +15,9 @@ extends StaticBody2D
 const DROP_TYPES: Array = [
     LootItem.Type.WeaponSMG,
     LootItem.Type.WeaponShortgun,
+    LootItem.Type.WeaponSniper,
+    LootItem.Type.WeaponRPG,
+    LootItem.Type.WeaponFlamethrower,
     LootItem.Type.EquipmentGrenade,
     LootItem.Type.EquipmentMolotov,
     LootItem.Type.EquipmentShield,

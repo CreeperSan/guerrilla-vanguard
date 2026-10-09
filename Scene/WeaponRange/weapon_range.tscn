@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scene/WeaponRange/weapon_range.gd" id="1"]
+[ext_resource type="PackedScene" path="res://Prefab/Player/player.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://Scene/UI/HUD/HUD.tscn" id="3"]
+
+[node name="WeaponRange" type="Node2D"]
+script = ExtResource("1")
+player_path = NodePath("Player")
+hud_path = NodePath("HUD")
+
+[node name="Player" parent="." instance=ExtResource("2")]
+position = Vector2(180, 320)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(576, 324)
+
+[node name="HUD" parent="." instance=ExtResource("3")]

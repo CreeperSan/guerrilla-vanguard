@@ -23,6 +23,9 @@ enum Type {
     SkillDodge = 13, # 自身技能 - 闪避
     CurrencyMoney = 14, # 货币 - 本次闯关内的金钱，使用独立 CurrencyPickup 预制体
     CurrencyResearch = 15, # 货币 - 本局研究点数，结算后才存入账户
+    WeaponSniper = 17, # 武器 - 狙击步枪
+    WeaponRPG = 18, # 武器 - RPG 火箭发射器
+    WeaponFlamethrower = 19, # 武器 - 喷火枪
     MedicalKit = 16, # 医疗包 - 即时治疗，独立图标和预制体，不改变历史类型编号
 }
 
@@ -58,7 +61,7 @@ func _ready() -> void:
 func apply_to(player: Player) -> bool:
     if player == null or num <= 0:
         return false
-    if type in [Type.WeaponSMG, Type.WeaponShortgun] and player.node_weapon_manager == null:
+    if type in [Type.WeaponSMG, Type.WeaponShortgun, Type.WeaponSniper, Type.WeaponRPG, Type.WeaponFlamethrower] and player.node_weapon_manager == null:
         return false
 
     match type:
@@ -68,6 +71,12 @@ func apply_to(player: Player) -> bool:
         Type.WeaponShortgun:
             # 弹匣始终保留当前数量，首次获得与重复拾取都只补满备弹。
             return player.node_weapon_manager.obtain_shortgun(num)
+        Type.WeaponSniper:
+            return player.node_weapon_manager.obtain_special_weapon("sniper", num)
+        Type.WeaponRPG:
+            return player.node_weapon_manager.obtain_special_weapon("rpg", num)
+        Type.WeaponFlamethrower:
+            return player.node_weapon_manager.obtain_special_weapon("flamethrower", num)
         Type.Health, Type.MedicalKit:
             return _apply_health_to(player)
         Type.EquipmentGrenade, Type.EquipmentMolotov, Type.EquipmentShield:
@@ -125,6 +134,10 @@ func _update_appearance() -> void:
             sprite.texture = load("res://Assets/Art/MilitaryArcade/shotgun.png") as Texture2D
             sprite.region_enabled = false
             sprite.scale = Vector2(0.5, 0.5)
+        Type.WeaponSniper, Type.WeaponRPG, Type.WeaponFlamethrower:
+            var id: String = {Type.WeaponSniper: "sniper", Type.WeaponRPG: "rpg", Type.WeaponFlamethrower: "flamethrower"}[type]
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/Weapons/" + id + "_icon.tres") as Texture2D
+            sprite.region_enabled = false
         Type.EquipmentGrenade:
             sprite.texture = load("res://Assets/Art/MilitaryArcade/grenade.png") as Texture2D
             sprite.region_enabled = false
@@ -156,7 +169,7 @@ func _update_appearance() -> void:
 
     # 高分辨率图标按原物品占地缩放；不放大触碰范围，也不使拾取边框遮挡地图。
     if sprite.texture != null:
-        var footprint := 24.0 if type in [Type.WeaponSMG, Type.WeaponShortgun, Type.MedicalKit, Type.SupportMortarStriker, Type.SupportTacticalBombing] else 16.0
+        var footprint := 24.0 if type in [Type.WeaponSMG, Type.WeaponShortgun, Type.WeaponSniper, Type.WeaponRPG, Type.WeaponFlamethrower, Type.MedicalKit, Type.SupportMortarStriker, Type.SupportTacticalBombing] else 16.0
         var factor := footprint / maxf(sprite.texture.get_width(), sprite.texture.get_height())
         sprite.scale = Vector2.ONE * factor
 

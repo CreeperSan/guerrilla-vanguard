@@ -7,6 +7,16 @@ const INFINITY : int = -99999;
 
 ################################################################################ 属性定义
 
+## 可选武器展示信息；旧武器仍使用原有 HUD 与音效分支。
+var weapon_id: String = ""
+var display_name: String = ""
+var weapon_icon: Texture2D
+var fire_sound: AudioStream
+## 新弹丸的飞行外观、额外穿透目标数及爆炸半径；空样式保持普通弹行为。
+var projectile_style: String = ""
+var bullet_penetration: int = 0
+var explosion_radius: float = 0.0
+
 # 弹夹最大子弹数
 var ammo_magazine_max : int = 30
 
@@ -72,19 +82,22 @@ signal sig_reload(progress: float)
 
 ## 武器初始化完毕后应用独立升级；只改变容量，不凭空增加拾取弹药。
 ## 新建武器原本装满弹匣时同步填满新弹匣，主武器首次拾取仍由拾取数量决定。
-func apply_battlefield_upgrades(weapon_id: String) -> void:
+func apply_battlefield_upgrades(upgrade_id: String) -> void:
     if _battlefield_upgrades_applied:
         return
     _battlefield_upgrades_applied = true
     var magazine_was_full := ammo_magazine_cur == ammo_magazine_max
-    bullet_basic_range *= CurrencyManager.get_upgrade_multiplier(weapon_id + ".range")
-    fire_gap /= CurrencyManager.get_upgrade_multiplier(weapon_id + ".fire_rate")
-    reload_duration /= CurrencyManager.get_upgrade_multiplier(weapon_id + ".reload")
-    ammo_magazine_max = roundi(ammo_magazine_max * CurrencyManager.get_upgrade_multiplier(weapon_id + ".magazine"))
+    bullet_basic_range *= CurrencyManager.get_upgrade_multiplier(upgrade_id + ".range")
+    fire_gap /= CurrencyManager.get_upgrade_multiplier(upgrade_id + ".fire_rate")
+    reload_duration /= CurrencyManager.get_upgrade_multiplier(upgrade_id + ".reload")
+    ammo_magazine_max = roundi(ammo_magazine_max * CurrencyManager.get_upgrade_multiplier(upgrade_id + ".magazine"))
     if magazine_was_full:
         ammo_magazine_cur = ammo_magazine_max
     if not ammo_back_infinite:
-        ammo_back_max = roundi(ammo_back_max * CurrencyManager.get_upgrade_multiplier(weapon_id + ".reserve"))
+        ammo_back_max = roundi(ammo_back_max * CurrencyManager.get_upgrade_multiplier(upgrade_id + ".reserve"))
+    # RPG 以伤害和爆炸半径升级强化单发，不通过扩容破坏单发装填规则。
+    bullet_basic_damage = roundi(bullet_basic_damage * CurrencyManager.get_upgrade_multiplier(upgrade_id + ".damage"))
+    explosion_radius *= CurrencyManager.get_upgrade_multiplier(upgrade_id + ".blast")
     # 安全存续时间不能抢先截断升级后的实际射程。
     bullet_basic_duration = maxf(bullet_basic_duration, bullet_basic_range / maxf(bullet_basic_speed, 0.01) + 0.1)
 
@@ -222,6 +235,10 @@ func _spawn_bullets(player: Player) -> int:
         bullet.bullet_range = bullet_basic_range
         bullet.bullet_size = bullet_basic_size
         bullet.bullet_duration = bullet_basic_duration
+        bullet.bullet_penetration = bullet_penetration
+        bullet.projectile_style = projectile_style
+        bullet.explosion_radius = explosion_radius
+        bullet.position = player.position + bullet_direction * 8.0
         player.get_parent().add_child(bullet)
         bullet.global_position = player.global_position + bullet_direction * 8.0
         spawned_count += 1

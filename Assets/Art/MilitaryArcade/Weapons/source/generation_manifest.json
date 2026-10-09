@@ -1,0 +1,11 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "transparent_background": true,
+  "date": "2026-10-10",
+  "prompts": {
+    "sniper": "A single isolated side-view sniper rifle game inventory sprite, barrel pointing right, long dark gunmetal barrel, olive stock, small cyan scope lens, chunky bold dark outline, military arcade hand-painted pixel-art aesthetic, readable at 64 pixels wide, restrained highlights, centered on a truly transparent square canvas. No lettering, no background, no shadow outside the silhouette.",
+    "rpg": "A single isolated side-view RPG rocket launcher game inventory sprite, muzzle pointing right, olive green launch tube, tan handgrip, distinctive orange warhead protruding at the right, chunky bold dark outline, military arcade hand-painted pixel-art aesthetic, readable at 64 pixels wide, restrained highlights, centered on a truly transparent square canvas. No lettering, no background, no shadow outside the silhouette.",
+    "flamethrower": "A single isolated side-view flamethrower game inventory sprite, nozzle pointing right, dark gunmetal nozzle with small bright orange pilot flame, compact red fuel cylinder, olive green frame, chunky bold dark outline, military arcade hand-painted pixel-art aesthetic, readable at 64 pixels wide, restrained highlights, centered on a truly transparent square canvas. No lettering, no background, no shadow outside the silhouette."
+  },
+  "packaging": "Original PNG alpha preserved. AtlasTexture regions exclude near-transparent margin speckles, with no bitmap editing."
+}

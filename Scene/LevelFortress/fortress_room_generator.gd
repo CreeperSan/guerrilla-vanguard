@@ -6,6 +6,8 @@ const ROOM_UNIT_SIZE := 500
 ## 相邻房间的可视间隔；路线图仍以连续的 500 单位网格记录拓扑。
 const ROOM_GAP := 72.0
 const MAX_GENERATION_ATTEMPTS := 8
+## 每一关独立抽取一次；命中后只尝试放置一间佣兵支路房。
+const MERCENARY_ROOM_CHANCE := 0.2
 const ROOM_SIZES: Array[Vector2i] = [
     Vector2i(1, 1), Vector2i(1, 2), Vector2i(1, 3),
     Vector2i(2, 1), Vector2i(2, 2), Vector2i(2, 3),
@@ -17,6 +19,9 @@ static func generate_level(level_number: int, seed: int) -> Dictionary:
     var limits := _get_path_limits(level_number)
     var rng := RandomNumberGenerator.new()
     rng.seed = seed
+    var mercenary_rng := RandomNumberGenerator.new()
+    mercenary_rng.seed = seed ^ 0x4D455243
+    var include_mercenary_room := mercenary_rng.randf() < MERCENARY_ROOM_CHANCE
     for attempt: int in range(MAX_GENERATION_ATTEMPTS):
         var attempt_seed := seed + attempt * 104729
         rng.seed = attempt_seed
@@ -57,6 +62,14 @@ static func generate_level(level_number: int, seed: int) -> Dictionary:
         # 商人只占用一个独立支路格，不允许形成绕过主路线的捷径或连接 Boss。
         if not _append_merchant_room(rooms, rng):
             continue
+        # 每关额外生成一间单入口战斗补给房；失败时重试整张布局以保证房间唯一且存在。
+        if not _append_battle_supply_room(rooms, rng):
+            continue
+        if include_mercenary_room:
+            var room_rng := RandomNumberGenerator.new()
+            room_rng.seed = (seed + attempt * 130363) ^ 0x4D455243
+            if not _append_optional_service_room(rooms, room_rng, "mercenary"):
+                continue
         var connections := _build_connections(rooms)
         if _shortest_path_length(rooms.size(), connections, 0, main_room_count - 1) < path_steps:
             continue
@@ -75,7 +88,14 @@ static func generate_level(level_number: int, seed: int) -> Dictionary:
         }
 
     # 生成失败时返回已验证的直线路径兜底；兜底仍遵守本关步数上下限且 Boss 位于末端。
-    return _make_fallback_level(level_number, seed, limits.x + 1)
+    var fallback := _make_fallback_level(level_number, seed, limits.x + 1)
+    if include_mercenary_room:
+        var fallback_rooms: Array[Dictionary] = fallback["rooms"]
+        var mercenary := _make_room(fallback_rooms.size(), Vector2i(0, 2), Vector2i.ONE, "mercenary")
+        mercenary["parent_id"] = int(fallback["boss_room_id"]) + 1
+        fallback_rooms.append(mercenary)
+        fallback["connections"] = _build_connections(fallback_rooms)
+    return fallback
 
 
 ## 返回该关起点至 Boss 的最小和最大移动次数。
@@ -300,6 +320,43 @@ static func _append_merchant_room(rooms: Array[Dictionary], rng: RandomNumberGen
     return true
 
 
+## 从普通战斗房边缘增加唯一补给支路；确保新房只与一间非 Boss 房相邻。
+static func _append_battle_supply_room(rooms: Array[Dictionary], rng: RandomNumberGenerator) -> bool:
+    return _append_optional_service_room(rooms, rng, "combat_supply")
+
+
+## 将可选服务房放到非 Boss 房外侧的单入口支路，保证不会绕过关卡主路线。
+static func _append_optional_service_room(rooms: Array[Dictionary], rng: RandomNumberGenerator, room_type: String) -> bool:
+    var candidates: Array[Dictionary] = []
+    for parent: Dictionary in rooms:
+        if str(parent.type) != "combat":
+            continue
+        var origin: Vector2i = parent.origin
+        var room_size: Vector2i = parent.size
+        var edge_cells: Array[Vector2i] = []
+        for x: int in range(room_size.x):
+            edge_cells.append(origin + Vector2i(x, -1))
+            edge_cells.append(origin + Vector2i(x, room_size.y))
+        for y: int in range(room_size.y):
+            edge_cells.append(origin + Vector2i(-1, y))
+            edge_cells.append(origin + Vector2i(room_size.x, y))
+        for cell: Vector2i in edge_cells:
+            var candidate := _make_room(rooms.size(), cell, Vector2i.ONE, room_type)
+            if _overlaps_any(candidate, rooms):
+                continue
+            var neighbors := 0
+            for existing: Dictionary in rooms:
+                if _shares_edge(candidate, existing):
+                    neighbors += 1
+            if neighbors == 1:
+                candidate["parent_id"] = int(parent.id)
+                candidates.append(candidate)
+    if candidates.is_empty():
+        return false
+    rooms.append(candidates[rng.randi_range(0, candidates.size() - 1)])
+    return true
+
+
 ## 生成布局重试耗尽时使用的直线房间兜底图。
 static func _make_fallback_level(level_number: int, seed: int, path_length: int) -> Dictionary:
     var rooms: Array[Dictionary] = []
@@ -314,5 +371,9 @@ static func _make_fallback_level(level_number: int, seed: int, path_length: int)
     var merchant := _make_room(rooms.size(), Vector2i(-1, 0), Vector2i.ONE, "merchant")
     merchant["parent_id"] = 0
     rooms.append(merchant)
+    # 固定兜底战斗补给房位于第一间普通房上方，保持唯一单入口且不触碰 Boss。
+    var battle_supply := _make_room(rooms.size(), Vector2i(1, -1), Vector2i.ONE, "combat_supply")
+    battle_supply["parent_id"] = 1
+    rooms.append(battle_supply)
     return {"level": level_number, "seed": seed, "rooms": rooms, "connections": _build_connections(rooms),
         "start_room_id": 0, "boss_room_id": path_length - 1, "main_path": _make_main_path(path_length)}

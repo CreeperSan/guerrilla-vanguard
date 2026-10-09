@@ -11,7 +11,7 @@ enum Phase {
 @export_group("阶段一 / 手枪")
 ## 第一阶段生命值、单发伤害、弹匣容量、射速与换弹时间。
 @export_range(1, 9999, 1) var phase_one_health: int = 100
-@export_range(1, 999, 1) var phase_one_damage: int = 4
+@export_range(1, 999, 1) var phase_one_damage: int = 8
 @export_range(1, 99, 1) var phase_one_magazine: int = 3
 @export_range(0.05, 10.0, 0.05) var phase_one_fire_interval: float = 0.3
 @export_range(0.05, 30.0, 0.05) var phase_one_reload_duration: float = 3.0
@@ -19,7 +19,7 @@ enum Phase {
 @export_group("阶段二 / 冲锋枪")
 ## 第二阶段独立生命值、单发伤害、弹匣容量、射速与换弹时间。
 @export_range(1, 9999, 1) var phase_two_health: int = 60
-@export_range(1, 999, 1) var phase_two_damage: int = 3
+@export_range(1, 999, 1) var phase_two_damage: int = 6
 @export_range(1, 99, 1) var phase_two_magazine: int = 6
 @export_range(0.05, 10.0, 0.05) var phase_two_fire_interval: float = 0.2
 @export_range(0.05, 30.0, 0.05) var phase_two_reload_duration: float = 2.0
@@ -39,8 +39,8 @@ enum Phase {
 @export_range(0.0, 1000.0, 0.1) var phase_two_move_speed: float = 8.0
 
 @export_group("弹丸")
-## Boss 子弹速度和最大飞行距离，子弹始终朝发射瞬间的玩家位置飞行。
-@export_range(1.0, 2000.0, 1.0) var bullet_speed: float = 260.0
+## Boss 子弹速度和最大飞行距离；弹速下调为此前的一半，射程保持不变。
+@export_range(1.0, 2000.0, 1.0) var bullet_speed: float = 216.66665
 @export_range(1.0, 3000.0, 1.0) var bullet_range: float = 700.0
 
 @onready var body_sprite: Sprite2D = $Sprite2D
@@ -62,7 +62,8 @@ var _is_defeated: bool = false
 ## 初始化第一阶段生命与弹药，并在 Boss 最终死亡时回收场景实例。
 func _ready() -> void:
 	add_to_group("enemies")
-	collision_mask |= Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
+	# Boss 身体只与地形和水碰撞；玩家命中仍由 HurtBox 单独判定。
+	collision_mask = Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
 	health_component.sig_die.connect(_on_phase_depleted)
 	_apply_phase_settings(true)
 	_emit_phase_changed()
@@ -70,7 +71,10 @@ func _ready() -> void:
 
 ## 每个物理帧更新目标方向、分段移动和自动射击。
 func _physics_process(delta: float) -> void:
-	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if _wait_for_action_start(delta):
+		return
+
+	var player := _find_combat_target()
 	if not is_instance_valid(player):
 		velocity = Vector2.ZERO
 		move_and_slide()
@@ -178,7 +182,7 @@ func _update_segmented_movement(delta: float, player: Node2D, target_direction: 
 		velocity = Vector2.ZERO
 
 
-## 管理弹匣和换弹计时；每次开火都重新读取玩家位置以持续锁定目标。
+## 管理弹匣和换弹计时；每次开火重新选择玩家或佣兵中最近的存活目标。
 func _update_weapon(delta: float) -> void:
 	if _reload_remaining > 0.0:
 		_reload_remaining = maxf(_reload_remaining - delta, 0.0)
@@ -194,7 +198,7 @@ func _update_weapon(delta: float) -> void:
 	if _fire_cooldown > 0.0:
 		return
 
-	var player := get_tree().get_first_node_in_group("player") as Node2D
+	var player := _find_combat_target()
 	if not is_instance_valid(player):
 		return
 	var locked_direction := global_position.direction_to(player.global_position)
@@ -203,7 +207,7 @@ func _update_weapon(delta: float) -> void:
 		_fire_cooldown = _current_fire_interval()
 
 
-## 创建敌方阵营子弹并使用玩家位置作为发射方向。
+## 创建敌方阵营子弹并使用当前锁定目标的位置作为发射方向。
 func _fire_at(direction: Vector2) -> bool:
 	if direction == Vector2.ZERO:
 		return false

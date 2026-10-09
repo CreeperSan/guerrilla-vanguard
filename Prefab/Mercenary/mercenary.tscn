@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://Prefab/EnemySoilder/enemy_soilder.tscn" id="1_soldier"]
+[ext_resource type="Script" path="res://Prefab/Mercenary/mercenary.gd" id="2_mercenary"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_background"]
+bg_color = Color(0.075, 0.1, 0.065, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.48, 0.53, 0.32, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_left = 2
+corner_radius_bottom_right = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_fill"]
+bg_color = Color(0.53, 0.8, 0.3, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_left = 1
+corner_radius_bottom_right = 1
+
+[node name="Mercenary" instance=ExtResource("1_soldier")]
+script = ExtResource("2_mercenary")
+health = 120
+move_speed = 180.0
+uniform_color = Color(0.72, 0.96, 0.61, 1)
+
+[node name="HealthBar" type="ProgressBar" parent="."]
+visible = false
+z_index = 5
+offset_left = -16.0
+offset_top = -25.0
+offset_right = 16.0
+offset_bottom = -20.0
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_health_background")
+theme_override_styles/fill = SubResource("StyleBoxFlat_health_fill")
+max_value = 120.0
+value = 120.0
+show_percentage = false

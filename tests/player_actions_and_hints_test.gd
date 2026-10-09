@@ -53,8 +53,10 @@ func _run() -> void:
 	player.skill_type = LootItem.Type.SkillDodge
 	player._skill_cooldown_remaining = 0.0
 	player.facing_direction = Vector2.UP
+	player.anim.self_modulate.a = 0.8
 	player._start_dodge()
 	_check(player.dodge_active and is_equal_approx(player._dodge_time_remaining, 0.5), "闪避持续半秒")
+	_check(is_equal_approx(player.anim.self_modulate.a, 0.4), "闪避期间身体不透明度减半")
 	player.equipment_type = Player.EquipmentType.GRENADE
 	player.equipment_amount = 10
 	player.battle_support_type = LootItem.Type.SupportMortarStriker
@@ -93,11 +95,13 @@ func _run() -> void:
 		await get_tree().process_frame
 		frames += 1
 		if player.dodge_active:
-			_check(is_equal_approx(player.velocity.length(), 60.0) and player.velocity.x == 0.0 and player.facing_direction == Vector2.UP, "实际物理帧锁定方向并保持速度 60")
+			_check(is_equal_approx(player.velocity.length(), 120.0) and player.velocity.x == 0.0 and player.facing_direction == Vector2.UP, "实际物理帧锁定方向并保持速度 120")
+			_check(is_equal_approx(player.anim.self_modulate.a, 0.4), "整个闪避动作中身体持续半透明")
 	player.set_physics_process(false)
 	Input.action_release("move_right")
 	_check(not player.dodge_active and absf(player.position.x - start.x) < 0.01, "闪避结束前不能手动横移")
-	_check(absf((start.y - player.position.y) - 30.0) < 1.1, "半秒速度 60 约移动 30 单位")
+	_check(absf((start.y - player.position.y) - 60.0) < 2.1, "半秒速度 120 约移动 60 单位")
+	_check(is_equal_approx(player.anim.self_modulate.a, 0.8), "闪避结束后恢复身体原先的不透明度")
 
 	var hud := load("res://Scene/UI/HUD/HUD.tscn").instantiate() as GameHUD
 	hud.set_script(TestHUD)

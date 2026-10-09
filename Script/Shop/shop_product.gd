@@ -14,7 +14,7 @@ extends Resource
 ## 配置无效时不允许进入商品池，避免显示可扣钱却不能发放的物品。
 func is_valid() -> bool:
 	return not display_name.is_empty() and amount > 0 and price > 0 and icon != null and loot_type in [
-		LootItem.Type.WeaponSMG, LootItem.Type.WeaponShortgun, LootItem.Type.MedicalKit,
+		LootItem.Type.WeaponSMG, LootItem.Type.WeaponShortgun, LootItem.Type.WeaponSniper, LootItem.Type.WeaponRPG, LootItem.Type.WeaponFlamethrower, LootItem.Type.MedicalKit,
 		LootItem.Type.EquipmentGrenade, LootItem.Type.EquipmentMolotov,
 		LootItem.Type.EquipmentShield, LootItem.Type.CurrencyResearch,
 	]

@@ -360,13 +360,13 @@ alert_range = 270.0
 position = Vector2(260, 0)
 behavior_mode = 2
 uniform_color = Color(1, 0.9, 0.25, 1)
-weapon_damage = 2
+weapon_damage = 4
 
 [node name="Enemy Yellow Strafe" parent="." unique_id=1228821895 instance=ExtResource("14_enemy")]
 position = Vector2(340, 0)
 behavior_mode = 3
 uniform_color = Color(1, 0.9, 0.25, 1)
-weapon_damage = 2
+weapon_damage = 4
 fire_interval = 0.25
 magazine_size = 18
 

@@ -21,62 +21,80 @@ const SFX_MOLOTOV_EXPLOSION: AudioStream = preload("res://Assets/Audio/SFX/molot
 
 @onready var node_ignition_audio: AudioStreamPlayer2D = get_node_or_null("IgnitionAudio") as AudioStreamPlayer2D
 
+## 每个目标保存下一次燃烧伤害的剩余冷却；离开火区时会清除对应记录。
+var _target_damage_cooldowns: Dictionary[int, float] = {}
+var _remaining_duration: float = 0.0
 
-## 启动持续伤害循环；循环中会重新查询重叠对象以同步进入和离开的目标。
+
+## 初始化燃烧区域并启动按物理帧更新的接触伤害判定。
 func _ready() -> void:
     # 燃烧范围也检测可破坏地形层，让箱子能受到持续伤害。
     collision_mask |= Definition.PHYSICS_LAYER_TERRAIN
     if node_ignition_audio != null:
         node_ignition_audio.stream = SFX_MOLOTOV_EXPLOSION
         node_ignition_audio.play()
-    _apply_damage_over_time()
+    _remaining_duration = maxf(burning_duration, 0.0)
 
 
-## 按伤害间隔结算当前范围中的敌对目标，到期后自动释放燃烧区域。
-func _apply_damage_over_time() -> void:
-    var remaining_time: float = maxf(burning_duration, 0.0)
-    var damage_interval: float = maxf(burning_damage_gap, 0.01)
+## 新进入火区的目标立即受伤；持续停留时按固定间隔再次受伤，到期释放火区。
+func _physics_process(delta: float) -> void:
+    if _remaining_duration <= 0.0:
+        queue_free()
+        return
 
-    # 首次结算放在物理帧之后，保证 Area2D 已经完成初始重叠检测。
-    await get_tree().physics_frame
-    while is_inside_tree() and remaining_time > 0.0:
-        _damage_overlapping_targets()
-
-        var wait_time: float = minf(damage_interval, remaining_time)
-        await get_tree().create_timer(wait_time).timeout
-        remaining_time -= wait_time
-
-    if is_inside_tree():
+    _damage_overlapping_targets(delta)
+    _remaining_duration = maxf(_remaining_duration - delta, 0.0)
+    if _remaining_duration <= 0.0:
         queue_free()
 
 
-## 对本次采样中的每个目标至多造成一次伤害。
-func _damage_overlapping_targets() -> void:
-    var hit_targets: Dictionary[int, bool] = {}
+## 每帧汇总 Area2D 与物理实体，按目标根节点去重后处理进入、持续停留和离开。
+func _damage_overlapping_targets(delta: float) -> void:
+    var current_targets: Dictionary[int, Node] = {}
     for area: Area2D in get_overlapping_areas():
-        _damage_target(area, hit_targets)
+        _add_damageable_target(area, current_targets)
     for body: Node2D in get_overlapping_bodies():
-        _damage_target(body, hit_targets)
+        _add_damageable_target(body, current_targets)
+
+    # 已离开燃烧范围的目标清除冷却；之后重新踏入时会再次立即受伤。
+    for target_id: int in _target_damage_cooldowns.keys():
+        if not current_targets.has(target_id):
+            _target_damage_cooldowns.erase(target_id)
+
+    var damage_interval := maxf(burning_damage_gap, 0.01)
+    for target_id: int in current_targets:
+        var target_root: Node = current_targets[target_id]
+        var health: HealthComponent = target_root.get_node_or_null("Health") as HealthComponent
+        if health == null:
+            continue
+
+        if not _target_damage_cooldowns.has(target_id):
+            # 新进入的接触目标不等待伤害间隔，首次物理重叠即刻结算。
+            health.damage(bruning_damage, burining_faction)
+            _target_damage_cooldowns[target_id] = damage_interval
+            continue
+
+        var cooldown: float = float(_target_damage_cooldowns[target_id]) - delta
+        if cooldown <= 0.0:
+            health.damage(bruning_damage, burining_faction)
+            cooldown += damage_interval
+        _target_damage_cooldowns[target_id] = cooldown
 
 
-## 解析 HurtBox 或角色本体，过滤同阵营目标并调用其 HealthComponent。
-func _damage_target(target: Node, hit_targets: Dictionary[int, bool]) -> void:
+## 将 HurtBox 解析到拥有生命组件的根节点，并过滤同阵营目标与重复碰撞形状。
+func _add_damageable_target(target: Node, current_targets: Dictionary[int, Node]) -> void:
+    if not is_instance_valid(target):
+        return
     var target_root: Node = target
     if target is HurtBox:
         target_root = target.get_parent()
-    if target_root == null:
-        return
-
-    var target_id: int = target_root.get_instance_id()
-    if hit_targets.has(target_id):
+    if not is_instance_valid(target_root):
         return
 
     var health: HealthComponent = target_root.get_node_or_null("Health") as HealthComponent
     if health == null or _is_same_side(target_root):
         return
-
-    hit_targets[target_id] = true
-    health.damage(bruning_damage)
+    current_targets[target_root.get_instance_id()] = target_root
 
 
 ## 玩家和盟友互为友军；其他未声明 faction 的生命目标按敌人处理。

@@ -15,7 +15,7 @@ enum BehaviorMode {
 @export var uniform_color: Color = Color(1.0, 0.45, 0.45, 1.0)
 ## 生命值和战斗参数由关卡实例配置。
 @export_range(1, 9999, 1) var health: int = 8
-@export_range(1, 999, 1) var weapon_damage: int = 1
+@export_range(1, 999, 1) var weapon_damage: int = 2
 @export_range(0.05, 10.0, 0.05) var fire_interval: float = 0.35
 @export_range(0.05, 30.0, 0.05) var fire_duration: float = 1.6
 @export_range(0.0, 30.0, 0.05) var fire_pause_duration: float = 0.8
@@ -28,8 +28,8 @@ enum BehaviorMode {
 @export_range(0.0, 1000.0, 1.0) var wander_radius: float = 100.0
 @export_range(1.0, 1000.0, 1.0) var strafe_radius: float = 40.0
 @export_range(0.1, 10.0, 0.1) var movement_change_interval: float = 1.2
-## 敌人弹丸参数。
-@export_range(1.0, 2000.0, 1.0) var bullet_speed: float = 300.0
+## 敌人弹丸参数；弹速下调为此前的一半，射程保持不变。
+@export_range(1.0, 2000.0, 1.0) var bullet_speed: float = 250.0
 @export_range(1.0, 3000.0, 1.0) var bullet_range: float = 500.0
 
 @onready var health_component: HealthComponent = $Health
@@ -46,6 +46,8 @@ var _burst_pause_remaining: float = 0.0
 var _reload_remaining: float = 0.0
 var _ammo_in_magazine: int = 0
 var _is_burst_active: bool = false
+## 房间激活后给玩家半秒准备时间，再启用敌人的移动与射击逻辑。
+var _action_start_delay_remaining: float = 0.5
 
 
 ## 初始化血量、感知显示范围和巡逻位置，并连接死亡回收。
@@ -65,7 +67,11 @@ func _ready() -> void:
 
 ## 每帧依据模式更新移动、朝向和武器状态。
 func _physics_process(delta: float) -> void:
-    var player: Player = get_tree().get_first_node_in_group("player") as Player
+    if _action_start_delay_remaining > 0.0:
+        _action_start_delay_remaining = maxf(_action_start_delay_remaining - delta, 0.0)
+        return
+
+    var player: Node2D = _find_combat_target()
     var target_distance: float = INF
     var target_direction: Vector2 = Vector2.ZERO
     if is_instance_valid(player):
@@ -93,7 +99,7 @@ func _physics_process(delta: float) -> void:
 ## 按四种行为模式计算移动方向；射程内的站立射击模式保持静止。
 func _get_movement_direction(
     delta: float,
-    player: Player,
+    player: Node2D,
     target_direction: Vector2,
     is_alerted: bool,
     in_weapon_range: bool
@@ -114,6 +120,22 @@ func _get_movement_direction(
         return _move_toward_wander_point(delta, player.global_position, strafe_radius)
 
     return Vector2.ZERO
+
+
+## 敌人攻击玩家和雇佣佣兵中距离最近且仍存活的目标。
+func _find_combat_target() -> Node2D:
+    var closest: Node2D
+    var closest_distance := INF
+    for candidate: Node in get_tree().get_nodes_in_group("combat_targets"):
+        var target := candidate as Node2D
+        var health := target.get_node_or_null("Health") as HealthComponent if target != null else null
+        if target == null or health == null or health.health <= 0 or target.is_queued_for_deletion():
+            continue
+        var distance := global_position.distance_squared_to(target.global_position)
+        if distance < closest_distance:
+            closest = target
+            closest_distance = distance
+    return closest
 
 
 ## 定时选择活动中心附近的新点，供巡逻和射程内随机走动复用。

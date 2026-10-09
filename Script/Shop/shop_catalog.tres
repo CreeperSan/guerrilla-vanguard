@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ShopCatalog" load_steps=17 format=3]
+[gd_resource type="Resource" script_class="ShopCatalog" load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://Script/Shop/shop_catalog.gd" id="1_catalog"]
 [ext_resource type="Script" path="res://Script/Shop/shop_product.gd" id="2_product"]
@@ -9,6 +9,10 @@
 [ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/molotov.png" id="icon_molotov"]
 [ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/shield.png" id="icon_shield"]
 [ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/research.png" id="icon_research"]
+
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Weapons/sniper_icon.tres" id="icon_sniper"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Weapons/rpg_icon.tres" id="icon_rpg"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Weapons/flamethrower_icon.tres" id="icon_flamethrower"]
 
 [sub_resource type="Resource" id="Product_smg"]
 script = ExtResource("2_product")
@@ -73,6 +77,33 @@ price = 30
 icon = ExtResource("icon_research")
 description = "本局研究 +3"
 
+[sub_resource type="Resource" id="Product_sniper"]
+script = ExtResource("2_product")
+display_name = "狙击步枪"
+loot_type = 17
+amount = 1
+price = 50
+icon = ExtResource("icon_sniper")
+description = "高伤害 · 六目标穿透 · 备弹补满，弹匣不变"
+
+[sub_resource type="Resource" id="Product_rpg"]
+script = ExtResource("2_product")
+display_name = "RPG 火箭发射器"
+loot_type = 18
+amount = 1
+price = 65
+icon = ExtResource("icon_rpg")
+description = "单发装填 · 范围爆炸 · 备弹补满，弹匣不变"
+
+[sub_resource type="Resource" id="Product_flamethrower"]
+script = ExtResource("2_product")
+display_name = "喷火枪"
+loot_type = 19
+amount = 1
+price = 45
+icon = ExtResource("icon_flamethrower")
+description = "近程火焰 · 三目标穿透 · 备弹补满，弹匣不变"
+
 [resource]
 script = ExtResource("1_catalog")
-products = Array[ExtResource("2_product")]([SubResource("Product_smg"), SubResource("Product_shotgun"), SubResource("Product_medkit"), SubResource("Product_grenade"), SubResource("Product_molotov"), SubResource("Product_shield"), SubResource("Product_research")])
+products = Array[ExtResource("2_product")]([SubResource("Product_smg"), SubResource("Product_shotgun"), SubResource("Product_medkit"), SubResource("Product_grenade"), SubResource("Product_molotov"), SubResource("Product_shield"), SubResource("Product_research"), SubResource("Product_sniper"), SubResource("Product_rpg"), SubResource("Product_flamethrower")])

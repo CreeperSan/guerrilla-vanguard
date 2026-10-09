@@ -12,6 +12,10 @@ const COLOR_CURRENT := Color(0.94, 0.78, 0.34, 1.0)
 const COLOR_BOSS := Color(0.75, 0.23, 0.22, 1.0)
 ## 商人支路使用青绿色，与战斗房和 Boss 房区分。
 const COLOR_MERCHANT := Color(0.22, 0.65, 0.62, 1.0)
+## 战斗补给房使用暖金色，便于从普通战斗房和商人房中辨认。
+const COLOR_BATTLE_SUPPLY := Color(0.78, 0.52, 0.2, 1.0)
+## 雇佣兵房使用友军绿色；访问后仍保留服务房标记，便于地图回找招募点。
+const COLOR_MERCENARY := Color(0.34, 0.72, 0.46, 1.0)
 const COLOR_ROUTE := Color(0.65, 0.73, 0.62, 0.8)
 
 var _level_map: Dictionary = {}
@@ -52,14 +56,25 @@ func _draw() -> void:
 		var room_id := int(room.id)
 		var rect: Rect2 = room_rects[room_id]
 		var room_type := str(room.get("type", "combat"))
-		var room_color: Color = COLOR_BOSS if room_type == "boss" else (COLOR_MERCHANT if room_type == "merchant" else COLOR_ROOM)
-		if _visited_room_ids.has(room_id) and room_type != "merchant":
-			room_color = COLOR_VISITED if room_type != "boss" else COLOR_BOSS
+		var room_color := COLOR_ROOM
+		match room_type:
+			"boss": room_color = COLOR_BOSS
+			"merchant": room_color = COLOR_MERCHANT
+			"combat_supply": room_color = COLOR_BATTLE_SUPPLY
+			"mercenary": room_color = COLOR_MERCENARY
+		if _visited_room_ids.has(room_id) and room_type not in ["merchant", "combat_supply", "mercenary"]:
+			room_color = COLOR_BOSS if room_type == "boss" else COLOR_VISITED
 		draw_rect(rect, room_color, true)
 		var border_color: Color = COLOR_CURRENT if room_id == _current_room_id else Color(0.82, 0.87, 0.78, 0.9)
 		draw_rect(rect, border_color, false, 2.0)
 		if rect.size.x >= 16.0 and rect.size.y >= 12.0:
-			var room_marker := "B" if room_type == "boss" else ("商" if room_type == "merchant" else ("S" if room_type == "start" else str(room_id + 1)))
+			var room_marker := str(room_id + 1)
+			match room_type:
+				"boss": room_marker = "B"
+				"merchant": room_marker = "商"
+				"combat_supply": room_marker = "补"
+				"mercenary": room_marker = "佣"
+				"start": room_marker = "S"
 			draw_string(MAP_FONT, rect.position + Vector2(3.0, minf(rect.size.y - 2.0, 12.0)), room_marker, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 10)
 
 

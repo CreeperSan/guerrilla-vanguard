@@ -8,6 +8,9 @@ extends Area2D
 ## 爆炸对每个有效目标造成的伤害。
 @export var explision_damange: int = 10
 
+## 可选爆炸半径；0 沿用原场景，RPG 在加入场景树前覆盖为独立范围。
+var blast_radius: float = 0.0
+
 ## 动画播放速度；动画结束后爆炸节点会自动销毁。
 @export var animation_speed: float = 10.0
 
@@ -20,6 +23,14 @@ var damaged_targets: Dictionary[int, bool] = {}
 
 ## 初始化一次性动画、范围检测和生命周期信号。
 func _ready() -> void:
+    if blast_radius > 0.0:
+        # 独立复制资源，避免 RPG 的半径污染手雷等其他爆炸实例。
+        var collision := $CollisionShape2D as CollisionShape2D
+        var circle := collision.shape.duplicate() as CircleShape2D
+        var original_radius: float = maxf(circle.radius, 0.1)
+        circle.radius = blast_radius
+        collision.shape = circle
+        node_animation.scale *= blast_radius / original_radius
     # 爆炸范围也检测可破坏地形层，让箱子能受到范围伤害。
     collision_mask |= Definition.PHYSICS_LAYER_TERRAIN
     area_entered.connect(_on_area_entered)
@@ -90,7 +101,7 @@ func _apply_damage_to(target: Node) -> void:
         return
 
     damaged_targets[target_id] = true
-    health.damage(explision_damange)
+    health.damage(explision_damange, explision_faction)
 
 
 ## 一次性爆炸动画播放完毕后释放节点。

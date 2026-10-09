@@ -106,7 +106,7 @@ func register_enemy(enemy: Node2D) -> void:
 	if boss != null:
 		enemy_health.sig_health_updated.connect(_on_boss_health_updated)
 		boss.sig_phase_changed.connect(_on_boss_phase_changed)
-		boss.sig_defeated.connect(_on_registered_boss_defeated)
+		boss.sig_defeated.connect(_on_registered_boss_defeated.bind(boss))
 		if controlled_hud != null:
 			controlled_hud.show_boss_health(boss.boss_display_name, enemy_health.health, enemy_health.health_max, boss.current_phase)
 	else:
@@ -126,9 +126,12 @@ func _on_target_health_change(health_change: int, target: Node2D, faction: Defin
 
 ## 普通敌人死亡时增加积分，并同步 HUD。
 func _on_enemy_died(enemy: Node2D) -> void:
-	total_score += 100
-	if controlled_hud != null:
-		controlled_hud.set_score(total_score)
+	var enemy_health := enemy.get_node_or_null("Health") as HealthComponent if is_instance_valid(enemy) else null
+	# 佣兵击杀仍走普通敌人的掉落逻辑，但不给玩家或佣兵增加击杀积分。
+	if enemy_health == null or enemy_health.last_damage_faction != Definition.Faction.Friend:
+		total_score += 100
+		if controlled_hud != null:
+			controlled_hud.set_score(total_score)
 	if not is_instance_valid(enemy):
 		return
 	# 在敌人所属房间生成，使隐藏房间和切关清理规则同样作用于掉落物。
@@ -165,8 +168,11 @@ func _on_player_died() -> void:
 
 
 ## Boss 最终死亡时增加积分并隐藏 Boss 血条。
-func _on_registered_boss_defeated() -> void:
-	total_score += 500
+func _on_registered_boss_defeated(boss: BattlefieldBoss) -> void:
+	var boss_health := boss.get_node_or_null("Health") as HealthComponent if is_instance_valid(boss) else null
+	# 佣兵可以完成 Boss 战并保留研究奖励，但其击杀不增加计分。
+	if boss_health == null or boss_health.last_damage_faction != Definition.Faction.Friend:
+		total_score += 500
 	if CurrencyManager.credit(RunCurrencyWallet.Kind.RESEARCH, _roll_currency_amount(boss_research_amount)):
 		var player := controlled_player as Player
 		if player != null:
@@ -174,6 +180,16 @@ func _on_registered_boss_defeated() -> void:
 	if controlled_hud != null:
 		controlled_hud.set_score(total_score)
 		controlled_hud.hide_boss_health()
+
+
+## 佣兵只显示友军伤害飘字，不注册为敌人以免计分或阻止房间清场。
+func register_hired_mercenary(mercenary: Node2D) -> void:
+	if not is_instance_valid(mercenary):
+		return
+	var health := mercenary.get_node_or_null("Health") as HealthComponent
+	if health == null:
+		return
+	health.sig_health_change.connect(_on_target_health_change.bind(mercenary, Definition.Faction.Friend))
 
 
 ## 将 Boss 当前生命值变化同步到魂类风格血条。

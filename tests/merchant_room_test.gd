@@ -35,7 +35,7 @@ func _run() -> void:
 			types[product.loot_type] = true
 			seen_types[product.loot_type] = true
 		_check(types.size() == 3, "三件商品类型不重复")
-	_check(seen_types.size() == 7, "所有七种商品均可抽中")
+	_check(seen_types.size() == 10, "所有十种商品均可抽中")
 	var invalid := ShopCatalog.new()
 	invalid.products = [catalog.products[0], catalog.products[0], null]
 	_check(invalid.select_stock(1).is_empty(), "无效重复商品池拒绝生成，预期错误日志")
@@ -265,10 +265,14 @@ func _check_map(level_map: Dictionary) -> void:
 	var rooms: Array[Dictionary] = []
 	rooms.assign(level_map.rooms)
 	var merchants: Array[Dictionary] = []
+	var battle_supply_rooms: Array[Dictionary] = []
 	for room: Dictionary in rooms:
 		if str(room.type) == "merchant":
 			merchants.append(room)
+		elif str(room.type) == "combat_supply":
+			battle_supply_rooms.append(room)
 	_check(merchants.size() == 1, "每关恰好一间商人房")
+	_check(battle_supply_rooms.size() == 1, "每关恰好一间战斗补给房")
 	if merchants.size() != 1:
 		return
 	var merchant := merchants[0]
@@ -283,6 +287,16 @@ func _check_map(level_map: Dictionary) -> void:
 	for room: Dictionary in rooms:
 		if room.id != merchant.id:
 			_check(not Rect2i(merchant.origin, merchant.size).intersects(Rect2i(room.origin, room.size)), "商人不与已有房间重叠")
+	if battle_supply_rooms.size() != 1:
+		return
+	var battle_supply := battle_supply_rooms[0]
+	_check(battle_supply.size == Vector2i.ONE, "战斗补给房为 1×1")
+	_check(FortressRoomGenerator._room_degree(battle_supply.id, level_map.connections) == 1, "战斗补给房是单入口支路")
+	_check(not level_map.main_path.has(battle_supply.id) and battle_supply.parent_id != level_map.boss_room_id, "战斗补给房不在主路线且不连接 Boss")
+	_check(FortressRoomGenerator._all_rooms_reachable(rooms.size(), level_map.connections), "战斗补给房可从起点到达")
+	for room: Dictionary in rooms:
+		if room.id != battle_supply.id:
+			_check(not Rect2i(battle_supply.origin, battle_supply.size).intersects(Rect2i(room.origin, room.size)), "战斗补给房不与已有房间重叠")
 
 
 ## 等待物理状态刷新和信号派发，验证 Area2D 的真实进入/离开事件。

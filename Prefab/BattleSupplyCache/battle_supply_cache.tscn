@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Prefab/BattleSupplyCache/battle_supply_cache.gd" id="1_cache"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/battle_supply_cache.png" id="2_cache_art"]
+
+[node name="BattleSupplyCache" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_cache")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_cache_art")
+hframes = 2
+frame = 0
+scale = Vector2(0.08, 0.08)

@@ -23,8 +23,9 @@ const SHELL_SCENE: PackedScene = preload("res://Prefab/BossTank/tank_shell.tscn"
 @export_group("主炮 / 两阶段共用")
 @export var cannon_magazine: int = 1
 @export var cannon_reload_duration: float = 3.0
-@export var cannon_damage: int = 8
-@export var cannon_speed: float = 220.0
+@export var cannon_damage: int = 16
+## 主炮、机枪和手枪弹速下调为此前的一半，射程保持不变。
+@export var cannon_speed: float = 183.33335
 @export var cannon_range: float = 850.0
 ## 与当前炮管末端及视觉枪焰保持一致，调整炮塔尺寸时可同步修改。
 @export var cannon_muzzle_distance: float = 54.0
@@ -32,15 +33,15 @@ const SHELL_SCENE: PackedScene = preload("res://Prefab/BossTank/tank_shell.tscn"
 ## 开战与阶段切换时先给玩家短暂反应时间，之后每发按三秒装填节奏。
 @export var opening_fire_delay: float = 0.6
 @export_group("过载燃烧")
-@export var fire_damage: int = 1
+@export var fire_damage: int = 2
 @export var fire_duration: float = 4.0
 @export var fire_damage_gap: float = 0.5
 @export_group("过载机枪")
 @export var machine_magazine: int = 5
 @export var machine_reload_duration: float = 5.0
 @export var machine_fire_interval: float = 0.3
-@export var machine_damage: int = 2
-@export var machine_bullet_speed: float = 330.0
+@export var machine_damage: int = 4
+@export var machine_bullet_speed: float = 275.0
 @export_group("驾驶员")
 @export var driver_move_speed: float = 60.0
 @export var driver_min_distance: float = 20.0
@@ -49,8 +50,8 @@ const SHELL_SCENE: PackedScene = preload("res://Prefab/BossTank/tank_shell.tscn"
 @export var driver_magazine: int = 3
 @export var driver_reload_duration: float = 3.0
 @export var driver_fire_interval: float = 0.5
-@export var driver_damage: int = 3
-@export var driver_bullet_speed: float = 280.0
+@export var driver_damage: int = 6
+@export var driver_bullet_speed: float = 233.33335
 
 @onready var visuals: TankBossVisuals = $Visuals
 @onready var _body_shape: CollisionShape2D = $CollisionShape2D
@@ -79,7 +80,8 @@ var _rng := RandomNumberGenerator.new()
 ## 初始化碰撞、生命、独立弹匣与房间种子；未进入房间的 Boss 不实例化。
 func _ready() -> void:
 	add_to_group("enemies")
-	collision_mask |= Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
+	# Boss 身体只与地形和水碰撞；玩家命中仍由 HurtBox 单独判定。
+	collision_mask = Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
 	_rng.seed = int(get_parent().get("population_seed")) if get_parent() is FortressRoomTemplate else 7142026
 	# 循环资源使用实例副本，不改写共享 WAV；22.05 kHz PCM 的循环端点按实际采样率计算。
 	var tracks := _track_audio.stream.duplicate() as AudioStreamWAV
@@ -92,11 +94,15 @@ func _ready() -> void:
 	_apply_phase_settings()
 
 
-## 只有有效玩家存在时推进战斗；休息只暂停移动，不暂停各武器装填和瞄准。
+## 存在存活玩家或已雇佣佣兵时推进战斗；休息只暂停移动，不暂停装填和瞄准。
 func _physics_process(delta: float) -> void:
 	if _is_defeated:
 		return
-	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if _wait_for_action_start(delta):
+		_sync_track_audio(false)
+		return
+
+	var player := _find_combat_target()
 	if not is_instance_valid(player):
 		velocity = Vector2.ZERO
 		_sync_track_audio(false)

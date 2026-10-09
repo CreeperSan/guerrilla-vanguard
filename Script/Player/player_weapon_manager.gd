@@ -30,6 +30,9 @@ var slotDefault: PlayerWeaponSlot
 var slot1: PlayerWeaponSlot
 var slot2: PlayerWeaponSlot
 var active_slot: PlayerWeaponSlot
+## 扩展武器固定对应 3、4、5；实例跨房间保留，解锁独立于弹药状态。
+var extra_weapons: Array[PlayerWeaponSlot] = []
+var extra_unlocked: Dictionary = {}
 
 # 冲锋枪需要通过后续升级解锁；解锁前槽 1 不可选中。
 var smg_unlocked: bool = false
@@ -44,7 +47,7 @@ var active_slot_index: int = 0
 var _switch_cooldown_remaining: float = 0.0
 
 
-## 初始化三把武器及其独立升级，建立弹药/换弹信号后选中开局手枪。
+## 初始化六把武器及其独立升级，建立弹药/换弹信号后选中开局手枪。
 func _ready() -> void:
     # 手枪作为开局和弹尽后的备用武器，两个武器槽分别配置冲锋枪和霰弹枪。
     slotDefault = PlayerWeaponPistol.new()
@@ -61,7 +64,13 @@ func _ready() -> void:
     add_child(slot1)
     add_child(slot2)
 
-    for weapon: PlayerWeaponSlot in [slotDefault, slot1, slot2]:
+    extra_weapons = [PlayerWeaponSniper.new(), PlayerWeaponRPG.new(), PlayerWeaponFlamethrower.new()]
+    for weapon: PlayerWeaponSlot in extra_weapons:
+        weapon.name = weapon.weapon_id
+        weapon.apply_battlefield_upgrades(weapon.weapon_id)
+        add_child(weapon)
+
+    for weapon: PlayerWeaponSlot in [slotDefault, slot1, slot2] + extra_weapons:
         weapon.sig_ammo_change.connect(_on_weapon_ammo_change.bind(weapon))
         weapon.sig_reload.connect(_on_weapon_reload.bind(weapon))
 
@@ -78,7 +87,7 @@ func _process(delta: float) -> void:
     _switch_cooldown_remaining = maxf(_switch_cooldown_remaining - delta, 0.0)
     var switch_progress: float = 1.0 - _switch_cooldown_remaining / maxf(switch_weapon_duraiton, 0.01)
     sig_switch_progress.emit(clampf(switch_progress, 0.0, 1.0))
-    for weapon: PlayerWeaponSlot in [slotDefault, slot1, slot2]:
+    for weapon: PlayerWeaponSlot in [slotDefault, slot1, slot2] + extra_weapons:
         if weapon != null:
             weapon.update_weapon(delta)
 
@@ -93,19 +102,17 @@ func action_fire(player: Player) -> void:
         if active_slot.ammo_back_infinite or active_slot.ammo_back_cur > 0:
             _try_reload_active(player)
             return
-        if active_slot == slot1 or active_slot == slot2:
+        if active_slot != slotDefault:
             _drop_empty_weapon(active_slot)
             _switch_to_best_available_weapon(active_slot)
             return
 
     if active_slot.try_fire(player):
         sig_weapon_fired.emit(active_slot)
-        if active_slot == slot1 and _has_no_ammo(slot1):
-            _drop_empty_weapon(slot1)
-            _switch_to_best_available_weapon(slot1)
-        elif active_slot == slot2 and _has_no_ammo(slot2):
-            _drop_empty_weapon(slot2)
-            _switch_to_best_available_weapon(slot2)
+        if active_slot != slotDefault and _has_no_ammo(active_slot):
+            var depleted := active_slot
+            _drop_empty_weapon(depleted)
+            _switch_to_best_available_weapon(depleted)
 
 
 ## 判断主武器是否已经没有弹匣子弹和备弹。
@@ -119,28 +126,23 @@ func _drop_empty_weapon(weapon: PlayerWeaponSlot) -> void:
         smg_unlocked = false
     elif weapon == slot2:
         shortgun_unlocked = false
+    if weapon in extra_weapons:
+        extra_unlocked.erase(weapon.weapon_id)
     if weapon != null:
         weapon.set_ammo_from_total(0)
 
 
-## 主武器弹药耗尽后优先切换另一槽；两槽均不可用时才切回无限备弹手枪。
+## 主武器弹药耗尽后清理空槽，优先选择其余主武器，否则切回无限备弹手枪。
 func _switch_to_best_available_weapon(depleted_weapon: PlayerWeaponSlot) -> void:
-    var fallback_weapon: PlayerWeaponSlot = null
-    if depleted_weapon != slot1 and smg_unlocked:
-        if _has_no_ammo(slot1):
-            _drop_empty_weapon(slot1)
+    for weapon: PlayerWeaponSlot in _get_available_primary_weapons():
+        if weapon == depleted_weapon:
+            continue
+        if _has_no_ammo(weapon):
+            _drop_empty_weapon(weapon)
         else:
-            fallback_weapon = slot1
-    if fallback_weapon == null and depleted_weapon != slot2 and shortgun_unlocked:
-        if _has_no_ammo(slot2):
-            _drop_empty_weapon(slot2)
-        else:
-            fallback_weapon = slot2
-
-    if fallback_weapon == null:
-        fallback_weapon = slotDefault
-    var fallback_index: int = 0 if fallback_weapon == slotDefault else (1 if fallback_weapon == slot1 else 2)
-    _select_slot(fallback_weapon, fallback_index, true)
+            _select_slot(weapon, _get_slot_index(weapon), true)
+            return
+    _select_slot(slotDefault, 0, true)
 
 
 ## 对当前武器发起手动换弹。
@@ -159,7 +161,7 @@ func _try_reload_active(player: Player) -> bool:
     return true
 
 
-## 切换到指定武器槽；槽 1 为冲锋枪，槽 2 为霰弹枪。
+## 选择固定主武器槽；1/2 为冲锋枪/霰弹枪，3/4/5 为狙击/RPG/喷火枪。
 func action_switch_weapon(slot_index: int) -> void:
     # 闪避动作独占控制，外部切枪调用也不能绕过玩家输入锁。
     var player := get_parent() as Player
@@ -168,6 +170,11 @@ func action_switch_weapon(slot_index: int) -> void:
     if _switch_cooldown_remaining > 0.0:
         return
 
+    if slot_index >= 3 and slot_index <= 5:
+        var weapon := extra_weapons[slot_index - 3]
+        if extra_unlocked.get(weapon.weapon_id, false):
+            _select_slot(weapon, slot_index, false)
+        return
     match slot_index:
         1:
             if smg_unlocked:
@@ -177,7 +184,7 @@ func action_switch_weapon(slot_index: int) -> void:
                 _select_slot(slot2, 2, false)
 
 
-## Q 键优先在两把已解锁主武器间切换；只有一把主武器时才与手枪互切。
+## Q 键轮换已解锁主武器；只有一把主武器时才与手枪互切。
 func action_switch_next_weapon() -> void:
     # 闪避动作独占控制，外部切枪调用也不能绕过玩家输入锁。
     var player := get_parent() as Player
@@ -186,19 +193,15 @@ func action_switch_next_weapon() -> void:
     if _switch_cooldown_remaining > 0.0:
         return
 
-    var next_weapon: PlayerWeaponSlot = null
-    if smg_unlocked and shortgun_unlocked:
-        # 两把主武器都已解锁时，手枪不加入轮换；若当前因弹尽处于手枪，Q 回到冲锋枪。
-        next_weapon = slot2 if active_slot == slot1 else slot1
-    elif smg_unlocked or shortgun_unlocked:
-        # 只有一把主武器时，Q 在该主武器和无限备弹手枪之间切换。
-        var primary_weapon: PlayerWeaponSlot = slot1 if smg_unlocked else slot2
-        next_weapon = slotDefault if active_slot == primary_weapon else primary_weapon
-    else:
+    var available := _get_available_primary_weapons()
+    if available.is_empty():
         return
-
-    var slot_index: int = 0 if next_weapon == slotDefault else (1 if next_weapon == slot1 else 2)
-    _select_slot(next_weapon, slot_index, false)
+    if available.size() == 1:
+        var next_weapon: PlayerWeaponSlot = slotDefault if active_slot == available[0] else available[0]
+        _select_slot(next_weapon, _get_slot_index(next_weapon), false)
+        return
+    var next_weapon: PlayerWeaponSlot = available[(available.find(active_slot) + 1) % available.size()]
+    _select_slot(next_weapon, _get_slot_index(next_weapon), false)
 
 
 ## 由升级系统调用以解锁冲锋枪，并将其设为当前武器。
@@ -275,20 +278,59 @@ func _on_weapon_reload(progress: float, weapon: PlayerWeaponSlot) -> void:
         sig_active_reload.emit(progress)
 
 
-## 对 HUD 提供当前未选中的首选可用武器槽。
+## 对 HUD 提供轮换时的下一把可用武器槽。
 func get_secondary_slot() -> PlayerWeaponSlot:
     return _get_secondary_slot()
 
 
 ## 挑选可显示的后备武器；优先显示另一个已解锁的正式武器，否则显示手枪。
 func _get_secondary_slot() -> PlayerWeaponSlot:
-    if active_slot != slot1 and smg_unlocked:
-        return slot1
-    if active_slot != slot2 and shortgun_unlocked:
-        return slot2
-    if active_slot != slotDefault:
-        return slotDefault
-    return null
+    var available := _get_available_primary_weapons()
+    if available.size() > 1:
+        return available[(available.find(active_slot) + 1) % available.size()]
+    if available.size() == 1 and active_slot != available[0]:
+        return available[0]
+    return slotDefault if active_slot != slotDefault else null
+
+
+## 返回已解锁主武器的稳定顺序；Q、手柄与触控统一使用该轮换顺序。
+func _get_available_primary_weapons() -> Array[PlayerWeaponSlot]:
+    var weapons: Array[PlayerWeaponSlot] = []
+    if smg_unlocked:
+        weapons.append(slot1)
+    if shortgun_unlocked:
+        weapons.append(slot2)
+    for weapon: PlayerWeaponSlot in extra_weapons:
+        if extra_unlocked.get(weapon.weapon_id, false):
+            weapons.append(weapon)
+    return weapons
+
+
+## 将武器实例转换为固定槽位编号，供自动切换和 HUD 使用。
+func _get_slot_index(weapon: PlayerWeaponSlot) -> int:
+    if weapon == slotDefault:
+        return 0
+    if weapon == slot1:
+        return 1
+    if weapon == slot2:
+        return 2
+    return extra_weapons.find(weapon) + 3
+
+
+## 扩展武器拾取保持原有规则：只补满备弹，首次解锁并选中，不重置弹匣。
+func obtain_special_weapon(id: String, amount: int) -> bool:
+    if amount <= 0:
+        return false
+    for weapon: PlayerWeaponSlot in extra_weapons:
+        if weapon.weapon_id != id:
+            continue
+        var first_pickup: bool = not extra_unlocked.get(id, false)
+        var refilled := weapon.refill_reserve_ammo()
+        if first_pickup:
+            extra_unlocked[id] = true
+            _select_slot(weapon, _get_slot_index(weapon), true)
+        return first_pickup or refilled
+    return false
 
 
 ## 获取武器当前换弹进度，供切换武器时同步 HUD。

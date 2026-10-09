@@ -97,10 +97,13 @@ var dodge_active: bool = false
 var _skill_cooldown_remaining: float = 0.0
 var _dodge_time_remaining: float = 0.0
 var _dodge_direction: Vector2 = Vector2.DOWN
+## 保存闪避前身体的不透明度，结束后精确还原，避免覆盖角色原本的显示状态。
+var _dodge_sprite_alpha: float = 1.0
 const SPRINT_COOLDOWN: float = 0.3
-const DODGE_SPEED: float = 60.0
+const DODGE_SPEED: float = 120.0
 const DODGE_DURATION: float = 0.5
 const DODGE_COOLDOWN: float = 3.0
+const DODGE_ALPHA_MULTIPLIER: float = 0.5
 
 ## 对外提供当前生命值，避免关卡脚本读取玩家内部节点。
 var health_current: int:
@@ -118,6 +121,8 @@ func _ready() -> void:
     sig_stamina_updated.emit(stamina, stamina_max)
     # 加入统一玩家分组，供敌人 AI 在关卡中查找追击目标。
     add_to_group("player")
+    # 普通敌人可在玩家与已雇佣佣兵之间选择存活的攻击目标。
+    add_to_group("combat_targets")
     # 玩家只与地形和水发生实体碰撞；敌我角色的命中继续由子弹和 HurtBox 单独处理。
     collision_mask = Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
     facing_direction = Vector2.DOWN
@@ -199,7 +204,8 @@ func _throw_equipment(bullet_type: Definition.BulletType, damage: int) -> void:
     if bullet == null:
         return
 
-    bullet.bullet_speed = 180.0
+    # 手雷和燃烧瓶共享投掷速度；相对此前的 180 提高 30%。
+    bullet.bullet_speed = 234.0
     bullet.bullet_range = 90.0
     bullet.bullet_size = 3.0
     if bullet_type == Definition.BulletType.Burning:
@@ -332,9 +338,11 @@ func _on_health_updated(current_health: int, max_health: int) -> void:
     sig_health_updated.emit(current_health, max_health)
 
 
-## 根据当前武器播放手枪、冲锋枪或霰弹枪开火音效。
+## 按武器配置播放开火音效；火焰允许短尾声重叠，持续喷射时避免硬切噪声。
 func _on_weapon_fired(weapon: PlayerWeaponSlot) -> void:
-    if weapon is PlayerWeaponPistol:
+    if weapon.fire_sound != null:
+        node_fire_audio.stream = weapon.fire_sound
+    elif weapon is PlayerWeaponPistol:
         node_fire_audio.stream = SFX_FIRE_PISTOL
     elif weapon is PlayerWeaponSMG:
         node_fire_audio.stream = SFX_FIRE_SMG
@@ -343,6 +351,7 @@ func _on_weapon_fired(weapon: PlayerWeaponSlot) -> void:
     else:
         return
 
+    node_fire_audio.max_polyphony = 4 if weapon is PlayerWeaponFlamethrower else 1
     node_fire_audio.pitch_scale = randf_range(0.96, 1.04)
     node_fire_audio.play()
 
@@ -439,13 +448,14 @@ func _physics_process(delta: float) -> void:
         facing_direction = move_input
 
     if dodge_active:
-        # 最后一帧只推进剩余时间，避免不同帧率让总闪避距离超过 30 单位。
+        # 最后一帧只推进剩余时间，避免不同帧率让总闪避距离超过 60 单位。
         var dodge_step := minf(delta, _dodge_time_remaining)
         velocity = _dodge_direction * DODGE_SPEED * (dodge_step / maxf(delta, 0.000001))
         move_and_slide()
         _dodge_time_remaining = maxf(_dodge_time_remaining - delta, 0.0)
         if _dodge_time_remaining <= 0.0:
             dodge_active = false
+            anim.self_modulate.a = _dodge_sprite_alpha
             velocity = Vector2.ZERO
             _emit_skill_updated()
     else:
@@ -490,11 +500,15 @@ func _process(delta: float) -> void:
     if not sprint_active and fire_requested:
         node_weapon_manager.action_fire(self)
 
-    # 数字键选择两个正式武器槽，R 键对当前武器手动换弹。
+    # 数字键选择固定主武器槽，R 键对当前武器手动换弹。
     if Input.is_action_just_pressed("weapon_slot_1"):
         node_weapon_manager.action_switch_weapon(1)
     elif Input.is_action_just_pressed("weapon_slot_2"):
         node_weapon_manager.action_switch_weapon(2)
+    # 扩展武器固定 3/4/5 键；手柄和触控继续共用轮换入口。
+    for slot_index: int in range(3, 6):
+        if Input.is_action_just_pressed("weapon_slot_%d" % slot_index):
+            node_weapon_manager.action_switch_weapon(slot_index)
     if Input.is_action_just_pressed("reload"):
         node_weapon_manager.action_reload()
     if not sprint_active and Input.is_action_just_pressed("use_equipment"):
@@ -557,6 +571,9 @@ func _start_dodge() -> void:
     if _dodge_direction == Vector2.ZERO:
         _dodge_direction = Vector2.DOWN
     dodge_active = true
+    # 只调整身体精灵的透明度，不影响护盾轮廓等独立表现。
+    _dodge_sprite_alpha = anim.self_modulate.a
+    anim.self_modulate.a = _dodge_sprite_alpha * DODGE_ALPHA_MULTIPLIER
     _dodge_time_remaining = DODGE_DURATION
     _skill_cooldown_remaining = DODGE_COOLDOWN
     _emit_skill_updated()
