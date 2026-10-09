@@ -1,3 +1,4 @@
+## 玩家武器管理器：创建并应用永久升级，管理切换、拾取、弹药与 HUD 信号。
 class_name PlayerWeaponManager
 extends Node
 
@@ -43,6 +44,7 @@ var active_slot_index: int = 0
 var _switch_cooldown_remaining: float = 0.0
 
 
+## 初始化三把武器及其独立升级，建立弹药/换弹信号后选中开局手枪。
 func _ready() -> void:
     # 手枪作为开局和弹尽后的备用武器，两个武器槽分别配置冲锋枪和霰弹枪。
     slotDefault = PlayerWeaponPistol.new()
@@ -51,6 +53,10 @@ func _ready() -> void:
     slot1.name = "SMG"
     slot2 = PlayerWeaponShortgun.new()
     slot2.name = "Shortgun"
+    # 每把武器只在创建时读取一次永久升级；跨关保留同一武器实例与当前弹药。
+    slotDefault.apply_battlefield_upgrades("pistol")
+    slot1.apply_battlefield_upgrades("smg")
+    slot2.apply_battlefield_upgrades("shotgun")
     add_child(slotDefault)
     add_child(slot1)
     add_child(slot2)
@@ -80,7 +86,7 @@ func _process(delta: float) -> void:
 ## 按住开火时由玩家逐帧调用；弹匣空但还有备弹时自动开始换弹。
 # 开火
 func action_fire(player: Player) -> void:
-    if player == null or player.sprint_active or _switch_cooldown_remaining > 0.0 or active_slot == null:
+    if player == null or player.sprint_active or player.dodge_active or _switch_cooldown_remaining > 0.0 or active_slot == null:
         return
 
     if active_slot.ammo_magazine_cur <= 0:
@@ -155,6 +161,10 @@ func _try_reload_active(player: Player) -> bool:
 
 ## 切换到指定武器槽；槽 1 为冲锋枪，槽 2 为霰弹枪。
 func action_switch_weapon(slot_index: int) -> void:
+    # 闪避动作独占控制，外部切枪调用也不能绕过玩家输入锁。
+    var player := get_parent() as Player
+    if player != null and player.dodge_active:
+        return
     if _switch_cooldown_remaining > 0.0:
         return
 
@@ -169,6 +179,10 @@ func action_switch_weapon(slot_index: int) -> void:
 
 ## Q 键优先在两把已解锁主武器间切换；只有一把主武器时才与手枪互切。
 func action_switch_next_weapon() -> void:
+    # 闪避动作独占控制，外部切枪调用也不能绕过玩家输入锁。
+    var player := get_parent() as Player
+    if player != null and player.dodge_active:
+        return
     if _switch_cooldown_remaining > 0.0:
         return
 
@@ -193,28 +207,29 @@ func unlock_smg() -> void:
     _select_slot(slot1, 1, true)
 
 
-## 首次拾取冲锋枪时按拾取数量装填，重复拾取时补充备弹。
+## 拾取冲锋枪只补满备弹；首次获得时解锁并选中，任何情况下均不重置弹匣。
+## 参数保留给现有物品接口做有效性判断，不再参与弹药加法或分配。
 func obtain_smg(ammo_amount: int) -> bool:
     if ammo_amount <= 0:
         return false
     if not smg_unlocked:
-        slot1.set_ammo_from_total(ammo_amount)
+        slot1.refill_reserve_ammo()
         smg_unlocked = true
         _select_slot(slot1, 1, true)
         return true
-    return slot1.add_ammo(ammo_amount) > 0
+    return slot1.refill_reserve_ammo()
 
 
-## 首次拾取霰弹枪时按拾取数量装填，重复拾取时补充备弹。
+## 拾取霰弹枪只补满备弹；首次解锁与重复拾取共用同一规则，弹匣保持原样。
 func obtain_shortgun(ammo_amount: int) -> bool:
     if ammo_amount <= 0:
         return false
     if not shortgun_unlocked:
-        slot2.set_ammo_from_total(ammo_amount)
+        slot2.refill_reserve_ammo()
         shortgun_unlocked = true
         _select_slot(slot2, 2, true)
         return true
-    return slot2.add_ammo(ammo_amount) > 0
+    return slot2.refill_reserve_ammo()
 
 
 ## 向已解锁的冲锋枪增加备弹，并返回实际加入的数量。

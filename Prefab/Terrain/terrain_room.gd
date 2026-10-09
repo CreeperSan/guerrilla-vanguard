@@ -22,9 +22,9 @@ extends Node2D
 signal sig_entrance_entered(body: Node2D)
 
 const TILE_SIZE := Vector2i(16, 16)
-const GROUND_TEXTURE: Texture2D = preload("res://Scene/LevelFortress/Terrain/ground.png")
-const WALL_TEXTURE: Texture2D = preload("res://Scene/LevelFortress/Terrain/wall.png")
-const WATER_TEXTURE: Texture2D = preload("res://Scene/LevelFortress/Terrain/water.png")
+const GROUND_TEXTURE: Texture2D = preload("res://Assets/Art/MilitaryArcade/World/Terrain/Fortress/ground_test_tile.png")
+const WALL_TEXTURE: Texture2D = preload("res://Assets/Art/MilitaryArcade/World/Terrain/Fortress/wall.png")
+const WATER_TEXTURE: Texture2D = preload("res://Assets/Art/MilitaryArcade/World/Terrain/Fortress/water.png")
 const BOX_SCENE: PackedScene = preload("res://Prefab/Terrain/box_crate.tscn")
 const ENTRANCE_SCENE: PackedScene = preload("res://Prefab/Terrain/room_entrance.tscn")
 
@@ -36,6 +36,8 @@ var _entrance_opened: bool = false
 
 ## 初始化地面 TileSet、封闭墙体、水域、木箱和出口。
 func _ready() -> void:
+	# 本房间的手绘地形统一使用线性采样，保留抗锯齿笔触与柔和色块。
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	_build_ground_tile_map()
 	_build_room_walls()
 	_build_water_patches()

@@ -1,0 +1,234 @@
+[gd_resource type="Resource" script_class="BattlefieldUpgradeBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Script/Config/battlefield_upgrade_balance.gd" id="1_balance"]
+
+[resource]
+script = ExtResource("1_balance")
+shotgun_pellets = 5
+shotgun_spread_degrees = 24.0
+upgrades = {
+  "pistol.range": {
+    "group": "pistol",
+    "name": "射程",
+    "costs": [
+      20,
+      40,
+      70
+    ],
+    "multipliers": [
+      1.1,
+      1.2,
+      1.3
+    ]
+  },
+  "pistol.fire_rate": {
+    "group": "pistol",
+    "name": "射速",
+    "costs": [
+      20,
+      40,
+      70
+    ],
+    "multipliers": [
+      1.08,
+      1.16,
+      1.24
+    ]
+  },
+  "pistol.magazine": {
+    "group": "pistol",
+    "name": "弹夹大小",
+    "costs": [
+      20,
+      40,
+      70
+    ],
+    "multipliers": [
+      1.15,
+      1.3,
+      1.45
+    ]
+  },
+  "pistol.reload": {
+    "group": "pistol",
+    "name": "换弹速度",
+    "costs": [
+      20,
+      40,
+      70
+    ],
+    "multipliers": [
+      1.08,
+      1.16,
+      1.24
+    ]
+  },
+  "smg.range": {
+    "group": "smg",
+    "name": "射程",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.1,
+      1.2,
+      1.3
+    ]
+  },
+  "smg.fire_rate": {
+    "group": "smg",
+    "name": "射速",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.08,
+      1.16,
+      1.24
+    ]
+  },
+  "smg.magazine": {
+    "group": "smg",
+    "name": "弹夹大小",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.15,
+      1.3,
+      1.45
+    ]
+  },
+  "smg.reserve": {
+    "group": "smg",
+    "name": "备弹数量",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.2,
+      1.4,
+      1.6
+    ]
+  },
+  "smg.reload": {
+    "group": "smg",
+    "name": "换弹速度",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.08,
+      1.16,
+      1.24
+    ]
+  },
+  "shotgun.range": {
+    "group": "shotgun",
+    "name": "射程",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.1,
+      1.2,
+      1.3
+    ]
+  },
+  "shotgun.fire_rate": {
+    "group": "shotgun",
+    "name": "射速",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.08,
+      1.16,
+      1.24
+    ]
+  },
+  "shotgun.magazine": {
+    "group": "shotgun",
+    "name": "弹夹大小",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.15,
+      1.3,
+      1.45
+    ]
+  },
+  "shotgun.reserve": {
+    "group": "shotgun",
+    "name": "备弹数量",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.2,
+      1.4,
+      1.6
+    ]
+  },
+  "shotgun.reload": {
+    "group": "shotgun",
+    "name": "换弹速度",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.08,
+      1.16,
+      1.24
+    ]
+  },
+  "battlefield.research": {
+    "group": "battlefield",
+    "name": "研究点数获取效率",
+    "costs": [
+      40,
+      80,
+      140
+    ],
+    "multipliers": [
+      1.15,
+      1.3,
+      1.5
+    ]
+  },
+  "battlefield.money": {
+    "group": "battlefield",
+    "name": "金钱获取效率",
+    "costs": [
+      30,
+      60,
+      100
+    ],
+    "multipliers": [
+      1.15,
+      1.3,
+      1.5
+    ]
+  }
+}

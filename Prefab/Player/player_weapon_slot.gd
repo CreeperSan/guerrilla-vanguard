@@ -1,3 +1,4 @@
+## 玩家武器公共状态与射击流程；持久升级在武器首次创建时应用一次。
 class_name PlayerWeaponSlot
 extends Node
 
@@ -51,6 +52,9 @@ var bullet_count: int = 1
 # 多发子弹的总散布角度；单发武器将其作为随机偏移范围。
 var bullet_spread_degrees: float = 0.0
 
+## 防止重复初始化把累计升级倍率再次乘到已升级属性。
+var _battlefield_upgrades_applied: bool = false
+
 # 当前武器是否正在换弹。
 var is_reloading: bool = false
 
@@ -66,12 +70,34 @@ signal sig_ammo_change(current: int, back: int)
 # 换弹变化信号（progress 换弹进度，1代表换弹完成）
 signal sig_reload(progress: float)
 
+## 武器初始化完毕后应用独立升级；只改变容量，不凭空增加拾取弹药。
+## 新建武器原本装满弹匣时同步填满新弹匣，主武器首次拾取仍由拾取数量决定。
+func apply_battlefield_upgrades(weapon_id: String) -> void:
+    if _battlefield_upgrades_applied:
+        return
+    _battlefield_upgrades_applied = true
+    var magazine_was_full := ammo_magazine_cur == ammo_magazine_max
+    bullet_basic_range *= CurrencyManager.get_upgrade_multiplier(weapon_id + ".range")
+    fire_gap /= CurrencyManager.get_upgrade_multiplier(weapon_id + ".fire_rate")
+    reload_duration /= CurrencyManager.get_upgrade_multiplier(weapon_id + ".reload")
+    ammo_magazine_max = roundi(ammo_magazine_max * CurrencyManager.get_upgrade_multiplier(weapon_id + ".magazine"))
+    if magazine_was_full:
+        ammo_magazine_cur = ammo_magazine_max
+    if not ammo_back_infinite:
+        ammo_back_max = roundi(ammo_back_max * CurrencyManager.get_upgrade_multiplier(weapon_id + ".reserve"))
+    # 安全存续时间不能抢先截断升级后的实际射程。
+    bullet_basic_duration = maxf(bullet_basic_duration, bullet_basic_range / maxf(bullet_basic_speed, 0.01) + 0.1)
+
+
 ################################################################################ 事件
 
 ## 尝试开火；弹药扣除、子弹实例化和弹药信号在同一流程中完成。
 # 尝试开火
 # return: true 代表开火成功
 func try_fire(player: Player) -> bool:
+    # 发射入口也守住闪避锁，避免外部调用绕过玩家逐帧输入限制。
+    if player == null or player.dodge_active:
+        return false
     if is_reloading or fire_cooldown_remaining > 0.0 or ammo_magazine_cur <= 0:
         return false
 
@@ -89,6 +115,8 @@ func try_fire(player: Player) -> bool:
 # 尝试换弹
 # return: true 代表触发换弹成功
 func try_reload(player: Player) -> bool:
+    if player == null or player.dodge_active:
+        return false
     if is_reloading or ammo_magazine_cur >= ammo_magazine_max:
         return false
     if not ammo_back_infinite and ammo_back_cur <= 0:
@@ -136,7 +164,17 @@ func add_ammo(amount: int) -> int:
     return ammo_added
 
 
-## 首次拾取武器时按拾取数量装填弹匣和备弹，并返回实际获得数量。
+## 武器拾取只将备弹重置到当前上限，保持弹匣、换弹进度与射击冷却不变。
+## 返回是否实际增加备弹，供普通地面拾取判断是否保留物品；容量升级自然生效。
+func refill_reserve_ammo() -> bool:
+    if ammo_back_infinite or ammo_back_cur >= ammo_back_max:
+        return false
+    ammo_back_cur = ammo_back_max
+    sig_ammo_change.emit(ammo_magazine_cur, ammo_back_cur)
+    return true
+
+
+## 按总量设置弹匣与备弹，用于清空丢弃武器；武器拾取不再调用此入口。
 func set_ammo_from_total(amount: int) -> int:
     if ammo_back_infinite:
         return 0

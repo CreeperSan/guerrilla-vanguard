@@ -1,81 +1,33 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene format=3 uid="uid://boi68rmlu5fqt"]
 
-[ext_resource type="Script" path="res://Scene/UI/HUD/hud.gd" id="1_hud_script"]
-[ext_resource type="Texture2D" path="res://Assets/UI/hud_portrait.svg" id="2_portrait"]
-[ext_resource type="Texture2D" path="res://Prefab/Player/player_weapon_pistol.png" id="3_pistol"]
-[ext_resource type="Script" path="res://Scene/LevelFortress/room_minimap.gd" id="4_room_minimap"]
+[ext_resource type="Script" uid="uid://ce1m7yerpx5p5" path="res://Scene/UI/HUD/hud.gd" id="1_hud_script"]
+[ext_resource type="Texture2D" uid="uid://kqy0lpp3bd2y" path="res://Assets/Art/MilitaryArcade/portrait.png" id="2_portrait"]
+[ext_resource type="Texture2D" uid="uid://bvfglcr27sgy3" path="res://Assets/Art/MilitaryArcade/pistol.png" id="3_pistol"]
+[ext_resource type="Script" uid="uid://xw0iyfg0t05d" path="res://Scene/LevelFortress/room_minimap.gd" id="4_room_minimap"]
+[ext_resource type="Texture2D" uid="uid://syxgdk4upedo" path="res://Assets/Art/MilitaryArcade/hud_panel.png" id="5_military_panel"]
+[ext_resource type="Texture2D" uid="uid://jln48h0nc4qb" path="res://Assets/Art/MilitaryArcade/money.png" id="6_money_art"]
+[ext_resource type="Texture2D" uid="uid://b0ae31ehajwfd" path="res://Assets/Art/MilitaryArcade/research.png" id="7_research_art"]
 
-[sub_resource type="StyleBoxFlat" id="StylePanel"]
-bg_color = Color(0.0627451, 0.0980392, 0.105882, 0.96)
-border_color = Color(0.321569, 0.403922, 0.356863, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-content_margin_left = 10.0
-content_margin_top = 8.0
-content_margin_right = 10.0
-content_margin_bottom = 8.0
+[ext_resource type="Script" path="res://Scene/UI/HUD/enemy_direction_hints.gd" id="enemy_hints"]
 
-[sub_resource type="StyleBoxFlat" id="StyleInsetPanel"]
-bg_color = Color(0.0784314, 0.12549, 0.129412, 1)
-border_color = Color(0.321569, 0.403922, 0.356863, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-content_margin_left = 9.0
-content_margin_top = 4.0
-content_margin_right = 9.0
-content_margin_bottom = 4.0
-
-[sub_resource type="StyleBoxFlat" id="StyleCircle"]
-bg_color = Color(0.0627451, 0.0980392, 0.105882, 0.92)
-border_color = Color(0.321569, 0.403922, 0.356863, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-corner_radius_top_left = 80
-corner_radius_top_right = 80
-corner_radius_bottom_right = 80
-corner_radius_bottom_left = 80
-content_margin_left = 8.0
-content_margin_top = 8.0
-content_margin_right = 8.0
-content_margin_bottom = 8.0
-
-[sub_resource type="StyleBoxFlat" id="StyleCircleAccent"]
-bg_color = Color(0.0627451, 0.0980392, 0.105882, 0.96)
-border_color = Color(0.741176, 0.823529, 0.541176, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-corner_radius_top_left = 80
-corner_radius_top_right = 80
-corner_radius_bottom_right = 80
-corner_radius_bottom_left = 80
-content_margin_left = 8.0
-content_margin_top = 8.0
-content_margin_right = 8.0
-content_margin_bottom = 8.0
+[sub_resource type="StyleBoxTexture" id="StylePanel"]
+content_margin_left = 14.0
+content_margin_top = 12.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+texture = ExtResource("5_military_panel")
+texture_margin_left = 40.0
+texture_margin_top = 40.0
+texture_margin_right = 40.0
+texture_margin_bottom = 40.0
 
 [sub_resource type="StyleBoxFlat" id="StyleHealthTrack"]
 bg_color = Color(0.0784314, 0.12549, 0.129412, 1)
-border_color = Color(0.321569, 0.403922, 0.356863, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
+border_color = Color(0.4, 0.49, 0.31, 1)
 corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
@@ -88,6 +40,17 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
+[sub_resource type="StyleBoxTexture" id="StyleInsetPanel"]
+content_margin_left = 14.0
+content_margin_top = 12.0
+content_margin_right = 14.0
+content_margin_bottom = 12.0
+texture = ExtResource("5_military_panel")
+texture_margin_left = 40.0
+texture_margin_top = 40.0
+texture_margin_right = 40.0
+texture_margin_bottom = 40.0
+
 [sub_resource type="StyleBoxFlat" id="StyleReloadTrack"]
 bg_color = Color(0, 0, 0, 0)
 
@@ -98,13 +61,45 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleCircle"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.1, 0.12, 0.07, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.49, 0.31, 1)
+corner_radius_top_left = 80
+corner_radius_top_right = 80
+corner_radius_bottom_right = 80
+corner_radius_bottom_left = 80
+
+[sub_resource type="StyleBoxFlat" id="StyleCircleAccent"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.1, 0.12, 0.07, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.741176, 0.823529, 0.541176, 1)
+corner_radius_top_left = 80
+corner_radius_top_right = 80
+corner_radius_bottom_right = 80
+corner_radius_bottom_left = 80
+
 [sub_resource type="StyleBoxFlat" id="StyleBossHealthTrack"]
 bg_color = Color(0.0862745, 0.0627451, 0.0627451, 1)
-border_color = Color(0.43, 0.31, 0.27, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
+border_color = Color(0.43, 0.31, 0.27, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -117,12 +112,16 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
-[node name="HUD" type="CanvasLayer"]
-layer = 10
+[sub_resource type="StyleBoxFlat" id="StyleStaminaFill"]
+bg_color = Color(0.4, 0.73, 0.78, 1)
+
+[node name="HUD" type="CanvasLayer" unique_id=55540924]
 process_mode = 3
+layer = 10
 script = ExtResource("1_hud_script")
 
-[node name="UIRoot" type="Control" parent="."]
+[node name="UIRoot" type="Control" parent="." unique_id=1220880672]
+texture_filter = 2
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -131,9 +130,19 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="PlayerPanel" type="PanelContainer" parent="UIRoot"]
+[node name="EnemyDirectionHints" type="Control" parent="UIRoot"]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("enemy_hints")
+
+[node name="PlayerPanel" type="PanelContainer" parent="UIRoot" unique_id=1978397420]
+layout_mode = 1
 offset_left = 22.0
 offset_top = 18.0
 offset_right = 404.0
@@ -141,55 +150,53 @@ offset_bottom = 110.0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StylePanel")
 
-[node name="PlayerRow" type="HBoxContainer" parent="UIRoot/PlayerPanel"]
+[node name="PlayerRow" type="HBoxContainer" parent="UIRoot/PlayerPanel" unique_id=1886541373]
 layout_mode = 2
-theme_override_constants/separation = 12
 mouse_filter = 2
+theme_override_constants/separation = 12
 
-[node name="Portrait" type="TextureRect" parent="UIRoot/PlayerPanel/PlayerRow"]
+[node name="Portrait" type="TextureRect" parent="UIRoot/PlayerPanel/PlayerRow" unique_id=788109482]
 custom_minimum_size = Vector2(62, 62)
 layout_mode = 2
+mouse_filter = 2
 texture = ExtResource("2_portrait")
 expand_mode = 1
 stretch_mode = 5
-mouse_filter = 2
 
-[node name="PlayerDetails" type="VBoxContainer" parent="UIRoot/PlayerPanel/PlayerRow"]
+[node name="PlayerDetails" type="VBoxContainer" parent="UIRoot/PlayerPanel/PlayerRow" unique_id=911529000]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 3
 mouse_filter = 2
+theme_override_constants/separation = 3
 
-[node name="HealthHeading" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails"]
+[node name="HealthHeading" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails" unique_id=1294803580]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 12
 text = "生命状态  /  VITALS"
-mouse_filter = 2
 
-[node name="HealthBar" type="ProgressBar" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails"]
+[node name="HealthBar" type="ProgressBar" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails" unique_id=92416711]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 13)
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/background = SubResource("StyleHealthTrack")
 theme_override_styles/fill = SubResource("StyleHealthFill")
-show_percentage = false
 value = 100.0
-mouse_filter = 2
+show_percentage = false
 
-[node name="PlayerStats" type="HBoxContainer" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails"]
+[node name="PlayerStats" type="HBoxContainer" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails" unique_id=1628509486]
 layout_mode = 2
-theme_override_constants/separation = 14
 mouse_filter = 2
+theme_override_constants/separation = 14
 
-[node name="HealthCaption" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails/PlayerStats"]
+[node name="HealthCaption" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails/PlayerStats" unique_id=963547519]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 12
 text = "耐久"
-mouse_filter = 2
 
-[node name="HealthValueLabel" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails/PlayerStats"]
+[node name="HealthValueLabel" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails/PlayerStats" unique_id=1053910528]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -197,163 +204,205 @@ theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
 theme_override_font_sizes/font_size = 13
 text = "100 / 100"
 horizontal_alignment = 2
-mouse_filter = 2
 
-[node name="ResourcePanel" type="PanelContainer" parent="UIRoot/PlayerPanel/PlayerRow"]
+[node name="StaminaRow" type="HBoxContainer" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 5
+
+[node name="StaminaCaption" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails/StaminaRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 10
+text = "体力"
+
+[node name="StaminaBar" type="ProgressBar" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails/StaminaRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 9)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleHealthTrack")
+theme_override_styles/fill = SubResource("StyleStaminaFill")
+value = 100.0
+show_percentage = false
+
+[node name="ResourcePanel" type="PanelContainer" parent="UIRoot/PlayerPanel/PlayerRow" unique_id=1125924187]
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_horizontal = 8
-theme_override_styles/panel = SubResource("StyleInsetPanel")
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleInsetPanel")
 
-[node name="ResourceValue" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/ResourcePanel"]
+[node name="CurrencyRow" type="HBoxContainer" parent="UIRoot/PlayerPanel/PlayerRow/ResourcePanel" unique_id=93235861]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="CurrencyIcons" type="VBoxContainer" parent="UIRoot/PlayerPanel/PlayerRow/ResourcePanel/CurrencyRow" unique_id=1224213637]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+
+[node name="MoneyIcon" type="TextureRect" parent="UIRoot/PlayerPanel/PlayerRow/ResourcePanel/CurrencyRow/CurrencyIcons" unique_id=1899660996]
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("6_money_art")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ResearchIcon" type="TextureRect" parent="UIRoot/PlayerPanel/PlayerRow/ResourcePanel/CurrencyRow/CurrencyIcons" unique_id=744802572]
+custom_minimum_size = Vector2(16, 24)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("7_research_art")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ResourceValue" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/ResourcePanel/CurrencyRow" unique_id=1568601837]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 12
-text = "金钱 $ 0\n研究 ◆ 0\n已存 ◆ 0"
+text = "金钱 $ 0
+研究 ◆ 0
+已存 ◆ 0"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="ScorePanel" type="PanelContainer" parent="UIRoot"]
+[node name="ScorePanel" type="PanelContainer" parent="UIRoot" unique_id=1970346479]
 custom_minimum_size = Vector2(184, 70)
 layout_mode = 1
+anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -92.0
 offset_top = 18.0
 offset_right = 92.0
 offset_bottom = 88.0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StylePanel")
-mouse_filter = 2
 
-[node name="ScoreContents" type="VBoxContainer" parent="UIRoot/ScorePanel"]
+[node name="ScoreContents" type="VBoxContainer" parent="UIRoot/ScorePanel" unique_id=1136385682]
 layout_mode = 2
-theme_override_constants/separation = 0
 mouse_filter = 2
+theme_override_constants/separation = 0
 
-[node name="ScoreHeading" type="Label" parent="UIRoot/ScorePanel/ScoreContents"]
+[node name="ScoreHeading" type="Label" parent="UIRoot/ScorePanel/ScoreContents" unique_id=430937525]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 12
 text = "得分  /  SCORE"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="ScoreValue" type="Label" parent="UIRoot/ScorePanel/ScoreContents"]
+[node name="ScoreValue" type="Label" parent="UIRoot/ScorePanel/ScoreContents" unique_id=1076617036]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 21
 text = "121,245,109"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="WeaponPanel" type="PanelContainer" parent="UIRoot"]
+[node name="WeaponPanel" type="PanelContainer" parent="UIRoot" unique_id=1837088167]
 custom_minimum_size = Vector2(304, 104)
 layout_mode = 1
+anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -382.0
 offset_top = 18.0
 offset_right = -78.0
 offset_bottom = 122.0
-theme_override_styles/panel = SubResource("StylePanel")
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StylePanel")
 
-[node name="WeaponContents" type="Control" parent="UIRoot/WeaponPanel"]
+[node name="WeaponContents" type="Control" parent="UIRoot/WeaponPanel" unique_id=69436086]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="ReloadProgressBar" type="ProgressBar" parent="UIRoot/WeaponPanel/WeaponContents"]
+[node name="ReloadProgressBar" type="ProgressBar" parent="UIRoot/WeaponPanel/WeaponContents" unique_id=1062379868]
 unique_name_in_owner = true
-anchors_preset = 15
+visible = false
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 theme_override_styles/background = SubResource("StyleReloadTrack")
 theme_override_styles/fill = SubResource("StyleReloadFill")
-fill_mode = 0
-show_percentage = false
 value = 100.0
-visible = false
-mouse_filter = 2
+show_percentage = false
 
-[node name="WeaponRow" type="HBoxContainer" parent="UIRoot/WeaponPanel/WeaponContents"]
-anchors_preset = 15
+[node name="WeaponRow" type="HBoxContainer" parent="UIRoot/WeaponPanel/WeaponContents" unique_id=7947817]
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 0.72
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 8
 mouse_filter = 2
+theme_override_constants/separation = 8
 
-[node name="PreviousWeapon" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow"]
+[node name="PreviousWeapon" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow" unique_id=477204301]
 custom_minimum_size = Vector2(18, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 25
 text = "‹"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="WeaponIcon" type="TextureRect" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow"]
+[node name="WeaponIcon" type="TextureRect" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow" unique_id=226427273]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(76, 48)
 layout_mode = 2
+mouse_filter = 2
 texture = ExtResource("3_pistol")
 expand_mode = 1
 stretch_mode = 5
-mouse_filter = 2
 
-[node name="WeaponDetails" type="VBoxContainer" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow"]
+[node name="WeaponDetails" type="VBoxContainer" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow" unique_id=352126582]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="WeaponName" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow/WeaponDetails"]
+[node name="WeaponName" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow/WeaponDetails" unique_id=627612570]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 12
 text = "手枪  /  PISTOL"
-mouse_filter = 2
 
-[node name="AmmoValue" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow/WeaponDetails"]
+[node name="AmmoValue" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow/WeaponDetails" unique_id=648186080]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 18
 text = "12  /  ∞"
-mouse_filter = 2
 
-[node name="NextWeapon" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow"]
+[node name="NextWeapon" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/WeaponRow" unique_id=1775032223]
 custom_minimum_size = Vector2(18, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 25
 text = "›"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="SwitchProgressBar" type="ProgressBar" parent="UIRoot/WeaponPanel/WeaponContents"]
+[node name="SwitchProgressBar" type="ProgressBar" parent="UIRoot/WeaponPanel/WeaponContents" unique_id=177953154]
 unique_name_in_owner = true
-anchors_preset = 10
+layout_mode = 0
 anchor_right = 1.0
-anchor_bottom = 0.0
 offset_left = 8.0
 offset_top = 3.0
 offset_right = -8.0
 offset_bottom = 6.0
+mouse_filter = 2
 theme_override_styles/background = SubResource("StyleReloadTrack")
 theme_override_styles/fill = SubResource("StyleReloadFill")
-show_percentage = false
 value = 100.0
-mouse_filter = 2
+show_percentage = false
 
-[node name="SecondaryWeaponRow" type="HBoxContainer" parent="UIRoot/WeaponPanel/WeaponContents"]
+[node name="SecondaryWeaponRow" type="HBoxContainer" parent="UIRoot/WeaponPanel/WeaponContents" unique_id=798965122]
 unique_name_in_owner = true
-anchors_preset = 12
+layout_mode = 0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -361,39 +410,37 @@ offset_left = 12.0
 offset_top = -28.0
 offset_right = -12.0
 offset_bottom = -5.0
-theme_override_constants/separation = 6
 mouse_filter = 2
+theme_override_constants/separation = 6
 
-[node name="SecondaryWeaponIcon" type="TextureRect" parent="UIRoot/WeaponPanel/WeaponContents/SecondaryWeaponRow"]
+[node name="SecondaryWeaponIcon" type="TextureRect" parent="UIRoot/WeaponPanel/WeaponContents/SecondaryWeaponRow" unique_id=128289031]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(34, 20)
 layout_mode = 2
+mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
-mouse_filter = 2
 
-[node name="SecondaryWeaponName" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/SecondaryWeaponRow"]
+[node name="SecondaryWeaponName" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/SecondaryWeaponRow" unique_id=418133186]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(95, 0)
 layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 11
 text = "未解锁后备武器"
-size_flags_horizontal = 3
-mouse_filter = 2
 
-[node name="SecondaryAmmoValue" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/SecondaryWeaponRow"]
+[node name="SecondaryAmmoValue" type="Label" parent="UIRoot/WeaponPanel/WeaponContents/SecondaryWeaponRow" unique_id=1650232490]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
 theme_override_font_sizes/font_size = 12
-text = ""
 horizontal_alignment = 2
-mouse_filter = 2
 
-[node name="MenuPanel" type="PanelContainer" parent="UIRoot"]
+[node name="MenuPanel" type="PanelContainer" parent="UIRoot" unique_id=1145537908]
 custom_minimum_size = Vector2(54, 54)
 layout_mode = 1
+anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -66.0
@@ -401,125 +448,114 @@ offset_top = 30.0
 offset_right = -12.0
 offset_bottom = 84.0
 theme_override_styles/panel = SubResource("StyleCircle")
-mouse_filter = 0
 
-[node name="MenuIcon" type="Label" parent="UIRoot/MenuPanel"]
+[node name="MenuIcon" type="Label" parent="UIRoot/MenuPanel" unique_id=811332467]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 21
 text = "☰"
 horizontal_alignment = 1
 vertical_alignment = 1
-mouse_filter = 2
 
-[node name="MovementPanel" type="PanelContainer" parent="UIRoot"]
+[node name="MovementPanel" type="PanelContainer" parent="UIRoot" unique_id=1704638826]
 custom_minimum_size = Vector2(82, 42)
 layout_mode = 1
 anchors_preset = 2
-anchor_left = 0.0
 anchor_top = 1.0
-anchor_right = 0.0
 anchor_bottom = 1.0
 offset_left = 22.0
 offset_top = -66.0
 offset_right = 104.0
 offset_bottom = -24.0
-theme_override_styles/panel = SubResource("StyleCircle")
+grow_vertical = 0
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleCircle")
 
-[node name="MovementContents" type="VBoxContainer" parent="UIRoot/MovementPanel"]
+[node name="MovementContents" type="VBoxContainer" parent="UIRoot/MovementPanel" unique_id=834664953]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="MovementTitle" type="Label" parent="UIRoot/MovementPanel/MovementContents"]
+[node name="MovementTitle" type="Label" parent="UIRoot/MovementPanel/MovementContents" unique_id=10969486]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 17
 text = "移 动"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="MovementHint" type="Label" parent="UIRoot/MovementPanel/MovementContents"]
+[node name="MovementHint" type="Label" parent="UIRoot/MovementPanel/MovementContents" unique_id=1569956983]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 10
 text = "W A S D"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="AttackPanel" type="PanelContainer" parent="UIRoot"]
+[node name="AttackPanel" type="PanelContainer" parent="UIRoot" unique_id=931061318]
 custom_minimum_size = Vector2(110, 42)
 layout_mode = 1
 anchors_preset = 2
-anchor_left = 0.0
 anchor_top = 1.0
-anchor_right = 0.0
 anchor_bottom = 1.0
 offset_left = 112.0
 offset_top = -66.0
 offset_right = 222.0
 offset_bottom = -24.0
+grow_vertical = 0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleCircleAccent")
-mouse_filter = 2
 
-[node name="AttackContents" type="VBoxContainer" parent="UIRoot/AttackPanel"]
+[node name="AttackContents" type="VBoxContainer" parent="UIRoot/AttackPanel" unique_id=1093731817]
 layout_mode = 2
-theme_override_constants/separation = 2
 mouse_filter = 2
+theme_override_constants/separation = 2
 
-[node name="AttackTitle" type="Label" parent="UIRoot/AttackPanel/AttackContents"]
+[node name="AttackTitle" type="Label" parent="UIRoot/AttackPanel/AttackContents" unique_id=1253628755]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 16
 text = "攻 击"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="AttackHint" type="Label" parent="UIRoot/AttackPanel/AttackContents"]
+[node name="AttackHint" type="Label" parent="UIRoot/AttackPanel/AttackContents" unique_id=1460278937]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 10
 text = "↑↓←→"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="ReloadPanel" type="PanelContainer" parent="UIRoot"]
+[node name="ReloadPanel" type="PanelContainer" parent="UIRoot" unique_id=1253511864]
 custom_minimum_size = Vector2(70, 42)
 layout_mode = 1
 anchors_preset = 2
-anchor_left = 0.0
 anchor_top = 1.0
-anchor_right = 0.0
 anchor_bottom = 1.0
 offset_left = 214.0
 offset_top = -66.0
 offset_right = 284.0
 offset_bottom = -24.0
+grow_vertical = 0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleCircle")
-mouse_filter = 2
 
-[node name="ReloadContents" type="VBoxContainer" parent="UIRoot/ReloadPanel"]
+[node name="ReloadContents" type="VBoxContainer" parent="UIRoot/ReloadPanel" unique_id=1938010419]
 layout_mode = 2
-theme_override_constants/separation = 2
 mouse_filter = 2
+theme_override_constants/separation = 2
 
-[node name="ReloadTitle" type="Label" parent="UIRoot/ReloadPanel/ReloadContents"]
+[node name="ReloadTitle" type="Label" parent="UIRoot/ReloadPanel/ReloadContents" unique_id=1617541314]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 12
 text = "换 弹"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="ReloadHint" type="Label" parent="UIRoot/ReloadPanel/ReloadContents"]
+[node name="ReloadHint" type="Label" parent="UIRoot/ReloadPanel/ReloadContents" unique_id=1518456263]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 10
 text = "R"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="ItemPanel" type="PanelContainer" parent="UIRoot"]
+[node name="ItemPanel" type="PanelContainer" parent="UIRoot" unique_id=984776196]
 custom_minimum_size = Vector2(180, 42)
 layout_mode = 1
 anchors_preset = 3
@@ -531,49 +567,48 @@ offset_left = -476.0
 offset_top = -66.0
 offset_right = -296.0
 offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleCircle")
-mouse_filter = 2
 
-[node name="ItemContents" type="VBoxContainer" parent="UIRoot/ItemPanel"]
+[node name="ItemContents" type="VBoxContainer" parent="UIRoot/ItemPanel" unique_id=1328832951]
 layout_mode = 2
-theme_override_constants/separation = 2
 mouse_filter = 2
+theme_override_constants/separation = 2
 
-[node name="ItemTitle" type="Label" parent="UIRoot/ItemPanel/ItemContents"]
+[node name="ItemTitle" type="Label" parent="UIRoot/ItemPanel/ItemContents" unique_id=1977647359]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 12
 text = "装 备"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="EquipmentIcon" type="TextureRect" parent="UIRoot/ItemPanel/ItemContents"]
+[node name="EquipmentIcon" type="TextureRect" parent="UIRoot/ItemPanel/ItemContents" unique_id=422144016]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
-mouse_filter = 2
-visible = false
 
-[node name="EquipmentValueLabel" type="Label" parent="UIRoot/ItemPanel/ItemContents"]
+[node name="EquipmentValueLabel" type="Label" parent="UIRoot/ItemPanel/ItemContents" unique_id=2077101930]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 10
 text = "未装备"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="ItemHint" type="Label" parent="UIRoot/ItemPanel/ItemContents"]
+[node name="ItemHint" type="Label" parent="UIRoot/ItemPanel/ItemContents" unique_id=1335037098]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 10
 text = "F"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="BattleSupportPanel" type="PanelContainer" parent="UIRoot"]
+[node name="BattleSupportPanel" type="PanelContainer" parent="UIRoot" unique_id=1273741360]
 custom_minimum_size = Vector2(110, 42)
 layout_mode = 1
 anchors_preset = 3
@@ -585,49 +620,48 @@ offset_left = -288.0
 offset_top = -66.0
 offset_right = -178.0
 offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleCircle")
-mouse_filter = 2
 
-[node name="BattleSupportContents" type="VBoxContainer" parent="UIRoot/BattleSupportPanel"]
+[node name="BattleSupportContents" type="VBoxContainer" parent="UIRoot/BattleSupportPanel" unique_id=864427977]
 layout_mode = 2
-theme_override_constants/separation = 2
 mouse_filter = 2
+theme_override_constants/separation = 2
 
-[node name="BattleSupportTitle" type="Label" parent="UIRoot/BattleSupportPanel/BattleSupportContents"]
+[node name="BattleSupportTitle" type="Label" parent="UIRoot/BattleSupportPanel/BattleSupportContents" unique_id=1811365118]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 11
 text = "战场支援"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="BattleSupportIcon" type="TextureRect" parent="UIRoot/BattleSupportPanel/BattleSupportContents"]
+[node name="BattleSupportIcon" type="TextureRect" parent="UIRoot/BattleSupportPanel/BattleSupportContents" unique_id=753386852]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(34, 34)
 layout_mode = 2
+mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
-visible = false
-mouse_filter = 2
 
-[node name="BattleSupportName" type="Label" parent="UIRoot/BattleSupportPanel/BattleSupportContents"]
+[node name="BattleSupportName" type="Label" parent="UIRoot/BattleSupportPanel/BattleSupportContents" unique_id=246964194]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 10
 text = "无支援"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="BattleSupportHint" type="Label" parent="UIRoot/BattleSupportPanel/BattleSupportContents"]
+[node name="BattleSupportHint" type="Label" parent="UIRoot/BattleSupportPanel/BattleSupportContents" unique_id=376446289]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 10
 text = "E 使用"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="SkillPanel" type="PanelContainer" parent="UIRoot"]
+[node name="SkillPanel" type="PanelContainer" parent="UIRoot" unique_id=597560144]
 custom_minimum_size = Vector2(152, 42)
 layout_mode = 1
 anchors_preset = 3
@@ -639,76 +673,74 @@ offset_left = -174.0
 offset_top = -66.0
 offset_right = -22.0
 offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleCircle")
-mouse_filter = 2
 
-[node name="SkillContents" type="VBoxContainer" parent="UIRoot/SkillPanel"]
+[node name="SkillContents" type="VBoxContainer" parent="UIRoot/SkillPanel" unique_id=675574630]
 layout_mode = 2
-theme_override_constants/separation = 2
 mouse_filter = 2
+theme_override_constants/separation = 2
 
-[node name="SkillTitle" type="Label" parent="UIRoot/SkillPanel/SkillContents"]
+[node name="SkillTitle" type="Label" parent="UIRoot/SkillPanel/SkillContents" unique_id=1672153913]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 12
 text = "自身技能"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="SkillIcon" type="TextureRect" parent="UIRoot/SkillPanel/SkillContents"]
+[node name="SkillIcon" type="TextureRect" parent="UIRoot/SkillPanel/SkillContents" unique_id=1771359697]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
+mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
-visible = false
-mouse_filter = 2
 
-[node name="SkillName" type="Label" parent="UIRoot/SkillPanel/SkillContents"]
+[node name="SkillName" type="Label" parent="UIRoot/SkillPanel/SkillContents" unique_id=2061254226]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 10
 text = "未装备"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="SkillCooldownBar" type="ProgressBar" parent="UIRoot/SkillPanel/SkillContents"]
+[node name="SkillCooldownBar" type="ProgressBar" parent="UIRoot/SkillPanel/SkillContents" unique_id=1894776399]
 unique_name_in_owner = true
+visible = false
 custom_minimum_size = Vector2(54, 4)
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/background = SubResource("StyleReloadTrack")
 theme_override_styles/fill = SubResource("StyleReloadFill")
-show_percentage = false
 value = 100.0
-visible = false
-mouse_filter = 2
+show_percentage = false
 
-[node name="SkillHint" type="Label" parent="UIRoot/SkillPanel/SkillContents"]
+[node name="SkillHint" type="Label" parent="UIRoot/SkillPanel/SkillContents" unique_id=1660509330]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 10
 text = "拾取技能"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="InputHintPanel" type="PanelContainer" parent="UIRoot"]
+[node name="InputHintPanel" type="PanelContainer" parent="UIRoot" unique_id=1540250437]
 custom_minimum_size = Vector2(100, 26)
 layout_mode = 1
 anchors_preset = 2
-anchor_left = 0.0
-anchor_right = 0.0
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 22.0
 offset_top = -98.0
 offset_right = 122.0
 offset_bottom = -72.0
-theme_override_styles/panel = SubResource("StylePanel")
+grow_vertical = 0
 mouse_filter = 2
+theme_override_styles/panel = SubResource("StylePanel")
 
-[node name="InputHintLabel" type="Label" parent="UIRoot/InputHintPanel"]
+[node name="InputHintLabel" type="Label" parent="UIRoot/InputHintPanel" unique_id=1021274636]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
@@ -716,9 +748,8 @@ theme_override_font_sizes/font_size = 11
 text = "键盘 / ESC"
 horizontal_alignment = 1
 vertical_alignment = 1
-mouse_filter = 2
 
-[node name="PauseOverlay" type="Control" parent="UIRoot"]
+[node name="PauseOverlay" type="Control" parent="UIRoot" unique_id=1171058694]
 visible = false
 z_index = 1
 layout_mode = 1
@@ -727,9 +758,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 
-[node name="Dimmer" type="ColorRect" parent="UIRoot/PauseOverlay"]
+[node name="Dimmer" type="ColorRect" parent="UIRoot/PauseOverlay" unique_id=1088739713]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -737,9 +767,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.0156863, 0.027451, 0.027451, 0.82)
-mouse_filter = 0
 
-[node name="CenterContainer" type="CenterContainer" parent="UIRoot/PauseOverlay"]
+[node name="CenterContainer" type="CenterContainer" parent="UIRoot/PauseOverlay" unique_id=635534786]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -748,51 +777,49 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="MenuCard" type="PanelContainer" parent="UIRoot/PauseOverlay/CenterContainer"]
+[node name="MenuCard" type="PanelContainer" parent="UIRoot/PauseOverlay/CenterContainer" unique_id=1163730816]
 custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StylePanel")
-mouse_filter = 2
 
-[node name="Contents" type="VBoxContainer" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard"]
+[node name="Contents" type="VBoxContainer" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard" unique_id=2110446820]
 layout_mode = 2
-theme_override_constants/separation = 14
 mouse_filter = 2
+theme_override_constants/separation = 14
 
-[node name="Title" type="Label" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents"]
+[node name="Title" type="Label" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents" unique_id=1303681846]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 25
 text = "战场暂停  /  PAUSED"
 horizontal_alignment = 1
 
-[node name="VolumeLabel" type="Label" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents"]
+[node name="VolumeLabel" type="Label" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents" unique_id=1714183481]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
 text = "音效音量  100%"
 
-[node name="VolumeSlider" type="HSlider" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents"]
+[node name="VolumeSlider" type="HSlider" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents" unique_id=1188782152]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
-min_value = 0.0
-max_value = 100.0
 value = 100.0
 
-[node name="ContinueButton" type="Button" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents"]
+[node name="ContinueButton" type="Button" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents" unique_id=424665509]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "继续游戏"
 
-[node name="ExitButton" type="Button" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents"]
+[node name="ExitButton" type="Button" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents" unique_id=249555935]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "退出游戏"
 
-[node name="DefeatOverlay" type="Control" parent="UIRoot"]
+[node name="DefeatOverlay" type="Control" parent="UIRoot" unique_id=865770809]
 visible = false
 z_index = 2
 layout_mode = 1
@@ -801,9 +828,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 
-[node name="Dimmer" type="ColorRect" parent="UIRoot/DefeatOverlay"]
+[node name="Dimmer" type="ColorRect" parent="UIRoot/DefeatOverlay" unique_id=857822203]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -811,9 +837,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.0352941, 0.0156863, 0.0156863, 0.86)
-mouse_filter = 0
 
-[node name="CenterContainer" type="CenterContainer" parent="UIRoot/DefeatOverlay"]
+[node name="CenterContainer" type="CenterContainer" parent="UIRoot/DefeatOverlay" unique_id=1163434210]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -822,25 +847,25 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="MenuCard" type="PanelContainer" parent="UIRoot/DefeatOverlay/CenterContainer"]
+[node name="MenuCard" type="PanelContainer" parent="UIRoot/DefeatOverlay/CenterContainer" unique_id=1938708861]
 custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StylePanel")
-mouse_filter = 2
 
-[node name="Contents" type="VBoxContainer" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard"]
+[node name="Contents" type="VBoxContainer" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard" unique_id=1626185032]
 layout_mode = 2
-theme_override_constants/separation = 14
 mouse_filter = 2
+theme_override_constants/separation = 14
 
-[node name="Title" type="Label" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents"]
+[node name="Title" type="Label" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents" unique_id=122092220]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 28
 text = "任务失败  /  DEFEAT"
 horizontal_alignment = 1
 
-[node name="ScoreLabel" type="Label" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents"]
+[node name="ScoreLabel" type="Label" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents" unique_id=1653430036]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
@@ -848,35 +873,33 @@ theme_override_font_sizes/font_size = 18
 text = "总积分  0"
 horizontal_alignment = 1
 
-[node name="ExitButton" type="Button" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents"]
-unique_name_in_owner = true
+[node name="ExitButton" type="Button" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents" unique_id=820647738]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "退出游戏"
 
-[node name="DefeatRestartButton" type="Button" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents"]
+[node name="DefeatRestartButton" type="Button" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents" unique_id=422469485]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "重新开始"
 
-[node name="DefeatCurrency" type="Label" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents"]
+[node name="DefeatCurrency" type="Label" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents" unique_id=50200689]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 text = "带出研究 +0"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="DefeatHomeButton" type="Button" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents"]
+[node name="DefeatHomeButton" type="Button" parent="UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents" unique_id=1581617016]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "返回首页"
 
-[node name="StartOverlay" type="Control" parent="UIRoot"]
+[node name="StartOverlay" type="Control" parent="UIRoot" unique_id=1758609056]
 visible = false
 z_index = 1
 layout_mode = 1
@@ -885,19 +908,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 
-[node name="Dimmer" type="ColorRect" parent="UIRoot/StartOverlay"]
+[node name="Dimmer" type="ColorRect" parent="UIRoot/StartOverlay" unique_id=1690382334]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.0156863, 0.027451, 0.027451, 0.64)
 mouse_filter = 2
+color = Color(0.0156863, 0.027451, 0.027451, 0.64)
 
-[node name="CountdownLabel" type="Label" parent="UIRoot/StartOverlay"]
+[node name="CountdownLabel" type="Label" parent="UIRoot/StartOverlay" unique_id=1303679666]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 8
@@ -909,52 +931,55 @@ offset_left = -180.0
 offset_top = -60.0
 offset_right = 180.0
 offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 54
 text = "3"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="BossHealthPanel" type="PanelContainer" parent="UIRoot"]
+[node name="BossHealthPanel" type="PanelContainer" parent="UIRoot" unique_id=1122363520]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.15
 anchor_top = 1.0
 anchor_right = 0.85
 anchor_bottom = 1.0
 offset_top = -88.0
 offset_bottom = -24.0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StylePanel")
-mouse_filter = 2
 
-[node name="Contents" type="VBoxContainer" parent="UIRoot/BossHealthPanel"]
+[node name="Contents" type="VBoxContainer" parent="UIRoot/BossHealthPanel" unique_id=2007969000]
 layout_mode = 2
-theme_override_constants/separation = 4
 mouse_filter = 2
+theme_override_constants/separation = 4
 
-[node name="BossNameLabel" type="Label" parent="UIRoot/BossHealthPanel/Contents"]
+[node name="BossNameLabel" type="Label" parent="UIRoot/BossHealthPanel/Contents" unique_id=1718816123]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.847059, 0.796078, 1)
 theme_override_font_sizes/font_size = 13
 text = "GENERAL  /  PHASE 01"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="BossHealthBar" type="ProgressBar" parent="UIRoot/BossHealthPanel/Contents"]
+[node name="BossHealthBar" type="ProgressBar" parent="UIRoot/BossHealthPanel/Contents" unique_id=419405274]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBossHealthTrack")
 theme_override_styles/fill = SubResource("StyleBossHealthFill")
-show_percentage = false
 value = 100.0
-mouse_filter = 2
+show_percentage = false
 
-[node name="RoomMinimap" type="Control" parent="UIRoot"]
+[node name="RoomMinimap" type="Control" parent="UIRoot" unique_id=280530173]
 unique_name_in_owner = true
 layout_mode = 1
+anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -226.0
@@ -964,49 +989,49 @@ offset_bottom = 286.0
 mouse_filter = 2
 script = ExtResource("4_room_minimap")
 
-[node name="RunProgressPanel" type="PanelContainer" parent="UIRoot"]
+[node name="RunProgressPanel" type="PanelContainer" parent="UIRoot" unique_id=1944687357]
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
+anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -300.0
 offset_top = 134.0
 offset_right = 300.0
 offset_bottom = 218.0
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StylePanel")
-mouse_filter = 2
 
-[node name="Contents" type="VBoxContainer" parent="UIRoot/RunProgressPanel"]
+[node name="Contents" type="VBoxContainer" parent="UIRoot/RunProgressPanel" unique_id=373673915]
 layout_mode = 2
-theme_override_constants/separation = 5
 mouse_filter = 2
+theme_override_constants/separation = 5
 
-[node name="RunProgressLabel" type="Label" parent="UIRoot/RunProgressPanel/Contents"]
+[node name="RunProgressLabel" type="Label" parent="UIRoot/RunProgressPanel/Contents" unique_id=1672030242]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 12
 text = "对局路线"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="RunRoute" type="HBoxContainer" parent="UIRoot/RunProgressPanel/Contents"]
+[node name="RunRoute" type="HBoxContainer" parent="UIRoot/RunProgressPanel/Contents" unique_id=134822176]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 4
 mouse_filter = 2
+theme_override_constants/separation = 4
 
-[node name="RunProgressBar" type="ProgressBar" parent="UIRoot/RunProgressPanel/Contents"]
+[node name="RunProgressBar" type="ProgressBar" parent="UIRoot/RunProgressPanel/Contents" unique_id=387709217]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/background = SubResource("StyleHealthTrack")
 theme_override_styles/fill = SubResource("StyleHealthFill")
 show_percentage = false
-mouse_filter = 2
 
-[node name="RunModeOverlay" type="Control" parent="UIRoot"]
+[node name="RunModeOverlay" type="Control" parent="UIRoot" unique_id=621947458]
 unique_name_in_owner = true
 visible = false
 z_index = 4
@@ -1016,9 +1041,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 
-[node name="Dimmer" type="ColorRect" parent="UIRoot/RunModeOverlay"]
+[node name="Dimmer" type="ColorRect" parent="UIRoot/RunModeOverlay" unique_id=1517069639]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1026,9 +1050,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.0156863, 0.027451, 0.027451, 0.92)
-mouse_filter = 0
 
-[node name="CenterContainer" type="CenterContainer" parent="UIRoot/RunModeOverlay"]
+[node name="CenterContainer" type="CenterContainer" parent="UIRoot/RunModeOverlay" unique_id=1004181452]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1037,47 +1060,48 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="MenuCard" type="PanelContainer" parent="UIRoot/RunModeOverlay/CenterContainer"]
+[node name="MenuCard" type="PanelContainer" parent="UIRoot/RunModeOverlay/CenterContainer" unique_id=2134635028]
 custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StylePanel")
-mouse_filter = 2
 
-[node name="Contents" type="VBoxContainer" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard"]
+[node name="Contents" type="VBoxContainer" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard" unique_id=678362838]
 layout_mode = 2
-theme_override_constants/separation = 18
 mouse_filter = 2
+theme_override_constants/separation = 18
 
-[node name="Title" type="Label" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents"]
+[node name="Title" type="Label" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents" unique_id=798160815]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 25
 text = "选择进攻方式"
 horizontal_alignment = 1
 
-[node name="Description" type="Label" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents"]
+[node name="Description" type="Label" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents" unique_id=311076537]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
 theme_override_font_sizes/font_size = 14
-text = "每局重新抽取一条路线，击败各关 Boss 后继续前进。\n地下要塞仅作为强攻的固定终点。"
+text = "每局重新抽取一条路线，击败各关 Boss 后继续前进。
+地下要塞仅作为强攻的固定终点。"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="AirborneButton" type="Button" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents"]
+[node name="AirborneButton" type="Button" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents" unique_id=1721841693]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "空降模式 · 随机 5 关"
 
-[node name="AssaultButton" type="Button" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents"]
+[node name="AssaultButton" type="Button" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents" unique_id=1892238174]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "强攻模式 · 随机 6 关 + 地下要塞"
 
-[node name="RunModeError" type="Label" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents"]
+[node name="RunModeError" type="Label" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents" unique_id=222830265]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.86, 0.4, 0.35, 1)
@@ -1085,7 +1109,7 @@ theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="VictoryOverlay" type="Control" parent="UIRoot"]
+[node name="VictoryOverlay" type="Control" parent="UIRoot" unique_id=480247159]
 unique_name_in_owner = true
 visible = false
 z_index = 3
@@ -1095,9 +1119,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 0
 
-[node name="Dimmer" type="ColorRect" parent="UIRoot/VictoryOverlay"]
+[node name="Dimmer" type="ColorRect" parent="UIRoot/VictoryOverlay" unique_id=1177458904]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1105,9 +1128,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.0156863, 0.027451, 0.027451, 0.86)
-mouse_filter = 0
 
-[node name="CenterContainer" type="CenterContainer" parent="UIRoot/VictoryOverlay"]
+[node name="CenterContainer" type="CenterContainer" parent="UIRoot/VictoryOverlay" unique_id=1138141982]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1116,18 +1138,18 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="MenuCard" type="PanelContainer" parent="UIRoot/VictoryOverlay/CenterContainer"]
+[node name="MenuCard" type="PanelContainer" parent="UIRoot/VictoryOverlay/CenterContainer" unique_id=526300442]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StylePanel")
-mouse_filter = 2
 
-[node name="Contents" type="VBoxContainer" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard"]
+[node name="Contents" type="VBoxContainer" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard" unique_id=1317151777]
 layout_mode = 2
-theme_override_constants/separation = 16
 mouse_filter = 2
+theme_override_constants/separation = 16
 
-[node name="VictoryTitle" type="Label" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents"]
+[node name="VictoryTitle" type="Label" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents" unique_id=1698021105]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
@@ -1135,34 +1157,33 @@ theme_override_font_sizes/font_size = 28
 text = "任务完成"
 horizontal_alignment = 1
 
-[node name="VictoryScore" type="Label" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents"]
+[node name="VictoryScore" type="Label" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents" unique_id=649307551]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 
-[node name="VictoryCurrency" type="Label" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents"]
+[node name="VictoryCurrency" type="Label" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents" unique_id=1443278294]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 13
 text = "带出研究 +0"
 horizontal_alignment = 1
-mouse_filter = 2
 
-[node name="VictoryRestartButton" type="Button" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents"]
+[node name="VictoryRestartButton" type="Button" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents" unique_id=1104897084]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "重新开始"
 
-[node name="VictoryExitButton" type="Button" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents"]
+[node name="VictoryExitButton" type="Button" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents" unique_id=2004551822]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "退出游戏"
 
-[node name="VictoryHomeButton" type="Button" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents"]
+[node name="VictoryHomeButton" type="Button" parent="UIRoot/VictoryOverlay/CenterContainer/MenuCard/Contents" unique_id=1021592133]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 42)

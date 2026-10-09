@@ -1,13 +1,13 @@
 [gd_resource type="Resource" script_class="BattlefieldTheme" load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://Script/Level/battlefield_theme.gd" id="1_theme"]
-[ext_resource type="Texture2D" path="res://Scene/LevelVillage/Terrain/ground.svg" id="2_ground"]
-[ext_resource type="Texture2D" path="res://Scene/LevelVillage/Terrain/wall.svg" id="3_wall"]
-[ext_resource type="Texture2D" path="res://Scene/LevelVillage/Terrain/water.svg" id="4_water"]
-[ext_resource type="Texture2D" path="res://Scene/LevelVillage/Terrain/box.svg" id="5_box"]
-[ext_resource type="Texture2D" path="res://Scene/LevelVillage/Terrain/entrance.svg" id="6_entrance"]
-[ext_resource type="Texture2D" path="res://Scene/LevelVillage/Terrain/cover.svg" id="7_cover"]
-[ext_resource type="Texture2D" path="res://Scene/LevelVillage/Terrain/decoration.svg" id="8_decoration"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/ground.png" id="2_ground"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/wall.png" id="3_wall"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/water.png" id="4_water"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/box.png" id="5_box"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/entrance.png" id="6_entrance"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/cover.png" id="7_cover"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/decoration.png" id="8_decoration"]
 
 [ext_resource type="AudioStream" path="res://Assets/Audio/Music/level_village.wav" id="music_theme"]
 

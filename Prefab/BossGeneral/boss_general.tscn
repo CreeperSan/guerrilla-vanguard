@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dg5es33hm0syl"]
 
 [ext_resource type="Script" uid="uid://cjbgx24bqd8w0" path="res://Prefab/BossGeneral/boss_general.gd" id="1_boss"]
-[ext_resource type="Texture2D" uid="uid://q25gyyog6oti" path="res://Prefab/BossGeneral/general_idle.png" id="2_general"]
+[ext_resource type="Texture2D" uid="uid://dhfm3ua76ixrd" path="res://Assets/Art/MilitaryArcade/World/boss_atlas.png" id="2_general"]
 [ext_resource type="Script" uid="uid://dd34o0ihgp627" path="res://Script/Component/health_component.gd" id="3_health"]
 [ext_resource type="Script" uid="uid://bk6pyna1cghq6" path="res://Script/Component/hurt_box.gd" id="4_hurtbox"]
 
@@ -10,7 +10,7 @@ radius = 8.0
 height = 34.0
 
 [sub_resource type="CapsuleShape2D" id="BossHurtShape"]
-radius = 9.0
+radius = 12.0
 height = 38.0
 
 [node name="General" type="CharacterBody2D" unique_id=748596618 groups=["enemies"]]
@@ -22,8 +22,11 @@ phase_two_move_speed = 50.0
 shape = SubResource("BossBodyShape")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=591447022]
-scale = Vector2(2, 2)
+texture_filter = 2
+scale = Vector2(0.4, 0.4)
 texture = ExtResource("2_general")
+hframes = 2
+vframes = 8
 
 [node name="Health" type="Node" parent="." unique_id=390404264]
 script = ExtResource("3_health")

@@ -2,11 +2,16 @@
 class_name FortressRoomMinimap
 extends Control
 
+## 小地图直接绘制文字，不经过 Label 主题继承，因此显式使用统一的游戏像素字体。
+const MAP_FONT: Font = preload("res://Font/fusion-pixel-12-zh-hans.ttf")
+
 const COLOR_PANEL := Color(0.035, 0.055, 0.06, 0.86)
 const COLOR_ROOM := Color(0.32, 0.39, 0.34, 0.95)
 const COLOR_VISITED := Color(0.55, 0.68, 0.39, 1.0)
 const COLOR_CURRENT := Color(0.94, 0.78, 0.34, 1.0)
 const COLOR_BOSS := Color(0.75, 0.23, 0.22, 1.0)
+## 商人支路使用青绿色，与战斗房和 Boss 房区分。
+const COLOR_MERCHANT := Color(0.22, 0.65, 0.62, 1.0)
 const COLOR_ROUTE := Color(0.65, 0.73, 0.62, 0.8)
 
 var _level_map: Dictionary = {}
@@ -28,7 +33,7 @@ func _draw() -> void:
 	var rooms: Array = _level_map.get("rooms", [])
 	var connections: Array = _level_map.get("connections", [])
 	if rooms.is_empty():
-		draw_string(ThemeDB.fallback_font, Vector2(12.0, 25.0), "房间路线等待生成")
+		draw_string(MAP_FONT, Vector2(12.0, 25.0), "房间路线等待生成")
 		return
 	var bounds := _get_map_bounds(rooms)
 	var map_area := Rect2(Vector2(12.0, 30.0), size - Vector2(24.0, 42.0))
@@ -47,15 +52,15 @@ func _draw() -> void:
 		var room_id := int(room.id)
 		var rect: Rect2 = room_rects[room_id]
 		var room_type := str(room.get("type", "combat"))
-		var room_color: Color = COLOR_BOSS if room_type == "boss" else COLOR_ROOM
-		if _visited_room_ids.has(room_id):
+		var room_color: Color = COLOR_BOSS if room_type == "boss" else (COLOR_MERCHANT if room_type == "merchant" else COLOR_ROOM)
+		if _visited_room_ids.has(room_id) and room_type != "merchant":
 			room_color = COLOR_VISITED if room_type != "boss" else COLOR_BOSS
 		draw_rect(rect, room_color, true)
 		var border_color: Color = COLOR_CURRENT if room_id == _current_room_id else Color(0.82, 0.87, 0.78, 0.9)
 		draw_rect(rect, border_color, false, 2.0)
 		if rect.size.x >= 16.0 and rect.size.y >= 12.0:
-			var room_marker := "B" if room_type == "boss" else ("S" if room_type == "start" else str(room_id + 1))
-			draw_string(ThemeDB.fallback_font, rect.position + Vector2(3.0, minf(rect.size.y - 2.0, 12.0)), room_marker, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 10)
+			var room_marker := "B" if room_type == "boss" else ("商" if room_type == "merchant" else ("S" if room_type == "start" else str(room_id + 1)))
+			draw_string(MAP_FONT, rect.position + Vector2(3.0, minf(rect.size.y - 2.0, 12.0)), room_marker, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 10)
 
 
 ## 获取包含所有房间占地的网格范围，用于缩放和居中地图。

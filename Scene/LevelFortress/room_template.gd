@@ -8,11 +8,11 @@ signal sig_room_cleared(room_id: int)
 const UNIT_SIZE := 500.0
 const DOOR_WIDTH := 64.0
 const WALL_THICKNESS := 16.0
-const GROUND_TEXTURE: Texture2D = preload("res://Scene/LevelFortress/Terrain/ground.png")
-const WALL_TEXTURE: Texture2D = preload("res://Scene/LevelFortress/Terrain/wall.png")
-const WATER_TEXTURE: Texture2D = preload("res://Scene/LevelFortress/Terrain/water.png")
+const GROUND_TEXTURE: Texture2D = preload("res://Assets/Art/MilitaryArcade/World/Terrain/Fortress/ground.png")
+const WALL_TEXTURE: Texture2D = preload("res://Assets/Art/MilitaryArcade/World/Terrain/Fortress/wall.png")
+const WATER_TEXTURE: Texture2D = preload("res://Assets/Art/MilitaryArcade/World/Terrain/Fortress/water.png")
 ## 路线出口使用现有 Entrance 图片，标识与触发区域一起位于房间内侧。
-const ENTRANCE_TEXTURE: Texture2D = preload("res://Scene/LevelFortress/Terrain/entrance.png")
+const ENTRANCE_TEXTURE: Texture2D = preload("res://Assets/Art/MilitaryArcade/World/entrance.png")
 const ENEMY_SCENE: PackedScene = preload("res://Prefab/EnemySoilder/enemy_soilder.tscn")
 const BOX_SCENE: PackedScene = preload("res://Prefab/Terrain/box_crate.tscn")
 const LOOT_TYPES: Array[LootItem.Type] = [
@@ -30,7 +30,7 @@ const LOOT_TYPES: Array[LootItem.Type] = [
 ## 模板的网格尺寸；每个网格单元为 500×500 世界单位。
 @export var room_size_units: Vector2i = Vector2i.ONE
 ## 该场景对应的房间类型；boss 类型才允许生成 Boss。
-@export_enum("combat", "boss") var room_type: String = "combat"
+@export_enum("combat", "boss", "merchant") var room_type: String = "combat"
 ## 同尺寸模板的美术样式编号，由关卡种子决定并与场景后缀对应。
 @export_range(1, 99, 1) var room_style_index: int = 1
 ## 首次进入房间时才实例化的遭遇、拾取物等内容；位置与场景按索引对应。
@@ -38,8 +38,8 @@ const LOOT_TYPES: Array[LootItem.Type] = [
 @export var lazy_content_positions: Array[Vector2] = []
 ## 房间首次激活时生成基础敌人、补给、木箱与水域；关闭后仅使用手动配置的延迟内容。
 @export var populate_on_first_entry: bool = true
-## 出口标识和触发区域距房间内边缘的距离，确保相机受限时仍能看到并触碰出口。
-@export_range(32.0, 120.0, 1.0) var entrance_inset: float = 64.0
+## 出口贴近房间边缘；默认内移 8 单位，减少房间内部走动时误进入。
+@export_range(0.0, 120.0, 1.0) var entrance_inset: float = 8.0
 ## 出口标识的世界缩放；默认 1.5 倍，比上一版 3 倍显示缩小一半。
 @export_range(0.5, 3.0, 0.1) var entrance_scale: float = 1.5
 ## 同一房间模板逻辑可以套用不同环境的贴图、掩体和装饰配置。
@@ -76,6 +76,13 @@ func activate_room() -> void:
 	var content_root := Node2D.new()
 	content_root.name = "LazyContent"
 	add_child(content_root)
+	# 商人房只生成独立商店场景；跳过所有战斗、免费补给与延迟敌人配置。
+	if room_type == "merchant":
+		var shop := preload("res://Prefab/Merchant/merchant_room.tscn").instantiate() as MerchantRoom
+		shop.stock_seed = population_seed
+		content_root.add_child(shop)
+		_check_room_cleared()
+		return
 	for index: int in range(lazy_content_scenes.size()):
 		var content_scene := lazy_content_scenes[index]
 		if content_scene == null:
@@ -107,7 +114,7 @@ func track_enemy(enemy: Node2D) -> void:
 	if not is_instance_valid(enemy) or _tracked_enemy_ids.has(enemy.get_instance_id()):
 		return
 	_tracked_enemy_ids[enemy.get_instance_id()] = true
-	var boss := enemy as BossGeneral
+	var boss := enemy as BattlefieldBoss
 	if boss != null:
 		boss.sig_defeated.connect(_on_tracked_enemy_removed)
 		return
@@ -179,9 +186,14 @@ func _populate_room(content_root: Node2D) -> void:
 		_add_water_patch(content_root, water_position, water_size, water_index)
 
 	var loot_count: int = 1 if room_type == "start" else 1 + int(rng.randf() > 0.55)
+	# 物品类型使用独立的房间种子随机流，各类型等概率抽取，起始房也能生成 SMG。
+	# 不消耗布局随机流，保持敌人、木箱、水域及补给位置的既有生成结果。
+	var loot_rng := RandomNumberGenerator.new()
+	loot_rng.seed = rng.seed ^ 0x4C4F4F54
 	for loot_index: int in range(loot_count):
-		var loot_type: LootItem.Type = LOOT_TYPES[(room_id + room_style_index + loot_index) % LOOT_TYPES.size()]
-		var amount: int = 24 if loot_type in [LootItem.Type.WeaponSMG, LootItem.Type.WeaponShortgun] else 1
+		var loot_type: LootItem.Type = LOOT_TYPES[loot_rng.randi_range(0, LOOT_TYPES.size() - 1)]
+		# 每次生成一份补给；武器由拾取效果补满备弹，不再按数量累加弹药。
+		var amount: int = LootItem.get_default_drop_amount(loot_type)
 		var loot_item := PrefabManager.create_loot_item(loot_type, amount)
 		if loot_item == null:
 			continue
@@ -328,6 +340,8 @@ func _random_inner_position(rng: RandomNumberGenerator, half_bounds: Vector2, ma
 
 ## 生成地面和带物理碰撞的墙体；导出的房间尺寸只改变占地与门位数量。
 func _ready() -> void:
+	# 本房间的手绘地形统一使用线性采样，保留抗锯齿笔触与柔和色块。
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	_rebuild_room_geometry()
 
 
@@ -434,7 +448,7 @@ func _add_door_trigger(side: String, slot: int, door_center: float, horizontal: 
 	trigger.collision_mask = 1 << 0
 	var shape_node := CollisionShape2D.new()
 	var shape := RectangleShape2D.new()
-	shape.size = Vector2(DOOR_WIDTH, 48.0) if horizontal else Vector2(48.0, DOOR_WIDTH)
+	shape.size = Vector2(DOOR_WIDTH, 16.0) if horizontal else Vector2(16.0, DOOR_WIDTH)
 	shape_node.shape = shape
 	trigger.add_child(shape_node)
 	var half_size := Vector2(room_size_units) * UNIT_SIZE * 0.5

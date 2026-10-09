@@ -54,17 +54,22 @@ func _ready() -> void:
     if circle_shape != null:
         circle_shape.radius = maxf(bullet_size, 0.1)
 
-    # 特殊投掷弹使用对应拾取物图标，普通子弹继续按阵营显示弹丸贴图。
+    # 投掷物沿用原显示尺寸；普通弹使用约6像素直径的高亮圆形外观。
+    # 玩家黄白、敌方红白，明亮核心与深色描边同时适配深浅地图；物理半径仍由 bullet_size 决定。
+    # TestLevel 内嵌弹丸仍带旧图集裁切区域；独立图片必须取消裁切才能完整显示。
+    node_sprite.region_enabled = false
     if bullet_type == Definition.BulletType.Explosion:
-        node_sprite.texture = load("res://Prefab/grenade/grenade.png")
-        node_sprite.scale = Vector2(0.65, 0.65)
+        node_sprite.texture = load("res://Assets/Art/MilitaryArcade/World/grenade_flight.png")
+        node_sprite.scale = Vector2(0.1625, 0.1625)
     elif bullet_type == Definition.BulletType.Burning:
-        node_sprite.texture = load("res://Prefab/molotov/molotov.png")
-        node_sprite.scale = Vector2(0.65, 0.65)
+        node_sprite.texture = load("res://Assets/Art/MilitaryArcade/World/molotov_flight.png")
+        node_sprite.scale = Vector2(0.1625, 0.1625)
     elif bullet_from == Definition.Faction.Enemy:
-        node_sprite.texture = load("res://Prefab/bullet/bullet_enemy.png")
+        node_sprite.scale = Vector2(0.09375, 0.09375)
+        node_sprite.texture = load("res://Assets/Art/MilitaryArcade/World/enemy_bullet_round.png")
     else:
-        node_sprite.texture = load("res://Prefab/bullet/bullet_player.png")
+        node_sprite.scale = Vector2(0.09375, 0.09375)
+        node_sprite.texture = load("res://Assets/Art/MilitaryArcade/World/player_bullet_round.png")
 
 
 ## 推进子弹并在射程或存续时间耗尽时触发最终效果。

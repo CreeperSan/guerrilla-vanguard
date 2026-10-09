@@ -1,0 +1,78 @@
+[gd_resource type="Resource" script_class="ShopCatalog" load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://Script/Shop/shop_catalog.gd" id="1_catalog"]
+[ext_resource type="Script" path="res://Script/Shop/shop_product.gd" id="2_product"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/smg.png" id="icon_smg"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/shotgun.png" id="icon_shotgun"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Merchant/medical_kit.png" id="icon_medkit"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/grenade.png" id="icon_grenade"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/molotov.png" id="icon_molotov"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/shield.png" id="icon_shield"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/research.png" id="icon_research"]
+
+[sub_resource type="Resource" id="Product_smg"]
+script = ExtResource("2_product")
+display_name = "冲锋枪"
+loot_type = 1
+amount = 1
+price = 35
+icon = ExtResource("icon_smg")
+description = "备弹补满 · 弹匣不变"
+
+[sub_resource type="Resource" id="Product_shotgun"]
+script = ExtResource("2_product")
+display_name = "霰弹枪"
+loot_type = 2
+amount = 1
+price = 35
+icon = ExtResource("icon_shotgun")
+description = "备弹补满 · 弹匣不变"
+
+[sub_resource type="Resource" id="Product_medkit"]
+script = ExtResource("2_product")
+display_name = "医疗包"
+loot_type = 16
+amount = 35
+price = 18
+icon = ExtResource("icon_medkit")
+description = "生命 +35"
+
+[sub_resource type="Resource" id="Product_grenade"]
+script = ExtResource("2_product")
+display_name = "手雷"
+loot_type = 6
+amount = 1
+price = 20
+icon = ExtResource("icon_grenade")
+description = "10 个 · 替换装备"
+
+[sub_resource type="Resource" id="Product_molotov"]
+script = ExtResource("2_product")
+display_name = "燃烧瓶"
+loot_type = 7
+amount = 1
+price = 20
+icon = ExtResource("icon_molotov")
+description = "10 个 · 替换装备"
+
+[sub_resource type="Resource" id="Product_shield"]
+script = ExtResource("2_product")
+display_name = "护盾"
+loot_type = 8
+amount = 1
+price = 28
+icon = ExtResource("icon_shield")
+description = "50 点 · 替换装备"
+
+[sub_resource type="Resource" id="Product_research"]
+script = ExtResource("2_product")
+display_name = "研究点数"
+loot_type = 15
+amount = 3
+price = 30
+icon = ExtResource("icon_research")
+description = "本局研究 +3"
+
+[resource]
+script = ExtResource("1_catalog")
+products = Array[ExtResource("2_product")]([SubResource("Product_smg"), SubResource("Product_shotgun"), SubResource("Product_medkit"), SubResource("Product_grenade"), SubResource("Product_molotov"), SubResource("Product_shield"), SubResource("Product_research")])

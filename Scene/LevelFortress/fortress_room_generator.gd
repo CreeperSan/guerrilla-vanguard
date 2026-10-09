@@ -54,6 +54,9 @@ static func generate_level(level_number: int, seed: int) -> Dictionary:
         if placed_branch_count == 0:
             continue
 
+        # 商人只占用一个独立支路格，不允许形成绕过主路线的捷径或连接 Boss。
+        if not _append_merchant_room(rooms, rng):
+            continue
         var connections := _build_connections(rooms)
         if _shortest_path_length(rooms.size(), connections, 0, main_room_count - 1) < path_steps:
             continue
@@ -91,21 +94,34 @@ static func _make_room(room_id: int, origin: Vector2i, size: Vector2i, room_type
 
 ## 在父房间的一侧随机选择尺寸和对齐方式；相交或未真正贴边时放弃候选。
 static func _place_adjacent_room(rooms: Array[Dictionary], parent: Dictionary, room_id: int, room_type: String, rng: RandomNumberGenerator) -> Dictionary:
+    # 尺寸先独立抽取，再尝试四侧放置；失败交给整图重试，不把大房悄悄替换成小房。
+    var size := _pick_room_size(rng)
     var directions: Array[Vector2i] = [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]
     _shuffle_vector2i_array(directions, rng)
     for direction: Vector2i in directions:
-        var candidate_sizes: Array[Vector2i] = ROOM_SIZES.duplicate()
-        _shuffle_vector2i_array(candidate_sizes, rng)
-        for size: Vector2i in candidate_sizes:
-            var origin := _adjacent_origin(parent, size, direction, rng)
-            var candidate := _make_room(room_id, origin, size, room_type)
-            if _overlaps_any(candidate, rooms):
-                continue
-            if not _shares_edge(candidate, parent):
-                continue
-            candidate["parent_id"] = int(parent.id)
-            return candidate
+        var origin := _adjacent_origin(parent, size, direction, rng)
+        var candidate := _make_room(room_id, origin, size, room_type)
+        if _overlaps_any(candidate, rooms):
+            continue
+        if not _shares_edge(candidate, parent):
+            continue
+        candidate["parent_id"] = int(parent.id)
+        return candidate
     return {}
+
+
+## 按面积类别抽取房间尺寸：1×1 占 60%，其他面积 ≤4 合计 30%，面积 >4 合计 10%。
+## 组内尺寸均匀；起点与商人保持固定 1×1，不参与战斗/分支房的随机尺寸抽取。
+static func _pick_room_size(rng: RandomNumberGenerator) -> Vector2i:
+    var roll := rng.randf()
+    if roll < 0.6:
+        return Vector2i.ONE
+    var pool: Array[Vector2i] = []
+    for size: Vector2i in ROOM_SIZES:
+        var area := size.x * size.y
+        if (roll < 0.9 and area > 1 and area <= 4) or (roll >= 0.9 and area > 4):
+            pool.append(size)
+    return pool[rng.randi_range(0, pool.size() - 1)]
 
 
 ## 使用当前布局的随机数生成器打乱 Vector2i 数组，保证同种子得到相同选择顺序。
@@ -251,6 +267,39 @@ static func _make_main_path(path_length: int) -> Array[int]:
     return path
 
 
+## 枚举所有非 Boss 房间的外边缘，随机选取一个仅连接父房的 1×1 商人分支。
+## 无合法位置时交由上层重试布局；不缩小已有房间，也不改变原主路线 ID。
+static func _append_merchant_room(rooms: Array[Dictionary], rng: RandomNumberGenerator) -> bool:
+    var candidates: Array[Dictionary] = []
+    for parent: Dictionary in rooms:
+        if str(parent.type) == "boss":
+            continue
+        var origin: Vector2i = parent.origin
+        var room_size: Vector2i = parent.size
+        var edge_cells: Array[Vector2i] = []
+        for x: int in range(room_size.x):
+            edge_cells.append(origin + Vector2i(x, -1))
+            edge_cells.append(origin + Vector2i(x, room_size.y))
+        for y: int in range(room_size.y):
+            edge_cells.append(origin + Vector2i(-1, y))
+            edge_cells.append(origin + Vector2i(room_size.x, y))
+        for cell: Vector2i in edge_cells:
+            var candidate := _make_room(rooms.size(), cell, Vector2i.ONE, "merchant")
+            if _overlaps_any(candidate, rooms):
+                continue
+            var neighbors := 0
+            for existing: Dictionary in rooms:
+                if _shares_edge(candidate, existing):
+                    neighbors += 1
+            if neighbors == 1:
+                candidate["parent_id"] = int(parent.id)
+                candidates.append(candidate)
+    if candidates.is_empty():
+        return false
+    rooms.append(candidates[rng.randi_range(0, candidates.size() - 1)])
+    return true
+
+
 ## 生成布局重试耗尽时使用的直线房间兜底图。
 static func _make_fallback_level(level_number: int, seed: int, path_length: int) -> Dictionary:
     var rooms: Array[Dictionary] = []
@@ -261,5 +310,9 @@ static func _make_fallback_level(level_number: int, seed: int, path_length: int)
     var branch := _make_room(path_length, Vector2i(0, 1), Vector2i(2, 1), "combat")
     branch["parent_id"] = 0
     rooms.append(branch)
+    # 直线兜底的起点左侧始终空闲，只连接起点，确保每个 Level 都有商人。
+    var merchant := _make_room(rooms.size(), Vector2i(-1, 0), Vector2i.ONE, "merchant")
+    merchant["parent_id"] = 0
+    rooms.append(merchant)
     return {"level": level_number, "seed": seed, "rooms": rooms, "connections": _build_connections(rooms),
         "start_room_id": 0, "boss_room_id": path_length - 1, "main_path": _make_main_path(path_length)}

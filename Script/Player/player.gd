@@ -14,6 +14,8 @@ enum AimDevice { KEYBOARD, GAMEPAD, TOUCH }
 
 ## 对外转发生命值变化，关卡控制器可以连接 HUD，而不依赖 Health 子节点路径。
 signal sig_health_updated(current_health: int, max_health: int)
+## 体力统一由玩家管理，HUD 通过信号同步进度，不直接读取输入或计时。
+signal sig_stamina_updated(current_stamina: float, max_stamina: float)
 ## 装备槽变化：装备类型、数量/护盾生命、护盾是否处于启用状态。
 signal sig_equipment_updated(equipment_type: EquipmentType, amount: int, shield_active: bool)
 ## 输入接口：由后续系统连接战场支援和自身技能效果。
@@ -42,6 +44,17 @@ const SFX_BATTLE_SUPPORT: AudioStream = preload("res://Assets/Audio/SFX/battle_s
 # 移动速度
 @export var prop_move_speed: float = 150
 
+@export_group("奔跑体力")
+## 满体力可连续移动奔跑约四秒，停止后三秒等待，再用五秒从零回满。
+@export_range(1.0, 999.0, 1.0) var stamina_max: float = 100.0
+@export_range(1.0, 999.0, 1.0) var sprint_stamina_cost: float = 25.0
+@export_range(1.0, 999.0, 1.0) var stamina_recovery_rate: float = 20.0
+@export_range(0.0, 10.0, 0.1) var stamina_recovery_delay: float = 3.0
+var stamina: float = 100.0
+var _stamina_recovery_wait: float = 0.0
+## 体力耗尽时需先松开奔跑键，避免一直按住导致恢复一点便立刻消耗的抖动。
+var _sprint_exhausted: bool = false
+
 @onready var anim : AnimatedSprite2D = $AnimatedSprite2D # 动画节点
 @onready var node_collect_box: Area2D = $CollectBox # 拾取判定区域
 @onready var node_weapon_manager: PlayerWeaponManager = $WeaponManager # 武器管理器
@@ -57,6 +70,8 @@ const SFX_BATTLE_SUPPORT: AudioStream = preload("res://Assets/Audio/SFX/battle_s
 
 var facing_direction : Vector2
 var _aim_device: AimDevice = AimDevice.KEYBOARD
+## 商店确认占用手柄 A，释放前禁止同键启动角色技能。
+var _shop_confirmation_held: bool = false
 var _gamepad_aim_valid: bool = false
 var _touch_aim_valid: bool = false
 var _gamepad_device_id: int = -1
@@ -83,8 +98,8 @@ var _skill_cooldown_remaining: float = 0.0
 var _dodge_time_remaining: float = 0.0
 var _dodge_direction: Vector2 = Vector2.DOWN
 const SPRINT_COOLDOWN: float = 0.3
-const DODGE_DISTANCE: float = 120.0
-const DODGE_DURATION: float = 1.0
+const DODGE_SPEED: float = 60.0
+const DODGE_DURATION: float = 0.5
 const DODGE_COOLDOWN: float = 3.0
 
 ## 对外提供当前生命值，避免关卡脚本读取玩家内部节点。
@@ -99,6 +114,8 @@ var health_max: int:
 
 
 func _ready() -> void:
+    stamina = stamina_max
+    sig_stamina_updated.emit(stamina, stamina_max)
     # 加入统一玩家分组，供敌人 AI 在关卡中查找追击目标。
     add_to_group("player")
     # 玩家只与地形和水发生实体碰撞；敌我角色的命中继续由子弹和 HurtBox 单独处理。
@@ -156,7 +173,7 @@ func _store_equipment(new_type: EquipmentType, amount: int) -> bool:
 
 ## 使用装备键；投掷物向面朝方向发射，护盾按键切换启用状态。
 func use_equipment() -> void:
-    if sprint_active:
+    if sprint_active or dodge_active:
         return
     match equipment_type:
         EquipmentType.GRENADE:
@@ -283,7 +300,7 @@ func obtain_battle_support_from_loot(loot_type: LootItem.Type) -> bool:
 
 ## 使用并消耗战场支援；支援场景在玩家当前位置创建，并固定其打击中心。
 func use_battle_support() -> void:
-    if sprint_active:
+    if sprint_active or dodge_active:
         return
     if battle_support_type == LootItem.Type.Empty:
         return
@@ -337,6 +354,10 @@ func _on_reload_started(_weapon: PlayerWeaponSlot) -> void:
 
 ## 按当前操作设备更新瞄准；键盘使用方向键，手柄使用右摇杆，触控由 HUD 虚拟摇杆提供。
 func _input(event: InputEvent) -> void:
+    if event is InputEventJoypadButton and event.button_index == JOY_BUTTON_A and not event.pressed:
+        _shop_confirmation_held = false
+    if dodge_active:
+        return
     if event is InputEventKey and (event as InputEventKey).pressed:
         _set_aim_device(AimDevice.KEYBOARD)
     elif event is InputEventJoypadButton and (event as InputEventJoypadButton).pressed:
@@ -367,6 +388,8 @@ func _set_aim_device(device: AimDevice) -> void:
 
 ## 触控开火区拖动时由 HUD 提交方向，保留最近方向供点按开火时沿用。
 func set_touch_aim_direction(direction: Vector2) -> void:
+    if dodge_active:
+        return
     if direction.length_squared() <= AIM_STICK_DEADZONE * AIM_STICK_DEADZONE:
         return
     _set_aim_device(AimDevice.TOUCH)
@@ -397,12 +420,15 @@ func _update_keyboard_aim() -> bool:
 
 
 func _physics_process(delta: float) -> void:
-    var move_input: Vector2 = Input.get_vector('move_left', 'move_right', 'move_up', 'move_down')
+    # 闪避期间忽略手动移动与瞄准，方向从启动时锁定。
+    var move_input: Vector2 = Vector2.ZERO if dodge_active else Input.get_vector('move_left', 'move_right', 'move_up', 'move_down')
     if move_input:
         _last_move_direction = move_input
 
     # 方向键优先决定射击朝向；没有方向键输入时，键盘模式继续沿用移动朝向。
-    if _aim_device == AimDevice.KEYBOARD:
+    if dodge_active:
+        facing_direction = _dodge_direction
+    elif _aim_device == AimDevice.KEYBOARD:
         if not _update_keyboard_aim() and move_input:
             facing_direction = move_input
     elif _aim_device == AimDevice.GAMEPAD:
@@ -413,7 +439,9 @@ func _physics_process(delta: float) -> void:
         facing_direction = move_input
 
     if dodge_active:
-        velocity = _dodge_direction * (DODGE_DISTANCE / DODGE_DURATION)
+        # 最后一帧只推进剩余时间，避免不同帧率让总闪避距离超过 30 单位。
+        var dodge_step := minf(delta, _dodge_time_remaining)
+        velocity = _dodge_direction * DODGE_SPEED * (dodge_step / maxf(delta, 0.000001))
         move_and_slide()
         _dodge_time_remaining = maxf(_dodge_time_remaining - delta, 0.0)
         if _dodge_time_remaining <= 0.0:
@@ -452,6 +480,9 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
     _update_skill_input(delta)
+    # 闪避为独占动作：仍推进体力/冷却，但不处理射击、道具、支援、换弹与切枪。
+    if dodge_active:
+        return
 
     # 奔跑期间禁止开火、使用装备和呼叫战场支援。
     # 发射前再次读取方向键，避免渲染帧先于物理帧时首发仍使用上一帧方向。
@@ -472,27 +503,53 @@ func _process(delta: float) -> void:
         node_weapon_manager.action_switch_next_weapon()
     if not sprint_active and Input.is_action_just_pressed("battle_support"):
         use_battle_support()
-    if Input.is_action_just_pressed("use_skill"):
+    if Input.is_action_just_pressed("use_skill") and not _shop_confirmation_held:
         sig_skill_requested.emit()
+
+
+## 商店在收到手柄 A 确认时调用；购买成功或失败都不允许同次按键启动技能。
+func consume_shop_confirmation() -> void:
+    _shop_confirmation_held = true
 
 
 ## 根据当前技能类型处理按住奔跑、按下闪避以及冷却计时。
 func _update_skill_input(delta: float) -> void:
     _skill_cooldown_remaining = maxf(_skill_cooldown_remaining - delta, 0.0)
-    if skill_type == LootItem.Type.SkillSprint:
-        if Input.is_action_just_pressed("use_skill") and _skill_cooldown_remaining <= 0.0:
-            sprint_active = true
-        if sprint_active and not Input.is_action_pressed("use_skill"):
-            sprint_active = false
-            _skill_cooldown_remaining = SPRINT_COOLDOWN
-    elif skill_type == LootItem.Type.SkillDodge:
-        if Input.is_action_just_pressed("use_skill") and _skill_cooldown_remaining <= 0.0 and not dodge_active:
+    var skill_held := Input.is_action_pressed("use_skill") and not _shop_confirmation_held
+    if not skill_held:
+        _sprint_exhausted = false
+    var was_sprinting := sprint_active
+    var moving := Input.get_vector("move_left", "move_right", "move_up", "move_down").length_squared() > 0.0
+    sprint_active = skill_type == LootItem.Type.SkillSprint and skill_held and moving and not dodge_active and not _sprint_exhausted and stamina > 0.0 and _skill_cooldown_remaining <= 0.0
+    if was_sprinting and not sprint_active:
+        _skill_cooldown_remaining = SPRINT_COOLDOWN
+    if skill_type == LootItem.Type.SkillDodge:
+        if Input.is_action_just_pressed("use_skill") and not _shop_confirmation_held and _skill_cooldown_remaining <= 0.0 and not dodge_active:
             _start_dodge()
+    _update_stamina(delta)
     _emit_skill_updated()
 
 
-## 开始一次面朝方向的定距闪避，并从启动时开始计算三秒冷却。
+## 移动奔跑才消耗体力；恢复只计算等待结束后的实际时间，避免跨三秒阈值提前恢复。
+func _update_stamina(delta: float) -> void:
+    if sprint_active:
+        stamina = maxf(stamina - sprint_stamina_cost * delta, 0.0)
+        _stamina_recovery_wait = stamina_recovery_delay
+        if stamina <= 0.0:
+            sprint_active = false
+            _sprint_exhausted = true
+    else:
+        var recovery_delta := maxf(delta - _stamina_recovery_wait, 0.0)
+        _stamina_recovery_wait = maxf(_stamina_recovery_wait - delta, 0.0)
+        stamina = minf(stamina_max, stamina + stamina_recovery_rate * recovery_delta)
+    sig_stamina_updated.emit(stamina, stamina_max)
+
+
+## 开始一次面朝方向的定时闪避，并从启动时开始计算三秒冷却。
 func _start_dodge() -> void:
+    if dodge_active or _skill_cooldown_remaining > 0.0:
+        return
+    sprint_active = false
     var current_move_input: Vector2 = Input.get_vector('move_left', 'move_right', 'move_up', 'move_down')
     if current_move_input:
         facing_direction = current_move_input
@@ -507,6 +564,9 @@ func _start_dodge() -> void:
 
 ## 拾取技能时替换唯一技能槽，并清理旧技能尚未结束的移动状态。
 func obtain_skill_from_loot(loot_type: LootItem.Type) -> bool:
+    # 闪避时不能通过拾取新技能中断动作并绕过操作锁。
+    if dodge_active:
+        return false
     if loot_type not in [LootItem.Type.SkillSprint, LootItem.Type.SkillDodge]:
         return false
     skill_type = loot_type

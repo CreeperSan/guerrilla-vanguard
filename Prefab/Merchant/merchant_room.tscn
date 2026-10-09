@@ -1,0 +1,68 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Prefab/Merchant/merchant_room.gd" id="1_script"]
+[ext_resource type="Resource" path="res://Script/Shop/shop_catalog.tres" id="2_catalog"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Merchant/merchant.png" id="3_merchant"]
+[ext_resource type="PackedScene" path="res://Prefab/Merchant/shop_offer.tscn" id="4_offer"]
+[ext_resource type="FontFile" path="res://Font/fusion-pixel-12-zh-hans.ttf" id="5_font"]
+
+[node name="MerchantRoom" type="Node2D"]
+texture_filter = 2
+script = ExtResource("1_script")
+catalog = ExtResource("2_catalog")
+
+[node name="Merchant" type="Sprite2D" parent="."]
+position = Vector2(0, -95)
+texture = ExtResource("3_merchant")
+
+[node name="TitleLabel" type="Label" parent="."]
+offset_left = -120.0
+offset_top = -165.0
+offset_right = 120.0
+offset_bottom = -145.0
+theme_override_colors/font_outline_color = Color(0.015, 0.03, 0.025, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 18
+text = "军需商人"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="."]
+offset_left = -175.0
+offset_top = 130.0
+offset_right = 175.0
+offset_bottom = 162.0
+theme_override_colors/font_outline_color = Color(0.015, 0.03, 0.025, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 12
+text = "全部确认购买 · 每件限购一次\n满血满弹仍购买 · 装备会替换"
+horizontal_alignment = 1
+
+[node name="FeedbackLabel" type="Label" parent="."]
+offset_left = -165.0
+offset_top = -54.0
+offset_right = 165.0
+offset_bottom = -34.0
+theme_override_colors/font_outline_color = Color(0.015, 0.03, 0.025, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 12
+text = "补给已备好"
+horizontal_alignment = 1
+
+[node name="FeedbackAudio" type="AudioStreamPlayer2D" parent="."]
+volume_db = -7.0
+max_distance = 900.0
+bus = &"SFX"
+
+[node name="Offers" type="Node2D" parent="."]
+
+[node name="Offer1" parent="Offers" instance=ExtResource("4_offer")]
+position = Vector2(-110, 35)
+
+[node name="Offer2" parent="Offers" instance=ExtResource("4_offer")]
+position = Vector2(0, 35)
+
+[node name="Offer3" parent="Offers" instance=ExtResource("4_offer")]
+position = Vector2(110, 35)

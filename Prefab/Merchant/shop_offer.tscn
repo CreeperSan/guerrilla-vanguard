@@ -1,0 +1,122 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Prefab/Merchant/shop_offer.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://Font/fusion-pixel-12-zh-hans.ttf" id="2_font"]
+
+[sub_resource type="RectangleShape2D" id="Shape"]
+size = Vector2(40, 40)
+
+[sub_resource type="StyleBoxFlat" id="Stand"]
+bg_color = Color(0.09, 0.14, 0.13, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.71, 0.58, 0.3, 1)
+
+[node name="ShopOffer" type="Area2D"]
+texture_filter = 2
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("1_script")
+
+[node name="Stand" type="Panel" parent="."]
+offset_left = -25.0
+offset_top = -25.0
+offset_right = 25.0
+offset_bottom = 25.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Stand")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Shape")
+
+[node name="NameLabel" type="Label" parent="."]
+offset_left = -48.0
+offset_top = -48.0
+offset_right = 48.0
+offset_bottom = -28.0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0.015, 0.03, 0.025, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="PriceLabel" type="Label" parent="."]
+offset_left = -48.0
+offset_top = 29.0
+offset_right = 48.0
+offset_bottom = 47.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.95, 0.81, 0.4, 1)
+theme_override_colors/font_outline_color = Color(0.015, 0.03, 0.025, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="DetailLabel" type="Label" parent="."]
+offset_left = -49.0
+offset_top = 49.0
+offset_right = 49.0
+offset_bottom = 68.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.75, 0.83, 0.75, 1)
+theme_override_colors/font_outline_color = Color(0.015, 0.03, 0.025, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="PurchaseUI" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="Prompt" type="Control" parent="PurchaseUI"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BuyButton" type="Button" parent="PurchaseUI/Prompt"]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -120.0
+offset_top = -116.0
+offset_right = 120.0
+offset_bottom = -44.0
+grow_horizontal = 2
+grow_vertical = 0
+focus_mode = 0
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("Stand")
+text = "购买"
+
+[node name="ConfirmHint" type="Label" parent="PurchaseUI/Prompt"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = -64.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_outline_color = Color(0.015, 0.03, 0.025, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1

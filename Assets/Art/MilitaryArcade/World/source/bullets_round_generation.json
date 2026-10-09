@@ -1,0 +1,8 @@
+{
+  "date": "2026-10-08",
+  "mode": "built-in imagegen",
+  "source": "/Users/creepersan/.codex/generated_images/01a11978-9e0d-7040-9c34-9b183e84adb0/exec-4ce20a4a-648f-463a-9979-6c85fb8bee8e.png",
+  "prompt": "Use case: stylized-concept. Asset type: transparent pixel-art BULLET sprite sheet for a military top-down arcade shooter. Exactly ONE column and TWO rows, two isolated perfectly ROUND circular projectiles, equal circular diameter, no elongation. Row 1 player bullet: solid brilliant white circular core occupying 65 percent of diameter, bold saturated lemon-yellow ring, thin very dark charcoal outer circular outline. Row 2 enemy bullet: solid brilliant white circular core occupying 65 percent of diameter, bold saturated coral-red ring, thin very dark charcoal outer circular outline. Perfect radial symmetry, perfectly circular pixel silhouettes, identical footprint both rows. Each bullet centered in own equal cell with generous genuine transparent margins. Crisp hard pixel edges, chunky simple shapes readable as a round bullet at SIX pixels game diameter against dark olive stone, grey city, beige sand and teal water. Flat opaque luminous white and saturated yellow/red colors; NO gradient, NO glare, NO blur, NO tail, NO streak, NO sparks, NO long capsule, NO shell casing, NO muzzle flash, NO shadows, NO arrows, NO text, NO labels, NO grid. Actual background transparency. Two very simple clear round bullet sprites, not rings with empty holes; cores must be opaque solid white.",
+  "layout": "one column, two rows: round player yellow-white; round enemy red-white",
+  "output": "64x64 RGBA each; runtime scale 0.09375; collision radius unchanged"
+}

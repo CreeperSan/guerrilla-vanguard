@@ -11,7 +11,7 @@ extends Resource
 @export var background_music: AudioStream
 
 @export_group("地形美术")
-## 主题资源为空时，房间使用原有 Fortress 图片作为安全兜底。
+## 主题资源为空时，房间使用军事街机 Fortress 图片作为安全兜底。
 @export var ground_texture: Texture2D
 @export var wall_texture: Texture2D
 @export var water_texture: Texture2D

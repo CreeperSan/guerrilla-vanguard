@@ -1,9 +1,12 @@
-[gd_scene load_steps=16 format=3 uid="uid://rhxrurwwx6lr"]
+[gd_scene load_steps=18 format=3 uid="uid://rhxrurwwx6lr"]
 
 [ext_resource type="Script" path="res://Scene/MainMenu/ScriptMainMenu.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://Scene/MainMenu/Art/cover.png" id="2_cover"]
 [ext_resource type="Texture2D" path="res://Scene/MainMenu/Art/title_wordmark.png" id="3_title"]
-[ext_resource type="Texture2D" path="res://Scene/MainMenu/Art/upgrade_background.png" id="4_upgrade"]
+[ext_resource type="Texture2D" path="res://Scene/MainMenu/Art/cover.png" id="4_upgrade"]
+[ext_resource type="FontFile" path="res://Font/fusion-pixel-12-zh-hans.ttf" id="5_font"]
+
+[ext_resource type="Script" path="res://Scene/MainMenu/upgrade_panel.gd" id="6_upgrades"]
 
 [sub_resource type="StyleBoxFlat" id="StyleNormal"]
 bg_color = Color(0.065, 0.09, 0.07, 0.94)
@@ -134,6 +137,7 @@ content_margin_top = 7.0
 content_margin_bottom = 7.0
 
 [sub_resource type="Theme" id="MenuTheme"]
+default_font = ExtResource("5_font")
 default_font_size = 18
 Label/colors/font_color = Color(0.94, 0.92, 0.82, 1)
 Button/colors/font_color = Color(0.94, 0.92, 0.82, 1)
@@ -165,7 +169,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 process_mode = 3
-texture_filter = 1
+texture_filter = 2
 theme = SubResource("MenuTheme")
 script = ExtResource("1_script")
 cover_texture = ExtResource("2_cover")
@@ -375,7 +379,7 @@ anchor_right = 1.0
 text = "研究点数  ◆ 0"
 horizontal_alignment = 2
 theme_override_font_sizes/font_size = 21
-theme_override_colors/font_color = Color(0.5, 0.9, 0.85, 1)
+theme_override_colors/font_color = Color(0.87, 0.78, 0.48, 1)
 theme_override_colors/font_outline_color = Color(0.02, 0.04, 0.025, 1)
 theme_override_constants/outline_size = 4
 
@@ -386,217 +390,73 @@ offset_top = 154.0
 offset_right = 660.0
 offset_bottom = 184.0
 mouse_filter = 2
-text = "升级项目待开放"
+text = "逐级研究 · 永久保存 · 下次进入战斗生效"
 theme_override_font_sizes/font_size = 16
 
-[node name="UpgradeGrid" type="GridContainer" parent="UpgradePage"]
+[node name="UpgradeTabs" type="TabContainer" parent="UpgradePage"]
 layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
 offset_left = 60.0
-offset_top = 218.0
-offset_right = 764.0
-offset_bottom = 556.0
-mouse_filter = 2
-columns = 3
-theme_override_constants/h_separation = 16
-theme_override_constants/v_separation = 16
+offset_top = 202.0
+offset_right = -60.0
+offset_bottom = -65.0
+script = ExtResource("6_upgrades")
 
-[node name="Slot01" type="PanelContainer" parent="UpgradePage/UpgradeGrid"]
+[node name="pistol" type="ScrollContainer" parent="UpgradePage/UpgradeTabs"]
 layout_mode = 2
-custom_minimum_size = Vector2(212, 156)
+horizontal_scroll_mode = 0
+follow_focus = true
+
+[node name="Items" type="VBoxContainer" parent="UpgradePage/UpgradeTabs/pistol"]
+layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
+theme_override_constants/separation = 8
 
-[node name="Contents" type="VBoxContainer" parent="UpgradePage/UpgradeGrid/Slot01"]
+[node name="smg" type="ScrollContainer" parent="UpgradePage/UpgradeTabs"]
 layout_mode = 2
-theme_override_constants/separation = 10
-mouse_filter = 2
+horizontal_scroll_mode = 0
+follow_focus = true
+visible = false
 
-[node name="Symbol" type="Label" parent="UpgradePage/UpgradeGrid/Slot01/Contents"]
+[node name="Items" type="VBoxContainer" parent="UpgradePage/UpgradeTabs/smg"]
 layout_mode = 2
-text = "+"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 30
-theme_override_colors/font_color = Color(0.44, 0.58, 0.47, 1)
-mouse_filter = 2
-
-[node name="Name" type="Label" parent="UpgradePage/UpgradeGrid/Slot01/Contents"]
-layout_mode = 2
-text = "升级槽位 01"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 16
-mouse_filter = 2
-
-[node name="Placeholder" type="Button" parent="UpgradePage/UpgradeGrid/Slot01/Contents"]
-layout_mode = 2
-text = "待规划"
-disabled = true
-custom_minimum_size = Vector2(0, 32)
-theme_override_font_sizes/font_size = 13
-
-[node name="Slot02" type="PanelContainer" parent="UpgradePage/UpgradeGrid"]
-layout_mode = 2
-custom_minimum_size = Vector2(212, 156)
 size_flags_horizontal = 3
-mouse_filter = 2
+theme_override_constants/separation = 8
 
-[node name="Contents" type="VBoxContainer" parent="UpgradePage/UpgradeGrid/Slot02"]
+[node name="shotgun" type="ScrollContainer" parent="UpgradePage/UpgradeTabs"]
 layout_mode = 2
-theme_override_constants/separation = 10
-mouse_filter = 2
+horizontal_scroll_mode = 0
+follow_focus = true
+visible = false
 
-[node name="Symbol" type="Label" parent="UpgradePage/UpgradeGrid/Slot02/Contents"]
+[node name="Items" type="VBoxContainer" parent="UpgradePage/UpgradeTabs/shotgun"]
 layout_mode = 2
-text = "+"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 30
-theme_override_colors/font_color = Color(0.44, 0.58, 0.47, 1)
-mouse_filter = 2
-
-[node name="Name" type="Label" parent="UpgradePage/UpgradeGrid/Slot02/Contents"]
-layout_mode = 2
-text = "升级槽位 02"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 16
-mouse_filter = 2
-
-[node name="Placeholder" type="Button" parent="UpgradePage/UpgradeGrid/Slot02/Contents"]
-layout_mode = 2
-text = "待规划"
-disabled = true
-custom_minimum_size = Vector2(0, 32)
-theme_override_font_sizes/font_size = 13
-
-[node name="Slot03" type="PanelContainer" parent="UpgradePage/UpgradeGrid"]
-layout_mode = 2
-custom_minimum_size = Vector2(212, 156)
 size_flags_horizontal = 3
-mouse_filter = 2
+theme_override_constants/separation = 8
 
-[node name="Contents" type="VBoxContainer" parent="UpgradePage/UpgradeGrid/Slot03"]
+[node name="battlefield" type="ScrollContainer" parent="UpgradePage/UpgradeTabs"]
 layout_mode = 2
-theme_override_constants/separation = 10
-mouse_filter = 2
+horizontal_scroll_mode = 0
+follow_focus = true
+visible = false
 
-[node name="Symbol" type="Label" parent="UpgradePage/UpgradeGrid/Slot03/Contents"]
+[node name="Items" type="VBoxContainer" parent="UpgradePage/UpgradeTabs/battlefield"]
 layout_mode = 2
-text = "+"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 30
-theme_override_colors/font_color = Color(0.44, 0.58, 0.47, 1)
-mouse_filter = 2
-
-[node name="Name" type="Label" parent="UpgradePage/UpgradeGrid/Slot03/Contents"]
-layout_mode = 2
-text = "升级槽位 03"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 16
-mouse_filter = 2
-
-[node name="Placeholder" type="Button" parent="UpgradePage/UpgradeGrid/Slot03/Contents"]
-layout_mode = 2
-text = "待规划"
-disabled = true
-custom_minimum_size = Vector2(0, 32)
-theme_override_font_sizes/font_size = 13
-
-[node name="Slot04" type="PanelContainer" parent="UpgradePage/UpgradeGrid"]
-layout_mode = 2
-custom_minimum_size = Vector2(212, 156)
 size_flags_horizontal = 3
-mouse_filter = 2
+theme_override_constants/separation = 8
 
-[node name="Contents" type="VBoxContainer" parent="UpgradePage/UpgradeGrid/Slot04"]
-layout_mode = 2
-theme_override_constants/separation = 10
-mouse_filter = 2
-
-[node name="Symbol" type="Label" parent="UpgradePage/UpgradeGrid/Slot04/Contents"]
-layout_mode = 2
-text = "+"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 30
-theme_override_colors/font_color = Color(0.44, 0.58, 0.47, 1)
-mouse_filter = 2
-
-[node name="Name" type="Label" parent="UpgradePage/UpgradeGrid/Slot04/Contents"]
-layout_mode = 2
-text = "升级槽位 04"
-horizontal_alignment = 1
+[node name="UpgradeStatus" type="Label" parent="UpgradePage"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+anchor_right = 1.0
+offset_left = 60.0
+offset_top = -52.0
+offset_right = -60.0
+offset_bottom = -20.0
 theme_override_font_sizes/font_size = 16
-mouse_filter = 2
-
-[node name="Placeholder" type="Button" parent="UpgradePage/UpgradeGrid/Slot04/Contents"]
-layout_mode = 2
-text = "待规划"
-disabled = true
-custom_minimum_size = Vector2(0, 32)
-theme_override_font_sizes/font_size = 13
-
-[node name="Slot05" type="PanelContainer" parent="UpgradePage/UpgradeGrid"]
-layout_mode = 2
-custom_minimum_size = Vector2(212, 156)
-size_flags_horizontal = 3
-mouse_filter = 2
-
-[node name="Contents" type="VBoxContainer" parent="UpgradePage/UpgradeGrid/Slot05"]
-layout_mode = 2
-theme_override_constants/separation = 10
-mouse_filter = 2
-
-[node name="Symbol" type="Label" parent="UpgradePage/UpgradeGrid/Slot05/Contents"]
-layout_mode = 2
-text = "+"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 30
-theme_override_colors/font_color = Color(0.44, 0.58, 0.47, 1)
-mouse_filter = 2
-
-[node name="Name" type="Label" parent="UpgradePage/UpgradeGrid/Slot05/Contents"]
-layout_mode = 2
-text = "升级槽位 05"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 16
-mouse_filter = 2
-
-[node name="Placeholder" type="Button" parent="UpgradePage/UpgradeGrid/Slot05/Contents"]
-layout_mode = 2
-text = "待规划"
-disabled = true
-custom_minimum_size = Vector2(0, 32)
-theme_override_font_sizes/font_size = 13
-
-[node name="Slot06" type="PanelContainer" parent="UpgradePage/UpgradeGrid"]
-layout_mode = 2
-custom_minimum_size = Vector2(212, 156)
-size_flags_horizontal = 3
-mouse_filter = 2
-
-[node name="Contents" type="VBoxContainer" parent="UpgradePage/UpgradeGrid/Slot06"]
-layout_mode = 2
-theme_override_constants/separation = 10
-mouse_filter = 2
-
-[node name="Symbol" type="Label" parent="UpgradePage/UpgradeGrid/Slot06/Contents"]
-layout_mode = 2
-text = "+"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 30
-theme_override_colors/font_color = Color(0.44, 0.58, 0.47, 1)
-mouse_filter = 2
-
-[node name="Name" type="Label" parent="UpgradePage/UpgradeGrid/Slot06/Contents"]
-layout_mode = 2
-text = "升级槽位 06"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 16
-mouse_filter = 2
-
-[node name="Placeholder" type="Button" parent="UpgradePage/UpgradeGrid/Slot06/Contents"]
-layout_mode = 2
-text = "待规划"
-disabled = true
-custom_minimum_size = Vector2(0, 32)
-theme_override_font_sizes/font_size = 13
+text = "武器升级不解锁武器，SMG 和霰弹枪仍需战场拾取。"
 
 [node name="SettingsPage" type="Control" parent="."]
 unique_name_in_owner = true
@@ -762,7 +622,7 @@ horizontal_alignment = 1
 
 [node name="Description" type="Label" parent="AboutPage/Center/Card/Contents"]
 layout_mode = 2
-text = "像素风军事 Roguelike\n\n在随机战场中拾取武器、装备与战场支援，\n击败 General，推进你的闯关路线。\n\n空降模式：随机 5 个战场。\n强攻模式：6 个随机战场，终点为地下要塞。\n结算研究点数，为未来的战场升级积累资源。"
+text = "像素风军事 Roguelike\n\n在随机战场中拾取武器、装备与战场支援，\n击败随机首领，推进你的闯关路线。\n\n空降模式：随机 5 个战场。\n强攻模式：6 个随机战场，终点为地下要塞。\n结算研究点数，用于永久武器与战场收益升级。"
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 
@@ -775,7 +635,7 @@ text = "返回首页"
 [node name="DeleteConfirmation" type="ConfirmationDialog" parent="."]
 unique_name_in_owner = true
 title = "确认删除游戏存档"
-dialog_text = "将永久清空已存研究点数与强攻解锁记录。\n删除后强攻恢复锁定，需要重新通关空降。\n\n确定删除吗？音量设置将保留。"
+dialog_text = "将永久清空已存研究点数、全部升级与强攻解锁记录。\n删除后强攻恢复锁定，需要重新通关空降。\n\n确定删除吗？音量设置将保留。"
 theme = SubResource("MenuTheme")
 min_size = Vector2i(500, 210)
 ok_button_text = "确认删除"

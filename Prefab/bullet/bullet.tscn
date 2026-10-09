@@ -1,19 +1,21 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://ptbk0y4n4rbr"]
 
-[ext_resource type="Script" path="res://Prefab/bullet/bullet.gd" id="1_bullet"]
-[ext_resource type="Texture2D" path="res://Prefab/bullet/bullet_player.png" id="2_texture"]
+[ext_resource type="Script" uid="uid://det62g567217a" path="res://Prefab/bullet/bullet.gd" id="1_bullet"]
+[ext_resource type="Texture2D" uid="uid://dq3c4ntekkafk" path="res://Assets/Art/MilitaryArcade/World/player_bullet_round.png" id="2_texture"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_bullet"]
 resource_local_to_scene = true
-radius = 2.0
+radius = 3.0
 
-[node name="Bullet" type="Area2D"]
+[node name="Bullet" type="Area2D" unique_id=1690697203]
+texture_filter = 2
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("1_bullet")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1090483313]
+scale = Vector2(0.09375, 0.09375)
 texture = ExtResource("2_texture")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2126154976]
 shape = SubResource("CircleShape2D_bullet")

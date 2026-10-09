@@ -3,14 +3,18 @@ class_name FortressLevelController
 extends LevelController
 
 signal sig_room_changed(room_id: int, room_type: String)
-signal sig_boss_room_entered(boss: BossGeneral)
+signal sig_boss_room_entered(boss: BattlefieldBoss)
 signal sig_level_completed(completed_level: int, next_level: int)
 
 const ROOM_TEMPLATE_ROOT := "res://Scene/LevelFortress"
 const MIN_ROOM_STYLE_VARIANTS := 2
 ## 房间切换时使用短暂交叉淡化，避免传送后房间内容突然闪现。
 const ROOM_FADE_DURATION := 0.32
-const BOSS_SCENE: PackedScene = preload("res://Prefab/BossGeneral/boss_general.tscn")
+## Boss 池由场景配置；默认 General 与坦克等概率抽取。
+@export var boss_scenes: Array[PackedScene] = [
+    preload("res://Prefab/BossGeneral/boss_general.tscn"),
+    preload("res://Prefab/BossTank/boss_tank.tscn"),
+]
 
 ## 以指定种子开始关卡；未指定时使用系统随机种子。
 @export var level_number: int = 1
@@ -296,7 +300,7 @@ func _find_door_destination(room_id: int, side: String, slot: int) -> Dictionary
 ## 根据入口所在边和门槽计算安全落点，避免传送后立刻再次触发门区。
 func _door_landing_position(room: FortressRoomTemplate, side: String, slot: int) -> Vector2:
     var half_size := Vector2(room.room_size_units) * FortressRoomGenerator.ROOM_UNIT_SIZE * 0.5
-    # 落点比内移后的出口触发区再深入 64 单位，避免传送后立即碰到返回出口。
+    # 落点比边缘出口再深入 64 单位，与收窄后的触发区保持间隔，避免立即返回。
     var inset := room.entrance_inset + 64.0
     match side:
         "north": return Vector2(-half_size.x + (float(slot) + 0.5) * FortressRoomGenerator.ROOM_UNIT_SIZE, -half_size.y + inset)
@@ -314,19 +318,40 @@ func _unlock_door_transition() -> void:
 ## 玩家进入 Boss 房时才创建 Boss；普通房间不会实例化首领。
 func _spawn_boss_for_current_room() -> void:
     var boss_room: FortressRoomTemplate = _room_nodes.get(current_room_id) as FortressRoomTemplate
-    if boss_room == null or boss_room.get_node_or_null("General") != null:
+    if boss_room == null or boss_defeated or boss_room.has_meta("boss_spawned"):
         return
-    var boss := BOSS_SCENE.instantiate() as BossGeneral
+    var scene := _select_boss_scene(boss_room.population_seed)
+    if scene == null:
+        return
+    var instance := scene.instantiate()
+    var boss := instance as BattlefieldBoss
     if boss == null:
-        push_error("Boss 场景根节点必须挂载 BossGeneral。")
+        instance.free()
+        push_error("Boss 场景根节点必须挂载 BattlefieldBoss 的子类。")
         return
-    boss.name = "General"
+    boss_room.set_meta("boss_spawned", true)
+    boss.name = "Boss"
     boss.position = Vector2.ZERO
     boss.sig_defeated.connect(_on_boss_defeated)
     boss_room.add_child(boss)
     boss_room.track_enemy(boss)
     register_enemy(boss)
     sig_boss_room_entered.emit(boss)
+    print("[Boss] seed=%d room=%d scene=%s" % [boss_room.population_seed, current_room_id, scene.resource_path])
+
+
+## 独立随机流只依赖房间种子，重复进入不重抽，且不改变路线与房间内容随机序列。
+func _select_boss_scene(room_seed: int) -> PackedScene:
+    var candidates: Array[PackedScene] = []
+    for scene: PackedScene in boss_scenes:
+        if scene != null:
+            candidates.append(scene)
+    if candidates.is_empty():
+        push_error("Boss 场景池为空，无法生成首领。")
+        return null
+    var rng := RandomNumberGenerator.new()
+    rng.seed = room_seed ^ 0x54414E4B
+    return candidates[rng.randi_range(0, candidates.size() - 1)]
 
 
 ## Boss 被击败后启用 Boss 房内独立出口点。
@@ -344,17 +369,28 @@ func _create_boss_exit(room: FortressRoomTemplate, room_data: Dictionary) -> Are
     exit_area.monitoring = false
     exit_area.modulate = Color(1.0, 1.0, 1.0, 0.35)
     var collision := CollisionShape2D.new()
-    var circle := CircleShape2D.new()
-    circle.radius = 28.0
-    collision.shape = circle
+    # 通关出口也贴边，选择返回门的对侧，避免清场后站在房间中心直接切关。
+    var exit_side := "south"
+    var opposite: Dictionary = {"north": "south", "east": "west", "south": "north", "west": "east"}
+    for side: String in opposite:
+        if not room.opened_doors.get(side, []).is_empty():
+            exit_side = str(opposite[side])
+            break
+    var shape := RectangleShape2D.new()
+    shape.size = Vector2(FortressRoomTemplate.DOOR_WIDTH, 16.0) if exit_side in ["north", "south"] else Vector2(16.0, FortressRoomTemplate.DOOR_WIDTH)
+    collision.shape = shape
     exit_area.add_child(collision)
     var marker := Polygon2D.new()
     marker.color = Color(0.95, 0.73, 0.28, 0.9)
     marker.polygon = PackedVector2Array([Vector2(0, -22), Vector2(22, 0), Vector2(0, 22), Vector2(-22, 0)])
     exit_area.add_child(marker)
     exit_area.body_entered.connect(_on_boss_exit_entered)
-    # 出口放在房间中心，避免和返回路线的门传送触发区重叠。
-    exit_area.position = Vector2.ZERO
+    var half_size := Vector2(room.room_size_units) * FortressRoomTemplate.UNIT_SIZE * 0.5
+    match exit_side:
+        "north": exit_area.position = Vector2(0, -half_size.y + room.entrance_inset)
+        "east": exit_area.position = Vector2(half_size.x - room.entrance_inset, 0)
+        "south": exit_area.position = Vector2(0, half_size.y - room.entrance_inset)
+        "west": exit_area.position = Vector2(-half_size.x + room.entrance_inset, 0)
     room.add_child(exit_area)
     return exit_area
 

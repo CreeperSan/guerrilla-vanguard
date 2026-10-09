@@ -1,9 +1,10 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Prefab/IncomingShell/incoming_shell.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://Prefab/IncomingShell/incoming_shell.png" id="2_texture"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/shell_flight.png" id="2_texture"]
 
 [node name="IncomingShell" type="Node2D"]
+texture_filter = 2
 z_index = 10
 script = ExtResource("1_script")
 
@@ -15,7 +16,7 @@ top_level = true
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_texture")
-scale = Vector2(1.6, 1.6)
+scale = Vector2(0.2, 0.2)
 
 [node name="FallAudio" type="AudioStreamPlayer2D" parent="."]
 max_polyphony = 2

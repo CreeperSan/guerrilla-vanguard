@@ -1,0 +1,38 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://Prefab/Merchant/merchant_preview.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://Scene/LevelFortress/Room_1x1_01/Room_1x1_01.tscn" id="2_room"]
+[ext_resource type="PackedScene" path="res://Prefab/Player/player.tscn" id="3_player"]
+[ext_resource type="Resource" path="res://Scene/LevelFortress/theme.tres" id="4_theme"]
+[ext_resource type="FontFile" path="res://Font/fusion-pixel-12-zh-hans.ttf" id="5_font"]
+
+[node name="MerchantPreview" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Room" parent="." instance=ExtResource("2_room")]
+battlefield_theme = ExtResource("4_theme")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(0, 175)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.1, 1.1)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Status" type="Label" parent="UI"]
+offset_left = 16.0
+offset_top = 14.0
+offset_right = 450.0
+offset_bottom = 40.0
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 18
+
+[node name="Hint" type="Label" parent="UI"]
+offset_left = 16.0
+offset_top = 44.0
+offset_right = 450.0
+offset_bottom = 70.0
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 12
+text = "商人房试购：WASD 移动，回车确认购买"

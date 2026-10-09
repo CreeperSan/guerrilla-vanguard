@@ -1,4 +1,4 @@
-## 正式首页：模式选择、战场升级占位、独立音频设置、关于与二次确认删除存档。
+## 正式首页：模式选择、永久战场升级、独立音频设置、关于与二次确认删除存档。
 ## 首页不创建战斗宿主或开启局内钱包，研究账户和模式解锁只读取全局持久数据。
 extends Control
 
@@ -149,7 +149,7 @@ func _delete_save() -> void:
 		%SettingsStatus.text = "删除失败，错误码 %s；请检查存档目录权限。" % error
 		return
 	GameManager.reset_run()
-	%SettingsStatus.text = "存档已删除，研究点数归零，强攻恢复锁定。"
+	%SettingsStatus.text = "存档已删除，研究点数与升级归零，强攻恢复锁定。"
 
 
 ## 点击退出游戏：先保存最后一次音量修改，再正常结束进程。

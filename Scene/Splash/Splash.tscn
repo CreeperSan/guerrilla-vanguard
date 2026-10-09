@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://b0jih5xsapfuv"]
 
 [ext_resource type="Script" uid="uid://dj45ougpc3abb" path="res://Scene/Splash/Controller.gd" id="1_a7klu"]
+[ext_resource type="FontFile" path="res://Font/fusion-pixel-12-zh-hans.ttf" id="2_font"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_c5ifs"]
+font = ExtResource("2_font")
 font_size = 32
 
 [node name="Splash" type="Control" unique_id=2024834473]

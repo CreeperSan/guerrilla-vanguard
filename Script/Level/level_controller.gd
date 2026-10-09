@@ -58,11 +58,14 @@ func _bind_player_state() -> void:
 		push_warning("玩家节点未挂载 Player 脚本，HUD 状态无法绑定。")
 		return
 
+	controlled_hud.set_enemy_hint_player(player)
 	player.sig_health_updated.connect(controlled_hud.set_health)
+	player.sig_stamina_updated.connect(controlled_hud.set_stamina)
 	player.sig_equipment_updated.connect(controlled_hud.set_equipment)
 	player.sig_battle_support_updated.connect(controlled_hud.set_battle_support)
 	player.sig_skill_updated.connect(controlled_hud.set_skill)
 	controlled_hud.set_health(player.health_current, player.health_max)
+	controlled_hud.set_stamina(player.stamina, player.stamina_max)
 	controlled_hud.set_equipment(player.equipment_type, player.equipment_amount, player.shield_active)
 	controlled_hud.set_battle_support(player.battle_support_type)
 	controlled_hud.set_skill(player.skill_type, 0.0, 0.3, false)
@@ -99,13 +102,13 @@ func register_enemy(enemy: Node2D) -> void:
 	_registered_enemy_ids[enemy.get_instance_id()] = true
 	enemy_health.sig_health_change.connect(_on_target_health_change.bind(enemy, Definition.Faction.Enemy))
 
-	var boss := enemy as BossGeneral
+	var boss := enemy as BattlefieldBoss
 	if boss != null:
 		enemy_health.sig_health_updated.connect(_on_boss_health_updated)
 		boss.sig_phase_changed.connect(_on_boss_phase_changed)
 		boss.sig_defeated.connect(_on_registered_boss_defeated)
 		if controlled_hud != null:
-			controlled_hud.show_boss_health("GENERAL", enemy_health.health, enemy_health.health_max, boss.current_phase)
+			controlled_hud.show_boss_health(boss.boss_display_name, enemy_health.health, enemy_health.health_max, boss.current_phase)
 	else:
 		enemy_health.sig_die.connect(_on_enemy_died.bind(enemy))
 

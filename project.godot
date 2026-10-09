@@ -32,6 +32,10 @@ window/stretch/aspect="expand"
 
 project/assembly_name="Guerrilla Vanguard"
 
+[gui]
+
+theme/custom_font="res://Font/fusion-pixel-12-zh-hans.ttf"
+
 [input]
 
 move_up={

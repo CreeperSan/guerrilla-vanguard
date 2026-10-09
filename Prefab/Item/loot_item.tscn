@@ -1,16 +1,17 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://b0jibh2aljo71"]
 
-[ext_resource type="Script" path="res://Script/Items/loot_item.gd" id="1_loot"]
+[ext_resource type="Script" uid="uid://b1xkcy2ege143" path="res://Script/Items/loot_item.gd" id="1_loot"]
 
 [sub_resource type="RectangleShape2D" id="LootShape"]
 size = Vector2(16, 16)
 
-[node name="LootItem" type="Area2D"]
+[node name="LootItem" type="Area2D" unique_id=130305158]
+texture_filter = 2
 collision_layer = 16
 collision_mask = 0
 script = ExtResource("1_loot")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=41662670]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=160315312]
 shape = SubResource("LootShape")

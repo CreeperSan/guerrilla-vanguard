@@ -12,6 +12,10 @@ const TEMP_PATH := "user://research_account.cfg.tmp"
 var money: int = 0
 var run_research: int = 0
 var banked_research: int = 0
+## 各独立升级项目的已购等级；与研究余额在同一个文件中原子提交。
+var _upgrade_levels: Dictionary = {}
+## 两类收益各自累计小数，避免低额拾取逐次取整损失加成。
+var _reward_remainders: Dictionary = {Kind.MONEY: 0.0, Kind.RESEARCH: 0.0}
 var _run_open: bool = false
 var _settled: bool = false
 var _settlement_failed: bool = false
@@ -31,6 +35,10 @@ func _ready() -> void:
 		var saved: Variant = account.get_value("account", "research", 0)
 		if saved is int and saved >= 0:
 			banked_research = saved
+			var levels: Variant = account.get_value("upgrades", "levels", {})
+			if not _load_upgrade_levels(levels):
+				_account_loaded = false
+				push_error("升级存档内容无效，禁止覆盖原账户。")
 			_airborne_completed = account.get_value("progress", "airborne_completed", false) == true
 		else:
 			_account_loaded = false
@@ -47,6 +55,7 @@ func begin_run() -> bool:
 		return false
 	money = 0
 	run_research = 0
+	_reward_remainders = {Kind.MONEY: 0.0, Kind.RESEARCH: 0.0}
 	_run_open = true
 	_settled = false
 	_settlement_failed = false
@@ -58,18 +67,21 @@ func begin_run() -> bool:
 func credit(kind: Kind, amount: int) -> bool:
 	if not _run_open or amount <= 0:
 		return false
-	match kind:
-		Kind.MONEY:
-			money += amount
-		Kind.RESEARCH:
-			run_research += amount
-		_:
-			return false
+	if kind != Kind.MONEY and kind != Kind.RESEARCH:
+		return false
+	var id := "battlefield.money" if kind == Kind.MONEY else "battlefield.research"
+	var scaled := amount * get_upgrade_multiplier(id) + float(_reward_remainders[kind])
+	var credited := floori(scaled + 0.0000001)
+	_reward_remainders[kind] = maxf(scaled - credited, 0.0)
+	if kind == Kind.MONEY:
+		money += credited
+	else:
+		run_research += credited
 	_publish()
 	return true
 
 
-## 预留局内购买扣款入口；TODO：后续商店接入装备、道具与增益发放事务。
+## 商店扣款入口：只有进行中的本局钱包能够支付正数价格，成功后立即更新 HUD。
 func try_spend_money(cost: int) -> bool:
 	if not _run_open or cost <= 0 or money < cost:
 		return false
@@ -79,7 +91,7 @@ func try_spend_money(cost: int) -> bool:
 
 
 ## 预留闯关外研究扣款入口，先确认保存成功再提交余额；战斗内不能花费已存研究。
-## TODO：强化菜单调用成功后应用角色强化或装备升级，失败时不发放升级。
+## 升级购买使用 try_purchase_upgrade，将余额和等级一次提交。
 func try_spend_research(cost: int) -> bool:
 	if _run_open or _settlement_failed or cost <= 0 or banked_research < cost:
 		return false
@@ -88,6 +100,60 @@ func try_spend_research(cost: int) -> bool:
 	if error != OK:
 		push_error("研究点数扣款保存失败，余额未变更，错误码 %s。" % error)
 		return false
+	banked_research = next_balance
+	_publish()
+	return true
+
+
+## 从旧存档迁移时缺省零级；保留未知项目，已知项目只接受合法整数等级。
+func _load_upgrade_levels(saved: Variant) -> bool:
+	if not saved is Dictionary:
+		return false
+	for id: Variant in saved:
+		var level: Variant = saved[id]
+		if not id is String or not level is int or level < 0 or level > BattlefieldUpgradeConfig.MAX_LEVEL:
+			return false
+	_upgrade_levels = saved.duplicate()
+	return true
+
+
+## UI 和武器读取当前持久等级，未知项目也只能从零级开始。
+func get_upgrade_level(id: String) -> int:
+	return int(_upgrade_levels.get(id, 0))
+
+
+## 获取该独立项目相对零级的能力倍率。
+func get_upgrade_multiplier(id: String) -> float:
+	return BattlefieldUpgradeConfig.get_multiplier(id, get_upgrade_level(id))
+
+
+## 返回下一等级的费用；满级或未知项目返回零，不能再扣款。
+func get_upgrade_cost(id: String) -> int:
+	var entry := BattlefieldUpgradeConfig.get_entry(id)
+	var level := get_upgrade_level(id)
+	if entry.is_empty() or level >= BattlefieldUpgradeConfig.MAX_LEVEL:
+		return 0
+	return int(entry["costs"][level])
+
+
+## 首页按钮和事务共用购买条件，战斗中、结算失败和账户损坏时均不可购买。
+func can_purchase_upgrade(id: String) -> bool:
+	var cost := get_upgrade_cost(id)
+	return _account_loaded and not _run_open and not _settlement_failed and cost > 0 and banked_research >= cost
+
+
+## 一次只购买下一级，不接受外部指定等级；等级和余额一起落盘后才刷新内存/UI。
+func try_purchase_upgrade(id: String) -> bool:
+	if not can_purchase_upgrade(id):
+		return false
+	var next_levels := _upgrade_levels.duplicate()
+	next_levels[id] = get_upgrade_level(id) + 1
+	var next_balance := banked_research - get_upgrade_cost(id)
+	var error := _save_balance(next_balance, next_levels)
+	if error != OK:
+		push_error("升级保存失败，余额和等级未变更，错误码 %s。" % error)
+		return false
+	_upgrade_levels = next_levels
 	banked_research = next_balance
 	_publish()
 	return true
@@ -133,6 +199,7 @@ func is_assault_unlocked() -> bool:
 func close_run() -> void:
 	money = 0
 	run_research = 0
+	_reward_remainders = {Kind.MONEY: 0.0, Kind.RESEARCH: 0.0}
 	_run_open = false
 	_settled = false
 	_publish()
@@ -147,6 +214,7 @@ func delete_game_save() -> Error:
 			if error != OK:
 				return error
 	banked_research = 0
+	_upgrade_levels.clear()
 	_airborne_completed = false
 	_pending_airborne_completion = false
 	_settlement_failed = false
@@ -161,14 +229,20 @@ func get_snapshot() -> Dictionary:
 
 
 ## 先写临时文件，再替换正式账户，避免写入中断把原有已存研究点数截断。
-## TODO：闯关外角色强化与装备升级需要先保存扣款，再应用对应升级效果。
-func _save_balance(balance: int) -> Error:
+## 购买可传入候选等级；普通结算和扣款沿用当前等级，均不覆盖其他账户状态。
+func _save_balance(balance: int, levels: Dictionary = {}) -> Error:
 	if not _account_loaded:
 		return ERR_FILE_CORRUPT
 	var account := ConfigFile.new()
-	account.set_value("account", "version", 2)
+	account.set_value("account", "version", 3)
+	account.set_value("upgrades", "levels", _upgrade_levels if levels.is_empty() else levels)
 	account.set_value("account", "research", balance)
 	account.set_value("progress", "airborne_completed", _airborne_completed or _pending_airborne_completion)
+	return _store_account(account)
+
+
+## 持久化边界独立于升级事务，临时文件写完后才替换正式账户。
+func _store_account(account: ConfigFile) -> Error:
 	var error := account.save(TEMP_PATH)
 	if error != OK:
 		return error

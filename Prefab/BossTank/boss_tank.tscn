@@ -1,0 +1,98 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://Prefab/BossTank/boss_tank.gd" id="1_tank"]
+[ext_resource type="Script" path="res://Script/Component/health_component.gd" id="2_health"]
+[ext_resource type="Script" path="res://Script/Component/hurt_box.gd" id="3_hurt"]
+[ext_resource type="Script" path="res://Prefab/BossTank/tank_visuals.gd" id="4_visuals"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/SFX/Tank/cannon.wav" id="5_cannon"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/SFX/Tank/machine.wav" id="6_machine"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/SFX/pistol_fire.wav" id="7_pistol"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/SFX/Tank/reload.wav" id="8_reload"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/SFX/Tank/overload.wav" id="9_transition"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/SFX/Tank/tracks.wav" id="10_tracks"]
+[ext_resource type="AtlasTexture" path="res://Assets/Art/MilitaryArcade/Tank/hull_down.tres" id="11_hull"]
+[ext_resource type="AtlasTexture" path="res://Assets/Art/MilitaryArcade/Tank/turret.tres" id="12_turret"]
+
+[sub_resource type="CircleShape2D" id="BodyShape"]
+radius = 26.0
+resource_local_to_scene = true
+
+[sub_resource type="CircleShape2D" id="HurtShape"]
+radius = 31.0
+resource_local_to_scene = true
+
+[node name="HeavyTank" type="CharacterBody2D" groups=["enemies"]]
+collision_layer = 2
+collision_mask = 41
+script = ExtResource("1_tank")
+boss_display_name = "重型坦克"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("BodyShape")
+
+[node name="Visuals" type="Node2D" parent="."]
+script = ExtResource("4_visuals")
+
+[node name="Hull" type="Sprite2D" parent="Visuals"]
+texture_filter = 2
+texture = ExtResource("11_hull")
+scale = Vector2(0.2, 0.2)
+
+[node name="Turret" type="Sprite2D" parent="Visuals"]
+texture_filter = 2
+texture = ExtResource("12_turret")
+scale = Vector2(0.2, 0.2)
+
+[node name="Driver" type="Sprite2D" parent="Visuals"]
+visible = false
+texture_filter = 2
+scale = Vector2(0.12, 0.12)
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
+health = 120
+health_max = 120
+
+[node name="HurtBox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("3_hurt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
+shape = SubResource("HurtShape")
+
+[node name="CannonAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("5_cannon")
+bus = &"SFX"
+volume_db = -5.0
+max_distance = 750.0
+
+[node name="MachineAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("6_machine")
+bus = &"SFX"
+volume_db = -9.0
+max_distance = 650.0
+
+[node name="PistolAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("7_pistol")
+bus = &"SFX"
+volume_db = -8.0
+max_distance = 650.0
+
+[node name="ReloadAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("8_reload")
+bus = &"SFX"
+volume_db = -11.0
+max_distance = 550.0
+
+[node name="TransitionAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("9_transition")
+bus = &"SFX"
+volume_db = -6.0
+max_distance = 750.0
+
+[node name="TrackAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("10_tracks")
+bus = &"SFX"
+volume_db = -14.0
+max_distance = 550.0

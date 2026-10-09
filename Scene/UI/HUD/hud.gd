@@ -10,21 +10,26 @@ enum ControlMode { KEYBOARD_MOUSE, GAMEPAD, TOUCH }
 
 const COLOR_HEALTH_NORMAL := Color("#bdd28a")
 const COLOR_HEALTH_LOW := Color("#e57b68")
-const WEAPON_ICON_PISTOL: Texture2D = preload("res://Prefab/Player/player_weapon_pistol.png")
-const WEAPON_ICON_SMG: Texture2D = preload("res://Prefab/Player/player_weapon_smg.png")
-const WEAPON_ICON_SHORTGUN: Texture2D = preload("res://Prefab/Player/player_weapon_shortgun.png")
-const EQUIPMENT_ICON_GRENADE: Texture2D = preload("res://Prefab/grenade/grenade.png")
-const EQUIPMENT_ICON_MOLOTOV: Texture2D = preload("res://Prefab/molotov/molotov.png")
-const EQUIPMENT_ICON_SHIELD: Texture2D = preload("res://Prefab/shield/shield.png")
-const SUPPORT_ICON_MORTAR: Texture2D = preload("res://Prefab/MortarStriker/mortar_strike.png")
-const SUPPORT_ICON_BOMBING: Texture2D = preload("res://Prefab/TactialBoming/tactial_boming.png")
-const SKILL_ICON_SPRINT: Texture2D = preload("res://Assets/UI/skill_sprint.svg")
-const SKILL_ICON_DODGE: Texture2D = preload("res://Assets/UI/skill_dodge.svg")
+## 统一军事像素素材同时用于 HUD 与拾取物；这里只切换贴图，不改变槽位状态。
+const WEAPON_ICON_PISTOL: Texture2D = preload("res://Assets/Art/MilitaryArcade/pistol.png")
+const WEAPON_ICON_SMG: Texture2D = preload("res://Assets/Art/MilitaryArcade/smg.png")
+const WEAPON_ICON_SHORTGUN: Texture2D = preload("res://Assets/Art/MilitaryArcade/shotgun.png")
+const EQUIPMENT_ICON_GRENADE: Texture2D = preload("res://Assets/Art/MilitaryArcade/grenade.png")
+const EQUIPMENT_ICON_MOLOTOV: Texture2D = preload("res://Assets/Art/MilitaryArcade/molotov.png")
+const EQUIPMENT_ICON_SHIELD: Texture2D = preload("res://Assets/Art/MilitaryArcade/shield.png")
+const SUPPORT_ICON_MORTAR: Texture2D = preload("res://Assets/Art/MilitaryArcade/mortar.png")
+const SUPPORT_ICON_BOMBING: Texture2D = preload("res://Assets/Art/MilitaryArcade/bombing.png")
+const SKILL_ICON_SPRINT: Texture2D = preload("res://Assets/Art/MilitaryArcade/sprint.png")
+const SKILL_ICON_DODGE: Texture2D = preload("res://Assets/Art/MilitaryArcade/dodge.png")
 const WEAPON_NAME_PISTOL := "手枪 / PISTOL"
 const WEAPON_NAME_SMG := "冲锋枪 / SMG"
 const WEAPON_NAME_SHORTGUN := "霰弹枪 / SHOTGUN"
 
 @onready var _health_bar: ProgressBar = %HealthBar
+## 体力条的布局与样式由 HUD 场景配置，数值由玩家信号提供。
+@onready var _stamina_bar: ProgressBar = %StaminaBar
+@onready var _stamina_fill_style: StyleBoxFlat = _stamina_bar.get_theme_stylebox("fill").duplicate() as StyleBoxFlat
+@onready var _enemy_hints: EnemyDirectionHints = %EnemyDirectionHints
 @onready var _health_value_label: Label = %HealthValueLabel
 @onready var _health_fill_style: StyleBoxFlat = _health_bar.get_theme_stylebox("fill").duplicate() as StyleBoxFlat
 @onready var _weapon_icon: TextureRect = %WeaponIcon
@@ -158,6 +163,7 @@ func _input(event: InputEvent) -> void:
 
 ## HUD 始终运行，以便暂停时也能释放触控按键并清理模拟输入。
 func _process(_delta: float) -> void:
+    _enemy_hints.visible = _game_started and not _game_over and not get_tree().paused
     var now_msec := Time.get_ticks_msec()
     for action_name: String in _touch_action_release_at.keys().duplicate():
         if now_msec >= int(_touch_action_release_at[action_name]):
@@ -697,8 +703,13 @@ func _on_currency_changed(snapshot: Dictionary) -> void:
     %VictoryCurrency.text = result
 
 
+## 保留当前 Boss 名称，使坦克阶段切换后血条不会恢复为 GENERAL。
+var _boss_display_name: String = "GENERAL"
+
+
 ## 首次显示 Boss 血条，并设置 Boss 名称、阶段和当前生命值。
 func show_boss_health(boss_name: String, current_health: int, max_health: int, phase: int) -> void:
+    _boss_display_name = boss_name
     _boss_name_label.text = "%s  /  PHASE %02d" % [boss_name, phase]
     set_boss_health(current_health, max_health)
     _boss_health_panel.visible = true
@@ -713,7 +724,7 @@ func set_boss_health(current_health: int, max_health: int) -> void:
 
 ## 阶段切换时同步血条标题和生命值。
 func set_boss_phase(phase: int, current_health: int, max_health: int) -> void:
-    _boss_name_label.text = "GENERAL  /  PHASE %02d" % phase
+    _boss_name_label.text = "%s  /  PHASE %02d" % [_boss_display_name, phase]
     set_boss_health(current_health, max_health)
     _boss_health_panel.visible = true
 
@@ -725,6 +736,8 @@ func hide_boss_health() -> void:
 
 ## 使用关卡生成器提供的同一份地图数据更新路线小地图和访问状态。
 func set_room_map(level_map: Dictionary, current_room_id: int, visited_room_ids: Array[int]) -> void:
+    _enemy_hints.current_room_id = current_room_id
+    _enemy_hints.refresh_hints()
     _room_minimap.set_map_data(level_map, current_room_id, visited_room_ids)
 
 
@@ -770,6 +783,19 @@ func _exit_game() -> void:
     GameSettings.save_now()
     get_tree().paused = false
     get_tree().quit()
+
+
+## 关卡绑定玩家后将相同引用传给方位提示，避免 UI 猜测玩家所在场景。
+func set_enemy_hint_player(player: Node2D) -> void:
+    _enemy_hints.player = player
+
+
+## 更新体力条；满体力为冷蓝色，体力低于四分之一时转为琥珀色。
+func set_stamina(current: float, maximum: float) -> void:
+    _stamina_bar.max_value = maxf(maximum, 1.0)
+    _stamina_bar.value = clampf(current, 0.0, maximum)
+    _stamina_fill_style.bg_color = Color("edb666") if current < maximum * 0.25 else Color("66bac7")
+    _stamina_bar.add_theme_stylebox_override("fill", _stamina_fill_style)
 
 
 ## 根据玩家当前生命值和上限更新血条与数值。

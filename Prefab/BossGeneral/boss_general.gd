@@ -1,17 +1,12 @@
 ## General Boss：锁定玩家开火，并按阶段切换生命值、武器和分段追击参数。
 class_name BossGeneral
-extends CharacterBody2D
+extends BattlefieldBoss
 
 ## Boss 的两个战斗阶段；第二阶段在第一阶段生命耗尽时立即开始。
 enum Phase {
 	FIRST = 1,
 	SECOND = 2,
 }
-
-## 阶段切换时同步阶段编号与新阶段生命值；用于 HUD 更新 Boss 血条。
-signal sig_phase_changed(phase: int, current_health: int, max_health: int)
-## 只有最终阶段被击败时才发出，避免阶段切换被误计为一次击杀。
-signal sig_defeated
 
 @export_group("阶段一 / 手枪")
 ## 第一阶段生命值、单发伤害、弹匣容量、射速与换弹时间。
@@ -48,10 +43,14 @@ signal sig_defeated
 @export_range(1.0, 2000.0, 1.0) var bullet_speed: float = 260.0
 @export_range(1.0, 3000.0, 1.0) var bullet_range: float = 700.0
 
-@onready var health_component: HealthComponent = $Health
 @onready var body_sprite: Sprite2D = $Sprite2D
 
-var current_phase: Phase = Phase.FIRST
+## 图集行顺序为下、右、上、左、右上、左上、左下、右下；列对应两阶段武器。
+## 角度分区从屏幕右侧起顺时针排列，与敌人士兵的八方向判定保持一致。
+const DIRECTION_ROWS: Array[int] = [1, 7, 0, 6, 3, 5, 2, 4]
+## 目标与首领重合时保留上一朝向，避免零向量导致图像跳变。
+var _facing_row: int = 0
+
 var _ammo_in_magazine: int = 0
 var _fire_cooldown: float = 0.25
 var _reload_remaining: float = 0.0
@@ -75,13 +74,32 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player):
 		velocity = Vector2.ZERO
 		move_and_slide()
+		_update_facing(Vector2.ZERO)
 		return
 
 	var target_direction := global_position.direction_to(player.global_position)
 	_update_segmented_movement(delta, player, target_direction)
 	_update_weapon(delta)
-	if absf(target_direction.x) > 0.01:
-		body_sprite.flip_h = target_direction.x < 0.0
+	_update_facing(target_direction)
+
+
+## 根据锁定目标切换八方向视角，休息和换弹时也持续瞄准；不旋转角色碰撞体。
+func _update_facing(direction: Vector2) -> void:
+	if direction.length_squared() > 0.0001:
+		var sector := int(floor((direction.angle() + PI / 8.0) / (PI / 4.0)))
+		_facing_row = DIRECTION_ROWS[posmod(sector, 8)]
+	var weapon_column := 0 if current_phase == Phase.FIRST else 1
+	var sprite_row := _facing_row
+	body_sprite.flip_h = false
+	# 原图第一阶段右上与左上都向左上；复用左上镜像保证枪口朝右上。
+	if weapon_column == 0 and _facing_row == 4:
+		sprite_row = 5
+		body_sprite.flip_h = true
+	# 原图第二阶段左/左上/左下格的枪口向右；对应右向格镜像后才与射击一致。
+	if weapon_column == 1 and _facing_row in [3, 5, 6]:
+		sprite_row = 1 if _facing_row == 3 else (4 if _facing_row == 5 else 7)
+		body_sprite.flip_h = true
+	body_sprite.frame = sprite_row * 2 + weapon_column
 
 
 ## 阶段一被击败时重置为阶段二生命与冲锋枪；阶段二被击败才结束 Boss 战。
@@ -112,6 +130,8 @@ func _apply_phase_settings(reset_magazine: bool) -> void:
 		_fire_cooldown = 0.25
 	_move_distance_remaining = 0.0
 	_rest_remaining = 0.0
+	# 阶段切换立即更换武器列，不等下一次物理帧，避免新武器仍显示旧姿势。
+	_update_facing(Vector2.ZERO)
 
 
 ## 根据玩家距离执行单段移动，达到段长或安全距离后停下并开始休息。

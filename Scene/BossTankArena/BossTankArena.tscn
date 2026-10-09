@@ -1,0 +1,90 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://Scene/BossTankArena/tank_arena.gd" id="1_arena"]
+[ext_resource type="PackedScene" path="res://Prefab/Player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://Prefab/BossTank/boss_tank.tscn" id="3_tank"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Fortress/ground.png" id="4_floor"]
+[ext_resource type="PackedScene" path="res://Prefab/Terrain/box_crate.tscn" id="5_crate"]
+
+[sub_resource type="RectangleShape2D" id="HorizontalWall"]
+size = Vector2(800, 20)
+
+[sub_resource type="RectangleShape2D" id="VerticalWall"]
+size = Vector2(20, 620)
+
+[node name="TankArena" type="Node2D"]
+script = ExtResource("1_arena")
+
+[node name="Floor" type="Sprite2D" parent="."]
+z_index = -10
+texture = ExtResource("4_floor")
+texture_repeat = 2
+region_enabled = true
+region_rect = Rect2(0, 0, 800, 600)
+
+[node name="Walls" type="StaticBody2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+
+[node name="Top" type="CollisionShape2D" parent="Walls"]
+position = Vector2(0, -300)
+shape = SubResource("HorizontalWall")
+
+[node name="Bottom" type="CollisionShape2D" parent="Walls"]
+position = Vector2(0, 300)
+shape = SubResource("HorizontalWall")
+
+[node name="Left" type="CollisionShape2D" parent="Walls"]
+position = Vector2(-400, 0)
+shape = SubResource("VerticalWall")
+
+[node name="Right" type="CollisionShape2D" parent="Walls"]
+position = Vector2(400, 0)
+shape = SubResource("VerticalWall")
+
+[node name="BoxLeft" parent="." instance=ExtResource("5_crate")]
+position = Vector2(-140, 70)
+loot_drop_probability = 0.0
+
+[node name="BoxRight" parent="." instance=ExtResource("5_crate")]
+position = Vector2(140, 70)
+loot_drop_probability = 0.0
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(0, 180)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.1, 1.1)
+
+[node name="HeavyTank" parent="." instance=ExtResource("3_tank")]
+position = Vector2(0, -100)
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="PanelContainer" parent="UI"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 440.0
+offset_bottom = 175.0
+
+[node name="Rows" type="VBoxContainer" parent="UI/Panel"]
+layout_mode = 2
+
+[node name="BossName" type="Label" parent="UI/Panel/Rows"]
+layout_mode = 2
+text = "重型坦克 · 坦克形态"
+theme_override_font_sizes/font_size = 23
+
+[node name="Health" type="ProgressBar" parent="UI/Panel/Rows"]
+layout_mode = 2
+max_value = 120.0
+value = 120.0
+
+[node name="Status" type="Label" parent="UI/Panel/Rows"]
+layout_mode = 2
+text = "WASD 移动 · 方向键/鼠标开火 · Q 切枪 · R 换弹"
+theme_override_font_sizes/font_size = 15
+
+[node name="Restart" type="Button" parent="UI/Panel/Rows"]
+layout_mode = 2
+text = "重新挑战"

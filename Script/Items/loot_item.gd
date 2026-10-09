@@ -1,3 +1,4 @@
+## 地面拾取物：统一物品效果、外观及普通掉落数量，商店可显式指定独立数量。
 class_name LootItem
 extends Area2D
 
@@ -22,6 +23,7 @@ enum Type {
     SkillDodge = 13, # 自身技能 - 闪避
     CurrencyMoney = 14, # 货币 - 本次闯关内的金钱，使用独立 CurrencyPickup 预制体
     CurrencyResearch = 15, # 货币 - 本局研究点数，结算后才存入账户
+    MedicalKit = 16, # 医疗包 - 即时治疗，独立图标和预制体，不改变历史类型编号
 }
 
 # 自身属性
@@ -34,6 +36,11 @@ var pickup_frame: Line2D
 var _base_scale: Vector2
 ## 货币在队列销毁前可能再次收到触碰信号，入账标志确保只奖励一次。
 var _currency_collected: bool = false
+
+## 普通房间与木箱每次掉落一份物品；武器的一份效果为补满备弹，与弹药数量无关。
+static func get_default_drop_amount(_loot_type: Type) -> int:
+    return 1
+
 
 func _ready() -> void:
     if type == Type.Empty:
@@ -56,12 +63,12 @@ func apply_to(player: Player) -> bool:
 
     match type:
         Type.WeaponSMG:
-            # 已拥有的武器由武器管理器自动补充备弹，未拥有时则解锁并切为主武器。
+            # 武器数量仅表示有效拾取物，效果为备弹补满，未拥有时同时解锁。
             return player.node_weapon_manager.obtain_smg(num)
         Type.WeaponShortgun:
-            # 同一种武器拾取物既负责解锁武器，也负责按拾取数量补充备弹。
+            # 弹匣始终保留当前数量，首次获得与重复拾取都只补满备弹。
             return player.node_weapon_manager.obtain_shortgun(num)
-        Type.Health:
+        Type.Health, Type.MedicalKit:
             return _apply_health_to(player)
         Type.EquipmentGrenade, Type.EquipmentMolotov, Type.EquipmentShield:
             return player.obtain_equipment_from_loot(type, num)
@@ -97,48 +104,61 @@ func _apply_health_to(player: Player) -> bool:
 
 
 ## 武器拾取物显示对应图标，其他道具沿用场景中配置的 Sprite2D 样式。
+## 当前启用统一军事像素图标，贴图与碰撞分离，原有拾取效果和编号保持一致。
 func _update_appearance() -> void:
     match type:
         Type.CurrencyMoney, Type.CurrencyResearch:
-            var path := "res://Prefab/Currency/money.svg" if type == Type.CurrencyMoney else "res://Prefab/Currency/research_point.svg"
+            var path := "res://Assets/Art/MilitaryArcade/money.png" if type == Type.CurrencyMoney else "res://Assets/Art/MilitaryArcade/research.png"
             sprite.texture = load(path) as Texture2D
             sprite.region_enabled = false
+        Type.Health:
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/health.png") as Texture2D
+            sprite.region_enabled = false
+        Type.MedicalKit:
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/Merchant/medical_kit.png") as Texture2D
+            sprite.region_enabled = false
         Type.WeaponSMG:
-            sprite.texture = load("res://Prefab/Player/player_weapon_smg.png") as Texture2D
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/smg.png") as Texture2D
             sprite.region_enabled = false
             sprite.scale = Vector2(0.5, 0.5)
         Type.WeaponShortgun:
-            sprite.texture = load("res://Prefab/Player/player_weapon_shortgun.png") as Texture2D
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/shotgun.png") as Texture2D
             sprite.region_enabled = false
             sprite.scale = Vector2(0.5, 0.5)
         Type.EquipmentGrenade:
-            sprite.texture = load("res://Prefab/grenade/grenade.png") as Texture2D
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/grenade.png") as Texture2D
             sprite.region_enabled = false
             sprite.scale = Vector2(0.75, 0.75)
         Type.EquipmentMolotov:
-            sprite.texture = load("res://Prefab/molotov/molotov.png") as Texture2D
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/molotov.png") as Texture2D
             sprite.region_enabled = false
             sprite.scale = Vector2(0.75, 0.75)
         Type.SupportMortarStriker:
-            sprite.texture = load("res://Prefab/MortarStriker/mortar_strike.png") as Texture2D
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/mortar.png") as Texture2D
             sprite.region_enabled = false
             sprite.scale = Vector2(1.0, 1.0)
         Type.SupportTacticalBombing:
-            sprite.texture = load("res://Prefab/TactialBoming/tactial_boming.png") as Texture2D
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/bombing.png") as Texture2D
             sprite.region_enabled = false
             sprite.scale = Vector2(1.0, 1.0)
         Type.SkillSprint:
-            sprite.texture = load("res://Assets/UI/skill_sprint.svg") as Texture2D
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/sprint.png") as Texture2D
             sprite.region_enabled = false
             sprite.scale = Vector2(0.75, 0.75)
         Type.SkillDodge:
-            sprite.texture = load("res://Assets/UI/skill_dodge.svg") as Texture2D
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/dodge.png") as Texture2D
             sprite.region_enabled = false
             sprite.scale = Vector2(0.75, 0.75)
         Type.EquipmentShield:
-            sprite.texture = load("res://Prefab/shield/shield.png") as Texture2D
+            sprite.texture = load("res://Assets/Art/MilitaryArcade/shield.png") as Texture2D
             sprite.region_enabled = false
             sprite.scale = Vector2(0.75, 0.75)
+
+    # 高分辨率图标按原物品占地缩放；不放大触碰范围，也不使拾取边框遮挡地图。
+    if sprite.texture != null:
+        var footprint := 24.0 if type in [Type.WeaponSMG, Type.WeaponShortgun, Type.MedicalKit, Type.SupportMortarStriker, Type.SupportTacticalBombing] else 16.0
+        var factor := footprint / maxf(sprite.texture.get_width(), sprite.texture.get_height())
+        sprite.scale = Vector2.ONE * factor
 
 
 ## 为拾取物绘制一圈浅色边框，边框按图标的实际区域和缩放尺寸适配。
