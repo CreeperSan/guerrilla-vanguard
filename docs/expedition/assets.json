@@ -1,0 +1,58 @@
+[
+  {
+    "id": "OldTown",
+    "title": "老城居民区",
+    "boss": "楼城督军",
+    "art_provisional": true,
+    "bpm": 104
+  },
+  {
+    "id": "Neon",
+    "title": "霓虹娱乐街",
+    "boss": "夜幕双煞",
+    "art_provisional": true,
+    "bpm": 128
+  },
+  {
+    "id": "Park",
+    "title": "郊野公园",
+    "boss": "灰熊",
+    "art_provisional": true,
+    "bpm": 92
+  },
+  {
+    "id": "Chemical",
+    "title": "化工厂",
+    "boss": "压力主管",
+    "art_provisional": true,
+    "bpm": 112
+  },
+  {
+    "id": "Route66",
+    "title": "66号公路",
+    "boss": "末路车王",
+    "art_provisional": true,
+    "bpm": 120
+  },
+  {
+    "id": "Swamp",
+    "title": "沼泽湿地",
+    "boss": "沉舟",
+    "art_provisional": true,
+    "bpm": 84
+  },
+  {
+    "id": "Canal",
+    "title": "运河小镇",
+    "boss": "闸门长",
+    "art_provisional": true,
+    "bpm": 100
+  },
+  {
+    "id": "Hospital",
+    "title": "废弃医院·生化实验室",
+    "boss": "零号病人",
+    "art_provisional": true,
+    "bpm": 80
+  }
+]

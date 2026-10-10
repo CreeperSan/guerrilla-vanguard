@@ -1,0 +1,42 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://Prefab/BossSquad/tactical_boss.gd" id="boss"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Bosses/tactical_boss_atlas.png" id="art"]
+[ext_resource type="Script" path="res://Script/Component/health_component.gd" id="health"]
+[ext_resource type="Script" path="res://Script/Component/hurt_box.gd" id="hurt"]
+
+[sub_resource type="CircleShape2D" id="body_shape"]
+radius = 12.0
+[sub_resource type="CircleShape2D" id="hurt_shape"]
+radius = 17.0
+
+[node name="Engineer" type="CharacterBody2D" groups=["enemies"]]
+script = ExtResource("boss")
+kind = 4
+boss_display_name = "爆破工兵"
+first_health = 100
+second_health = 80
+move_speed = 48.0
+preferred_distance = 160.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body_shape")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(0.18, 0.18)
+texture = ExtResource("art")
+hframes = 5
+vframes = 4
+frame = 4
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("health")
+
+[node name="HurtBox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("hurt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
+shape = SubResource("hurt_shape")

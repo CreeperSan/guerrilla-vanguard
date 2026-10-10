@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BattlefieldCampaign" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="BattlefieldCampaign" load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://Script/Level/battlefield_campaign.gd" id="1_pool"]
 [ext_resource type="Script" path="res://Script/Level/battlefield_theme.gd" id="2_theme_type"]
@@ -10,6 +10,22 @@
 [ext_resource type="Resource" path="res://Scene/LevelUndergroundFortress/theme.tres" id="8_theme"]
 [ext_resource type="Resource" path="res://Scene/LevelMineShaft/theme.tres" id="9_theme"]
 
+[ext_resource type="Resource" path="res://Scene/LevelOldTown/theme.tres" id="expedition_OldTown"]
+
+[ext_resource type="Resource" path="res://Scene/LevelNeon/theme.tres" id="expedition_Neon"]
+
+[ext_resource type="Resource" path="res://Scene/LevelPark/theme.tres" id="expedition_Park"]
+
+[ext_resource type="Resource" path="res://Scene/LevelChemical/theme.tres" id="expedition_Chemical"]
+
+[ext_resource type="Resource" path="res://Scene/LevelRoute66/theme.tres" id="expedition_Route66"]
+
+[ext_resource type="Resource" path="res://Scene/LevelSwamp/theme.tres" id="expedition_Swamp"]
+
+[ext_resource type="Resource" path="res://Scene/LevelCanal/theme.tres" id="expedition_Canal"]
+
+[ext_resource type="Resource" path="res://Scene/LevelHospital/theme.tres" id="expedition_Hospital"]
+
 [resource]
 script = ExtResource("1_pool")
-themes = Array[ExtResource("2_theme_type")]([ExtResource("3_theme"), ExtResource("4_theme"), ExtResource("5_theme"), ExtResource("6_theme"), ExtResource("7_theme"), ExtResource("8_theme"), ExtResource("9_theme")])
+themes = Array[ExtResource("2_theme_type")]([ExtResource("3_theme"), ExtResource("4_theme"), ExtResource("5_theme"), ExtResource("6_theme"), ExtResource("7_theme"), ExtResource("8_theme"), ExtResource("9_theme"), ExtResource("expedition_OldTown"), ExtResource("expedition_Neon"), ExtResource("expedition_Park"), ExtResource("expedition_Chemical"), ExtResource("expedition_Route66"), ExtResource("expedition_Swamp"), ExtResource("expedition_Canal"), ExtResource("expedition_Hospital")])

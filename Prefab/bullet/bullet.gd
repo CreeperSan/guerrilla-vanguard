@@ -164,7 +164,7 @@ func _handle_hit(target: Node) -> void:
 
     match bullet_type:
         Definition.BulletType.Bullet:
-            health.damage(bullet_damage, bullet_from)
+            health.damage(bullet_damage, bullet_from, global_position - bullet_direction * 20.0)
         Definition.BulletType.Explosion:
             _spawn_explosion(global_position)
             _is_finished = true

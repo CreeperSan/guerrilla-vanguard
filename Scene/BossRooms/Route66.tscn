@@ -1,0 +1,63 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://Scene/LevelFortress/room_template.gd" id="room"]
+
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Valley/cover.png" id="cover"]
+
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Valley/decoration.png" id="decoration"]
+
+[sub_resource type="RectangleShape2D" id="shape"]
+size = Vector2(64, 32)
+
+[node name="Route66Arena" type="Node2D"]
+script = ExtResource("room")
+room_size_units = Vector2i(2, 2)
+room_type = "boss"
+populate_on_first_entry = false
+
+[node name="BossSpawn" type="Marker2D" parent="."]
+position = Vector2(0, -100)
+
+[node name="Cover0" type="StaticBody2D" parent="."]
+position = Vector2(-300, -220)
+collision_layer = 8
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Cover0"]
+shape = SubResource("shape")
+
+[node name="Art" type="Sprite2D" parent="Cover0"]
+texture = ExtResource("cover")
+texture_repeat = 2
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 32)
+
+[node name="Cover1" type="StaticBody2D" parent="."]
+position = Vector2(300, 220)
+collision_layer = 8
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Cover1"]
+shape = SubResource("shape")
+
+[node name="Art" type="Sprite2D" parent="Cover1"]
+texture = ExtResource("cover")
+texture_repeat = 2
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 32)
+
+[node name="Prop0" type="Sprite2D" parent="."]
+position = Vector2(-380, -340)
+texture = ExtResource("decoration")
+
+[node name="Prop1" type="Sprite2D" parent="."]
+position = Vector2(380, -340)
+texture = ExtResource("decoration")
+
+[node name="Prop2" type="Sprite2D" parent="."]
+position = Vector2(-380, 340)
+texture = ExtResource("decoration")
+
+[node name="Prop3" type="Sprite2D" parent="."]
+position = Vector2(380, 340)
+texture = ExtResource("decoration")

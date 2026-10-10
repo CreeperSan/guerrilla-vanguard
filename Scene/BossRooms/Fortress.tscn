@@ -1,0 +1,73 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://Scene/LevelFortress/room_template.gd" id="room"]
+
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Fortress/cover.png" id="cover_art"]
+
+[sub_resource type="RectangleShape2D" id="cover_shape"]
+size = Vector2(64, 24)
+
+[node name="FortressBossArena" type="Node2D"]
+script = ExtResource("room")
+room_size_units = Vector2i(2, 2)
+room_type = "boss"
+populate_on_first_entry = false
+
+[node name="BossSpawn" type="Marker2D" parent="."]
+position = Vector2(0, 0)
+
+[node name="Cover0" type="StaticBody2D" parent="."]
+position = Vector2(-220, -180)
+collision_layer = 8
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Cover0"]
+shape = SubResource("cover_shape")
+
+[node name="Art" type="Sprite2D" parent="Cover0"]
+texture = ExtResource("cover_art")
+texture_repeat = 2
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 24)
+
+[node name="Cover1" type="StaticBody2D" parent="."]
+position = Vector2(220, -180)
+collision_layer = 8
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Cover1"]
+shape = SubResource("cover_shape")
+
+[node name="Art" type="Sprite2D" parent="Cover1"]
+texture = ExtResource("cover_art")
+texture_repeat = 2
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 24)
+
+[node name="Cover2" type="StaticBody2D" parent="."]
+position = Vector2(-220, 180)
+collision_layer = 8
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Cover2"]
+shape = SubResource("cover_shape")
+
+[node name="Art" type="Sprite2D" parent="Cover2"]
+texture = ExtResource("cover_art")
+texture_repeat = 2
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 24)
+
+[node name="Cover3" type="StaticBody2D" parent="."]
+position = Vector2(220, 180)
+collision_layer = 8
+collision_mask = 0
+
+[node name="Shape" type="CollisionShape2D" parent="Cover3"]
+shape = SubResource("cover_shape")
+
+[node name="Art" type="Sprite2D" parent="Cover3"]
+texture = ExtResource("cover_art")
+texture_repeat = 2
+region_enabled = true
+region_rect = Rect2(0, 0, 64, 24)

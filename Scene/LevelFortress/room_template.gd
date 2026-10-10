@@ -145,6 +145,9 @@ func _on_tracked_enemy_removed() -> void:
 
 ## 房间变安全时只发一次通知，门口等待的玩家可在清场后继续传送。
 func _check_room_cleared() -> void:
+	# 固定竞技场不预生成守卫；等待首领生成后才允许清场检查，避免入场即开门。
+	if room_type == "boss" and not has_meta("boss_spawned"):
+		return
 	if not _contents_initialized or _clear_signal_sent or not is_room_safe():
 		return
 	_clear_signal_sent = true

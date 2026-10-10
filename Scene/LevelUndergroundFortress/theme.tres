@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BattlefieldTheme" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="BattlefieldTheme" load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://Script/Level/battlefield_theme.gd" id="1_theme"]
 [ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/UndergroundFortress/ground.png" id="2_ground"]
@@ -10,6 +10,9 @@
 [ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/UndergroundFortress/decoration.png" id="8_decoration"]
 
 [ext_resource type="AudioStream" path="res://Assets/Audio/Music/level_underground_fortress.wav" id="music_theme"]
+
+[ext_resource type="PackedScene" path="res://Prefab/BossTank/boss_tank.tscn" id="boss_bound"]
+[ext_resource type="PackedScene" path="res://Scene/BossRooms/UndergroundFortress.tscn" id="boss_arena"]
 
 [resource]
 script = ExtResource("1_theme")
@@ -26,3 +29,6 @@ secondary_style_tint = Color(0.92, 0.94, 0.9, 1)
 cover_count = 1
 cover_size = Vector2(64, 40)
 background_music = ExtResource("music_theme")
+
+boss_scene = ExtResource("boss_bound")
+boss_room_scene = ExtResource("boss_arena")

@@ -115,7 +115,7 @@ static func _make_room(room_id: int, origin: Vector2i, size: Vector2i, room_type
 ## 在父房间的一侧随机选择尺寸和对齐方式；相交或未真正贴边时放弃候选。
 static func _place_adjacent_room(rooms: Array[Dictionary], parent: Dictionary, room_id: int, room_type: String, rng: RandomNumberGenerator) -> Dictionary:
     # 尺寸先独立抽取，再尝试四侧放置；失败交给整图重试，不把大房悄悄替换成小房。
-    var size := _pick_room_size(rng)
+    var size := Vector2i(2, 2) if room_type == "boss" else _pick_room_size(rng)
     var directions: Array[Vector2i] = [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]
     _shuffle_vector2i_array(directions, rng)
     for direction: Vector2i in directions:
@@ -362,7 +362,7 @@ static func _make_fallback_level(level_number: int, seed: int, path_length: int)
     var rooms: Array[Dictionary] = []
     for room_id: int in range(path_length):
         var room_type := "start" if room_id == 0 else ("boss" if room_id == path_length - 1 else "combat")
-        rooms.append(_make_room(room_id, Vector2i(room_id, 0), Vector2i(1, 1), room_type))
+        rooms.append(_make_room(room_id, Vector2i(room_id, 0), Vector2i(2, 2) if room_type == "boss" else Vector2i.ONE, room_type))
     # 在起点和第一间普通房下方放置横跨两格的支路，形成不经过 Boss 的闭环。
     var branch := _make_room(path_length, Vector2i(0, 1), Vector2i(2, 1), "combat")
     branch["parent_id"] = 0

@@ -6,6 +6,12 @@ extends Resource
 @export var display_name: String = ""
 @export_dir var room_template_root: String = ""
 
+@export_group("固定 Boss 遭遇")
+## 主题与 Boss 一对一绑定；对局序号、地图种子和主题抽取顺序不会改变首领。
+@export var boss_scene: PackedScene
+## 独立竞技场场景；根节点须为 FortressRoomTemplate，固定占地 2×2。
+@export var boss_room_scene: PackedScene
+
 @export_group("主题配乐")
 ## 同一主题内房间切换不重播，进入新 Level 时由 GameSettings 交叉淡化并无限循环。
 @export var background_music: AudioStream

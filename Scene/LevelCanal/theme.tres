@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="BattlefieldTheme" load_steps=12 format=3]
+[ext_resource type="Script" path="res://Script/Level/battlefield_theme.gd" id="script"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/ground.png" id="ground"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/wall.png" id="wall"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/water.png" id="water"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/box.png" id="box"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/cover.png" id="cover"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/Terrain/Village/decoration.png" id="decoration"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/World/entrance.png" id="entrance"]
+[ext_resource type="PackedScene" path="res://Prefab/BossExpedition/Canal.tscn" id="boss"]
+[ext_resource type="PackedScene" path="res://Scene/BossRooms/Canal.tscn" id="arena"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/Music/expedition_Canal.wav" id="music"]
+[resource]
+script = ExtResource("script")
+display_name = "运河小镇"
+room_template_root = "res://Scene/LevelCanal"
+ground_texture = ExtResource("ground")
+wall_texture = ExtResource("wall")
+water_texture = ExtResource("water")
+box_texture = ExtResource("box")
+cover_texture = ExtResource("cover")
+decoration_texture = ExtResource("decoration")
+entrance_texture = ExtResource("entrance")
+secondary_style_tint = Color(0.93, 0.95, 0.94, 1)
+cover_count = 2
+cover_size = Vector2(64, 32)
+boss_scene = ExtResource("boss")
+boss_room_scene = ExtResource("arena")
+background_music = ExtResource("music")

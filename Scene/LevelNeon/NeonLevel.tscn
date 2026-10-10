@@ -1,0 +1,17 @@
+[gd_scene load_steps=6 format=3]
+[ext_resource type="Script" path="res://Scene/LevelFortress/fortress_level_controller.gd" id="script"]
+[ext_resource type="PackedScene" path="res://Prefab/Player/player.tscn" id="player"]
+[ext_resource type="PackedScene" path="res://Prefab/Camera/follow_camera.tscn" id="camera"]
+[ext_resource type="PackedScene" path="res://Scene/UI/HUD/HUD.tscn" id="hud"]
+[ext_resource type="Resource" path="res://Scene/LevelNeon/theme.tres" id="theme"]
+[node name="NeonLevel" type="Node2D"]
+script = ExtResource("script")
+player_path = NodePath("Player")
+hud_path = NodePath("HUD")
+camera_path = NodePath("FollowCamera")
+battlefield_theme = ExtResource("theme")
+[node name="Player" parent="." instance=ExtResource("player")]
+[node name="FollowCamera" parent="." instance=ExtResource("camera")]
+zoom = Vector2(2, 2)
+target_path = NodePath("../Player")
+[node name="HUD" parent="." instance=ExtResource("hud")]

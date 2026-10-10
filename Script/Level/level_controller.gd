@@ -126,6 +126,9 @@ func _on_target_health_change(health_change: int, target: Node2D, faction: Defin
 
 ## 普通敌人死亡时增加积分，并同步 HUD。
 func _on_enemy_died(enemy: Node2D) -> void:
+	# 无限补员与 Boss 最终清场不重复发积分或资源，但仍执行敌人的死亡逻辑。
+	if is_instance_valid(enemy) and enemy.get_meta("suppress_death_rewards", false):
+		return
 	var enemy_health := enemy.get_node_or_null("Health") as HealthComponent if is_instance_valid(enemy) else null
 	# 佣兵击杀仍走普通敌人的掉落逻辑，但不给玩家或佣兵增加击杀积分。
 	if enemy_health == null or enemy_health.last_damage_faction != Definition.Faction.Friend:

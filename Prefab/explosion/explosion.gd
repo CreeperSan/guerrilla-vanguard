@@ -101,7 +101,7 @@ func _apply_damage_to(target: Node) -> void:
         return
 
     damaged_targets[target_id] = true
-    health.damage(explision_damange, explision_faction)
+    health.damage(explision_damange, explision_faction, global_position)
 
 
 ## 一次性爆炸动画播放完毕后释放节点。

@@ -12,7 +12,7 @@ const MERCENARY_ROOM_SCENE: PackedScene = preload("res://Scene/LevelFortress/Roo
 const MERCENARY_SCENE: PackedScene = preload("res://Prefab/Mercenary/mercenary.tscn")
 ## 房间切换时使用短暂交叉淡化，避免传送后房间内容突然闪现。
 const ROOM_FADE_DURATION := 0.32
-## Boss 池由场景配置；默认 General 与坦克等概率抽取。
+## 兼容旧场景字段；正式选择改用主题绑定，未配置主题时固定使用首项。
 @export var boss_scenes: Array[PackedScene] = [
     preload("res://Prefab/BossGeneral/boss_general.tscn"),
     preload("res://Prefab/BossTank/boss_tank.tscn"),
@@ -190,15 +190,22 @@ func _build_rooms() -> void:
     for room_data: Dictionary in level_map.get("rooms", []):
         var room_size: Vector2i = room_data.get("size", Vector2i.ONE)
         var room_type := str(room_data.get("type", "combat"))
-        var room_variants: Array[PackedScene] = _get_room_scene_variants(room_size)
-        if room_variants.is_empty() and room_type != "mercenary":
+        var room_variants: Array[PackedScene] = []
+        if room_type != "boss":
+            room_variants = _get_room_scene_variants(room_size)
+        if room_variants.is_empty() and room_type not in ["mercenary", "boss"]:
             push_error("找不到房间尺寸模板：%s" % room_size)
             continue
         var style_rng := RandomNumberGenerator.new()
         style_rng.seed = int(level_map.get("seed", 0)) + (int(room_data.id) + 1) * 7919
-        var style_index := style_rng.randi_range(1, room_variants.size()) if room_type != "mercenary" else 1
+        var style_index := style_rng.randi_range(1, room_variants.size()) if room_type not in ["mercenary", "boss"] else 1
         room_data["style_index"] = style_index
-        var room_scene: PackedScene = MERCENARY_ROOM_SCENE if room_type == "mercenary" else room_variants[style_index - 1]
+        var room_scene: PackedScene = MERCENARY_ROOM_SCENE if room_type == "mercenary" else (room_variants[style_index - 1] if room_type != "boss" else null)
+        if room_type == "boss":
+            room_data["style_index"] = 1
+            room_scene = battlefield_theme.boss_room_scene if battlefield_theme != null else null
+            if room_scene == null:
+                room_scene = preload("res://Scene/BossRooms/Fortress.tscn")
         if room_scene == null:
             push_error("房间样式资源无效：尺寸 %s，样式 %d" % [room_size, style_index])
             continue
@@ -336,7 +343,8 @@ func _spawn_boss_for_current_room() -> void:
         return
     boss_room.set_meta("boss_spawned", true)
     boss.name = "Boss"
-    boss.position = Vector2.ZERO
+    var spawn := boss_room.get_node_or_null("BossSpawn") as Node2D
+    boss.position = spawn.position if spawn != null else Vector2.ZERO
     boss.sig_defeated.connect(_on_boss_defeated)
     boss_room.add_child(boss)
     boss_room.track_enemy(boss)
@@ -345,24 +353,49 @@ func _spawn_boss_for_current_room() -> void:
     print("[Boss] seed=%d room=%d scene=%s" % [boss_room.population_seed, current_room_id, scene.resource_path])
 
 
-## 独立随机流只依赖房间种子，重复进入不重抽，且不改变路线与房间内容随机序列。
-func _select_boss_scene(room_seed: int) -> PackedScene:
-    var candidates: Array[PackedScene] = []
-    for scene: PackedScene in boss_scenes:
-        if scene != null:
-            candidates.append(scene)
-    if candidates.is_empty():
-        push_error("Boss 场景池为空，无法生成首领。")
-        return null
-    var rng := RandomNumberGenerator.new()
-    rng.seed = room_seed ^ 0x54414E4B
-    return candidates[rng.randi_range(0, candidates.size() - 1)]
+## 按 Level 主题固定选取 Boss；保留参数以兼容旧调用，不使用随机流。
+func _select_boss_scene(_room_seed: int) -> PackedScene:
+    if battlefield_theme != null and battlefield_theme.boss_scene != null:
+        return battlefield_theme.boss_scene
+    return boss_scenes[0] if not boss_scenes.is_empty() else null
 
 
-## Boss 被击败后启用 Boss 房内独立出口点。
+## 最终死亡只结算一次；先停止当前房间敌人，再清除残留攻击并打开出口。
 func _on_boss_defeated() -> void:
+    if boss_defeated:
+        return
     boss_defeated = true
+    var room := _room_nodes.get(int(level_map.get("boss_room_id", -1))) as FortressRoomTemplate
+    if room != null:
+        for enemy: Node in get_tree().get_nodes_in_group("enemies"):
+            if not is_instance_valid(enemy) or not room.is_ancestor_of(enemy) or enemy is BattlefieldBoss:
+                continue
+            enemy.set_physics_process(false)
+            enemy.set_meta("suppress_death_rewards", true)
+            var health := enemy.get_node_or_null("Health") as HealthComponent
+            if health != null:
+                health.damage_filter = Callable()
+                health.damage(health.health)
+            enemy.queue_free()
+        _clear_boss_attacks.call_deferred(room)
     _open_boss_exit.call_deferred()
+
+
+## 延迟执行以避开物理查询；仅清理 Boss 房，不影响其他房间或友军攻击。
+func _clear_boss_attacks(room: FortressRoomTemplate) -> void:
+    if not is_instance_valid(room):
+        return
+    for node: Node in room.find_children("*", "Node", true, false):
+        var hostile := node.is_in_group("boss_hazards")
+        if node is ProjectileBullet:
+            hostile = node.bullet_from == Definition.Faction.Enemy
+        elif node is BurningEffect:
+            hostile = node.burining_faction == Definition.Faction.Enemy
+        elif node is ProjectileExplosion:
+            hostile = node.explision_faction == Definition.Faction.Enemy
+        if hostile:
+            node.set_physics_process(false)
+            node.queue_free()
 
 
 ## 创建位于 Boss 房内部且初始关闭的出口触发器。

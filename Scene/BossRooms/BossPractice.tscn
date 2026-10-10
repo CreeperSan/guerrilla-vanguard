@@ -1,0 +1,4 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://Scene/BossRooms/boss_practice.gd" id="practice"]
+[node name="BossPractice" type="Node2D"]
+script = ExtResource("practice")

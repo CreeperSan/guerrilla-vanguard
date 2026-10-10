@@ -163,7 +163,7 @@ func _run() -> void:
 		var chosen := selector._select_boss_scene(seed)
 		_check(chosen == selector._select_boss_scene(seed), "同种子复现 Boss 选择")
 		seen[chosen.resource_path] = true
-	_check(seen.size() == 2, "随机池实际覆盖 General 和重型坦克")
+	_check(seen.size() == 1, "无主题时固定使用默认 Boss，不随种子抽取")
 	selector.free()
 	var controller := TestController.new()
 	add_child(controller)
@@ -197,8 +197,7 @@ func _run() -> void:
 	room_boss.health_component.damage(30)
 	await get_tree().process_frame
 	_check(controller.total_score == 500 and controller.boss_defeated, "驾驶员死亡最终计分一次")
-	_check(not exit.monitoring and not controller.is_current_level_cleared(), "Boss 死亡但守卫存活仍禁止离开")
-	guard.queue_free()
+	_check(not is_instance_valid(guard) or guard.is_queued_for_deletion(), "Boss 死亡同时清除剩余守卫")
 	await get_tree().process_frame
 	controller._open_boss_exit()
 	await get_tree().process_frame

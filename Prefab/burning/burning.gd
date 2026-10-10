@@ -70,13 +70,13 @@ func _damage_overlapping_targets(delta: float) -> void:
 
         if not _target_damage_cooldowns.has(target_id):
             # 新进入的接触目标不等待伤害间隔，首次物理重叠即刻结算。
-            health.damage(bruning_damage, burining_faction)
+            health.damage(bruning_damage, burining_faction, global_position)
             _target_damage_cooldowns[target_id] = damage_interval
             continue
 
         var cooldown: float = float(_target_damage_cooldowns[target_id]) - delta
         if cooldown <= 0.0:
-            health.damage(bruning_damage, burining_faction)
+            health.damage(bruning_damage, burining_faction, global_position)
             cooldown += damage_interval
         _target_damage_cooldowns[target_id] = cooldown
 

@@ -19,6 +19,9 @@ signal sig_health_updated(current_health: int, max_health: int)
 
 ## 可选伤害过滤器；返回实际进入生命值结算的伤害，供护盾等机制拦截。
 var damage_filter: Callable
+## 本次攻击的世界来源位置；无空间来源的伤害使用 INF，方向盾不拦截。
+var damage_origin: Vector2 = Vector2.INF
+
 ## 记录最后一次实际扣血的来源，用于区分佣兵击杀与玩家得分。
 var last_damage_faction: Definition.Faction = Definition.Faction.Enemy
 
@@ -38,8 +41,9 @@ func _ready() -> void:
 
 
 ## 收到伤害的统一逻辑处理
-## @params value: 收到的伤害值（正数）
-func damage(value: int, source_faction: Definition.Faction = Definition.Faction.Enemy) -> void:
+## @params value: 收到的伤害值（正数）；origin 为方向防御使用的世界来源位置，可省略。
+func damage(value: int, source_faction: Definition.Faction = Definition.Faction.Enemy, origin: Vector2 = Vector2.INF) -> void:
+    damage_origin = origin
     var incoming_damage: int = maxi(value, 0)
     if damage_filter.is_valid():
         incoming_damage = maxi(int(damage_filter.call(incoming_damage)), 0)

@@ -1,0 +1,37 @@
+[gd_scene load_steps=8 format=3]
+[ext_resource type="Script" path="res://Prefab/BossExpedition/expedition_boss.gd" id="boss"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Expedition/Swamp/boss.tres" id="art"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Expedition/Swamp/boss.tres" id="companion"]
+[ext_resource type="Script" path="res://Script/Component/health_component.gd" id="health"]
+[ext_resource type="Script" path="res://Script/Component/hurt_box.gd" id="hurt"]
+[sub_resource type="CircleShape2D" id="body"]
+radius = 24.0
+[sub_resource type="CircleShape2D" id="hurt_shape"]
+radius = 28.0
+[node name="SwampBoss" type="CharacterBody2D" groups=["enemies"]]
+collision_layer = 0
+script = ExtResource("boss")
+encounter = 5
+audio_key = "Swamp"
+boss_display_name = "沉舟"
+first_health = 160
+second_health = 130
+third_health = 100
+move_speed = 45.0
+companion_art = ExtResource("companion")
+survivor_art = ExtResource("companion")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("body")
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("art")
+scale = Vector2(0.34, 0.34)
+hframes = 1
+vframes = 4
+[node name="Health" type="Node" parent="."]
+script = ExtResource("health")
+[node name="HurtBox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("hurt")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
+shape = SubResource("hurt_shape")
