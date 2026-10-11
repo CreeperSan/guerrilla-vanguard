@@ -34,6 +34,7 @@ func _ready() -> void:
 	%UpgradeButton.pressed.connect(_show_page.bind(_upgrade_page))
 	# 点击设置
 	btnSetting.pressed.connect(_show_page.bind(_settings_page))
+	%CreditsButton.pressed.connect(_open_credits)
 	%AboutButton.pressed.connect(_show_page.bind(_about_page))
 	btnExit.pressed.connect(_quit_game)
 	for button: Button in [%UpgradeBack, %SettingsBack, %AboutBack]:
@@ -65,7 +66,7 @@ func _start_game(mode: int) -> void:
 	btnStart.disabled = true
 	_assault_button.disabled = true
 	# 加载期间禁止再导航到删除存档页面，避免取消排队加载后按钮停留在禁用状态。
-	for button: Button in [btnSetting, %UpgradeButton, %AboutButton]:
+	for button: Button in [btnSetting, %UpgradeButton, %AboutButton, %CreditsButton]:
 		button.disabled = true
 	%MenuStatus.text = "正在进入战场……"
 
@@ -74,7 +75,7 @@ func _start_game(mode: int) -> void:
 func _on_navigation_failed(message: String) -> void:
 	_launching = false
 	btnStart.disabled = false
-	for button: Button in [btnSetting, %UpgradeButton, %AboutButton]:
+	for button: Button in [btnSetting, %UpgradeButton, %AboutButton, %CreditsButton]:
 		button.disabled = false
 	_on_account_changed(CurrencyManager.get_snapshot())
 	%MenuStatus.text = message
@@ -160,3 +161,10 @@ func _delete_save() -> void:
 func _quit_game() -> void:
 	GameSettings.save_now()
 	get_tree().quit()
+
+
+## 首页制作名单复用现有滚动场景；转场锁阻止重复点击，不创建对局或结算记录。
+func _open_credits() -> void:
+	if _launching or SceneTransition.busy:
+		return
+	GameManager.open_presentation("res://Scene/Credits/Credits.tscn", "制作与致谢")

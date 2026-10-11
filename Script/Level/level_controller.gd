@@ -31,7 +31,9 @@ var _registered_enemy_ids: Dictionary = {}
 func _ready() -> void:
 	# 只在创建新宿主时重置局内货币，同一宿主内切换关卡时保留钱包。
 	CurrencyManager.begin_run()
-	RunStats.begin()
+	# 菜单规划已创建本局账本；直接 F6 运行关卡才创建独立账本。
+	if GameManager.run_state == RogueRunManager.RunState.IDLE:
+		RunStats.begin()
 	controlled_player = get_node_or_null(player_path) as Node2D if not player_path.is_empty() else null
 	controlled_hud = get_node_or_null(hud_path) as GameHUD if not hud_path.is_empty() else null
 	controlled_camera = get_node_or_null(camera_path) as FollowCamera if not camera_path.is_empty() else null
@@ -63,11 +65,13 @@ func _bind_player_state() -> void:
 	player.sig_health_updated.connect(controlled_hud.set_health)
 	player.sig_stamina_updated.connect(controlled_hud.set_stamina)
 	player.sig_equipment_updated.connect(controlled_hud.set_equipment)
+	player.sig_equipment_cooldown_updated.connect(controlled_hud.set_equipment_cooldown)
 	player.sig_battle_support_updated.connect(controlled_hud.set_battle_support)
 	player.sig_skill_updated.connect(controlled_hud.set_skill)
 	controlled_hud.set_health(player.health_current, player.health_max)
 	controlled_hud.set_stamina(player.stamina, player.stamina_max)
 	controlled_hud.set_equipment(player.equipment_type, player.equipment_amount, player.shield_active)
+	controlled_hud.set_equipment_cooldown(player._equipment_cooldown_remaining, Player.EQUIPMENT_COOLDOWN)
 	controlled_hud.set_battle_support(player.battle_support_type)
 	controlled_hud.set_skill(player.skill_type, 0.0, 0.3, false)
 

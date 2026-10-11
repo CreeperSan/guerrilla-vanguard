@@ -13,6 +13,8 @@ var blast_radius: float = 0.0
 
 ## 动画播放速度；动画结束后爆炸节点会自动销毁。
 @export var animation_speed: float = 10.0
+## 碎屑与烟尘为独立原生粒子场景；只控制视觉，不改变爆炸范围或结算次数。
+@export var debris_particle_scene: PackedScene = preload("res://Prefab/Effects/ExplosionDebris.tscn")
 
 @onready var node_animation: AnimatedSprite2D = $AnimatedSprite2D
 @onready var node_audio: AudioStreamPlayer2D = get_node_or_null("ExplosionAudio") as AudioStreamPlayer2D
@@ -31,6 +33,10 @@ func _ready() -> void:
         circle.radius = blast_radius
         collision.shape = circle
         node_animation.scale *= blast_radius / original_radius
+    if debris_particle_scene != null:
+        # 粒子挂到世界，动画主体释放后碎屑继续消散；按实际半径有限度放大。
+        var radius := ($CollisionShape2D.shape as CircleShape2D).radius
+        CombatParticleBurst.spawn(debris_particle_scene, get_parent() as Node2D, global_position, Vector2.ZERO, clampf(radius / 32.0, 0.75, 2.0))
     # 爆炸范围也检测可破坏地形层，让箱子能受到范围伤害。
     collision_mask |= Definition.PHYSICS_LAYER_TERRAIN
     area_entered.connect(_on_area_entered)

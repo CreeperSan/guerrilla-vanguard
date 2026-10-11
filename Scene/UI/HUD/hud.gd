@@ -48,6 +48,9 @@ const WEAPON_NAME_SHORTGUN := "霰弹枪 / SHOTGUN"
 @onready var _skill_hint: Label = %SkillHint
 @onready var _equipment_icon: TextureRect = %EquipmentIcon
 @onready var _equipment_value: Label = %EquipmentValueLabel
+## 直接绑定玩家共用装备冷却，最后一枚投掷后仍显示剩余时间。
+@onready var _equipment_cooldown: ProgressBar = %EquipmentCooldownBar
+var _equipment_remaining_cooldown := 0.0
 @onready var _score_value: Label = $UIRoot/ScorePanel/ScoreContents/ScoreValue
 @onready var _pause_overlay: Control = $UIRoot/PauseOverlay
 @onready var _defeat_overlay: Control = $UIRoot/DefeatOverlay
@@ -240,7 +243,9 @@ func _set_control_mode(mode: ControlMode) -> void:
 ## 触控继续使用大按钮；桌面布局按场景中的紧凑尺寸排列，只覆盖内容方向和触控专属尺寸。
 func _apply_control_hud_layout(is_touch: bool) -> void:
     for contents: BoxContainer in [_movement_contents, _attack_contents, _reload_contents, _item_contents, _support_contents, _skill_contents]:
-        contents.vertical = is_touch
+        # 固定方向容器由场景决定；只有通用 BoxContainer 支持运行时切换方向。
+        if not contents is VBoxContainer and not contents is HBoxContainer:
+            contents.vertical = is_touch
     _item_title.visible = is_touch
     _support_title.visible = is_touch
     _skill_title.visible = is_touch
@@ -618,6 +623,7 @@ func _on_run_changed(snapshot: Dictionary) -> void:
         return
     var total := int(snapshot.get("total", 0))
     _run_progress_panel.visible = total > 0
+    _run_progress_bar.step = 0.001
     _run_progress_bar.max_value = maxi(total, 1)
     _run_progress_bar.value = int(snapshot.get("completed", 0))
     for child: Node in _run_route.get_children():
@@ -631,12 +637,6 @@ func _on_run_changed(snapshot: Dictionary) -> void:
     _run_progress_label.text = "%s · 第 %d / %d 关 · %s · 已完成 %d" % [snapshot["mode_name"], current, total, current_name, snapshot["completed"]]
     for index: int in range(levels.size()):
         var level: Dictionary = levels[index]
-        if index > 0:
-            var arrow := Label.new()
-            arrow.text = "→"
-            arrow.add_theme_font_size_override("font_size", 10)
-            arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-            _run_route.add_child(arrow)
         var panel := PanelContainer.new()
         panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -659,13 +659,11 @@ func _on_run_changed(snapshot: Dictionary) -> void:
         style.set_corner_radius_all(4)
         style.content_margin_left = 4.0
         style.content_margin_right = 4.0
-        style.content_margin_top = 3.0
-        style.content_margin_bottom = 3.0
+        style.content_margin_top = 1.0
+        style.content_margin_bottom = 1.0
         panel.add_theme_stylebox_override("panel", style)
         var label := Label.new()
-        label.text = "%s %s" % [marker, level["name"]]
-        if bool(level.get("fixed", false)):
-            label.text += "\n固定终点"
+        label.text = "%s %02d %s" % [marker, index + 1, level["name"]]
         label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
         label.add_theme_color_override("font_color", color)
         label.add_theme_font_size_override("font_size", 10)
@@ -908,6 +906,7 @@ func _update_skill_hint() -> void:
 ## 显示当前装备图标、数量或护盾耐久，并标记护盾启用状态。
 func set_equipment(equipment_type: Player.EquipmentType, amount: int, shield_active: bool) -> void:
     _equipment_icon.visible = equipment_type != Player.EquipmentType.NONE
+    _equipment_cooldown.visible = _equipment_icon.visible or _equipment_remaining_cooldown > 0.0
     match equipment_type:
         Player.EquipmentType.GRENADE:
             _equipment_icon.texture = EQUIPMENT_ICON_GRENADE
@@ -920,3 +919,35 @@ func set_equipment(equipment_type: Player.EquipmentType, amount: int, shield_act
             _equipment_value.text = "护盾%s  %d / %d" % ["已启用" if shield_active else "待命", amount, Player.SHIELD_MAX_HEALTH]
         _:
             _equipment_value.text = "未装备"
+
+
+## 冷却条从空到满表示恢复；提示显示剩余秒数，暂停时保留进度。
+func set_equipment_cooldown(remaining: float, duration: float) -> void:
+    _equipment_remaining_cooldown = remaining
+    _equipment_cooldown.visible = _equipment_icon.visible or remaining > 0.0
+    _equipment_cooldown.value = 1.0 - clampf(remaining / maxf(duration, 0.001), 0.0, 1.0)
+    _equipment_cooldown.modulate = Color("edc879") if remaining > 0.0 else Color.WHITE
+    _equipment_cooldown.tooltip_text = "装备冷却 %.1f 秒" % remaining if remaining > 0.0 else "装备就绪"
+
+
+## 入场由关卡控制器执行；隐藏倒计时遮罩，继续锁定游戏与虚拟输入。
+func show_level_entry() -> void:
+    _start_sequence_id += 1
+    _start_overlay.hide()
+    _waiting_run_selection = false
+    _clear_touch_input()
+
+
+## 镜头内入场结束后再统一解锁战斗，避免隐藏遮罩时提前响应武器操作。
+func finish_level_entry() -> void:
+    _game_started = true
+    _start_overlay.hide()
+    get_tree().paused = false
+
+
+## 底部细进度条表示整局推进：完成的关卡 + 当前关卡实际已清理房间占比。
+func set_level_room_progress(cleared: int, total: int) -> void:
+    if not _run_ui_enabled:
+        return
+    _run_progress_bar.value = GameManager.completed_level_count + float(cleared) / maxf(total, 1.0)
+    _run_progress_bar.tooltip_text = "本关已清理 %d / %d 间房" % [cleared, total]

@@ -18,3 +18,11 @@ zoom = Vector2(2, 2)
 target_path = NodePath("../Player")
 
 [node name="HUD" parent="." unique_id=2102949062 instance=ExtResource("4_hud")]
+
+[node name="LevelEntry" type="Node2D" parent="."]
+
+[node name="PlayerSpawn" type="Marker2D" parent="LevelEntry"]
+position = Vector2(0, 205)
+
+[node name="RunStart" type="Marker2D" parent="LevelEntry"]
+position = Vector2(0, 295)

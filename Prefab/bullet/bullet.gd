@@ -23,6 +23,8 @@ extends Area2D
 @export var bullet_effect_damage_gap: float = 0.5
 ## 子弹移动方向。
 @export var bullet_direction: Vector2 = Vector2.RIGHT
+## 命中或自然终止的烟尘场景可在 Inspector 替换；空值可以关闭视觉效果。
+@export var impact_particle_scene: PackedScene = preload("res://Prefab/Effects/BulletImpact.tscn")
 
 ## 非空样式启用新武器的扫掠检测与程序绘制；原有投掷物和子弹保持原流程。
 var projectile_style: String = ""
@@ -165,6 +167,7 @@ func _handle_hit(target: Node) -> void:
     match bullet_type:
         Definition.BulletType.Bullet:
             health.damage(bullet_damage, bullet_from, global_position - bullet_direction * 20.0)
+            _spawn_impact_particles(global_position)
         Definition.BulletType.Explosion:
             _spawn_explosion(global_position)
             _is_finished = true
@@ -190,6 +193,8 @@ func _finish_at(effect_position: Vector2) -> void:
     _is_finished = true
 
     match bullet_type:
+        Definition.BulletType.Bullet:
+            _spawn_impact_particles(effect_position)
         Definition.BulletType.Explosion:
             _spawn_explosion(effect_position)
         Definition.BulletType.Burning:
@@ -209,7 +214,8 @@ func _spawn_explosion(effect_position: Vector2) -> void:
     if explosion_radius > 0.0:
         explosion.blast_radius = explosion_radius
     explosion.position = effect_parent.to_local(effect_position)
-    effect_parent.add_child(explosion)
+    # 命中回调可能仍在刷新物理查询，延迟加入带碰撞区域的爆炸，避免查询状态错误。
+    effect_parent.add_child.call_deferred(explosion)
 
 
 ## 使用全局预制体管理器创建并配置燃烧效果。
@@ -318,3 +324,9 @@ func _draw() -> void:
             draw_circle(Vector2.ZERO, radius, Color(1.0, 0.22, 0.03, alpha))
             draw_circle(direction * 2.0, radius * 0.65, Color(1.0, 0.65, 0.08, alpha))
             draw_circle(direction * 3.0, radius * 0.32, Color(1.0, 0.96, 0.58, alpha))
+
+
+## 与伤害、穿透和销毁相互独立；被 _is_finished 和 _hit_targets 去重后才调用。
+func _spawn_impact_particles(point: Vector2) -> void:
+    if impact_particle_scene != null:
+        CombatParticleBurst.spawn(impact_particle_scene, get_parent() as Node2D, point, -bullet_direction)

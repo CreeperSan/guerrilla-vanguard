@@ -12,6 +12,9 @@ const MERCENARY_ROOM_SCENE: PackedScene = preload("res://Scene/LevelFortress/Roo
 const MERCENARY_SCENE: PackedScene = preload("res://Prefab/Mercenary/mercenary.tscn")
 ## 房间切换时使用短暂交叉淡化，避免传送后房间内容突然闪现。
 const ROOM_FADE_DURATION := 0.32
+## 兼容未继承基础关卡的独立主题场景；正式关卡优先读取可编辑 Marker。
+const DEFAULT_SPAWN_OFFSET := Vector2(0, 205)
+const DEFAULT_RUN_ENTRY_OFFSET := Vector2(0, 295)
 ## 兼容旧场景字段；正式选择改用主题绑定，未配置主题时固定使用首项。
 @export var boss_scenes: Array[PackedScene] = [
     preload("res://Prefab/BossGeneral/boss_general.tscn"),
@@ -33,6 +36,15 @@ const ROOM_FADE_DURATION := 0.32
 @export_enum("空降模式", "反击模式") var initial_run_mode: int = 0
 ## 0 表示每局随机；固定整数同时复现主题顺序和房间布局。
 @export var run_seed: int = 0
+
+@export_group("玩家入场")
+## 两个 Marker 相对起始房中心；编辑基础 FortressLevel 场景即可调整所有正式关卡。
+@export_node_path("Marker2D") var spawn_marker_path: NodePath = ^"LevelEntry/PlayerSpawn"
+@export_node_path("Marker2D") var run_start_marker_path: NodePath = ^"LevelEntry/RunStart"
+## 首关降落和后续跑入的时长、降落高度均可在 Inspector 调整。
+@export_range(0.2, 6.0, 0.1) var parachute_duration: float = 2.4
+@export_range(0.2, 6.0, 0.1) var run_entry_duration: float = 1.15
+@export var parachute_height: float = 190.0
 
 var level_map: Dictionary = {}
 var current_room_id: int = -1
@@ -56,6 +68,8 @@ var _run_stage_revision: int = -1
 func _ready() -> void:
     super._ready()
     _player = controlled_player
+    if managed_run and is_instance_valid(_player):
+        _player.hide()
     _hud = controlled_hud
     if is_instance_valid(controlled_camera):
         controlled_camera.follow_smooth_speed = 0.0
@@ -97,6 +111,8 @@ func _on_run_stage_requested(stage_number: int, theme: BattlefieldTheme, stage_s
     # 首关沿用菜单遮幕；后续 Level 在清理房间前先完整遮住画面。
     if stage_number > 1:
         await SceneTransition.cover("第 %d 关 · %s" % [stage_number, theme.display_name])
+    # 完全遮住旧房间后隐藏；在设置动画起点前始终不显示落点上的角色。
+    _player.hide()
     _clear_generated_level()
     # 等到旧房间和效果真正释放后再生成，避免同帧节点重名与旧子弹命中新关角色。
     await get_tree().process_frame
@@ -108,8 +124,15 @@ func _on_run_stage_requested(stage_number: int, theme: BattlefieldTheme, stage_s
     start_level(stage_number, stage_seed)
     if stage_number > 1:
         await SceneTransition.reveal()
+    # 首关等待跨场景揭幕；在等待与动画期间保留 TRANSITIONING，阻止出口推进。
+    while SceneTransition.busy:
+        await get_tree().process_frame
+    if not GameManager.is_stage_request_current(self, stage_number, revision):
+        return
+    _hud.show_level_entry()
+    await _play_level_entry(stage_number == 1)
     if GameManager.confirm_stage_ready(self, stage_number, revision):
-        _hud.start_run_stage(stage_number, theme.display_name)
+        _hud.finish_level_entry()
 
 
 ## 胜利由全局路线完成触发；失败画面仍沿用通用控制器的玩家死亡处理。
@@ -178,7 +201,7 @@ func _clear_generated_level() -> void:
     _world_room_origins.clear()
     _registered_enemy_ids.clear()
     for effect: Node in get_children():
-        if effect is ProjectileBullet or effect is ProjectileExplosion or effect is BurningEffect or effect is IncomingShell or effect is MortarStriker or effect is TacticalBombing or effect is DamagePop or effect is LootItem:
+        if effect.is_in_group("transient_combat_vfx") or effect is ProjectileBullet or effect is ProjectileExplosion or effect is BurningEffect or effect is IncomingShell or effect is MortarStriker or effect is TacticalBombing or effect is DamagePop or effect is LootItem:
             effect.queue_free()
 
 
@@ -467,14 +490,15 @@ func is_current_level_cleared() -> bool:
     return boss_defeated and boss_room != null and boss_room.is_room_safe()
 
 
-## 把玩家移至新关起点房中心，保持玩家节点由外部场景拥有。
+## 按可编辑 Marker 相对起始房中心定位玩家，保持玩家节点由外部场景拥有。
 func _move_player_to_room(room_id: int) -> void:
     if not is_instance_valid(_player):
         return
     var room := _room_nodes.get(room_id) as FortressRoomTemplate
     if room == null:
         return
-    _player.global_position = room.global_position
+    var marker := get_node_or_null(spawn_marker_path) as Marker2D
+    _player.global_position = room.global_position + (marker.position if marker != null else DEFAULT_SPAWN_OFFSET)
     _set_camera_room(room, false)
 
 
@@ -667,6 +691,7 @@ func _transition_room_visibility(previous_room_id: int, next_room_id: int) -> vo
 ## 房间首次清场后通知 HUD 控制状态；实际换房仍必须由玩家触发门区。
 func _on_room_cleared(room_id: int) -> void:
     var room := _room_nodes.get(room_id) as FortressRoomTemplate
+    _update_route_progress()
     var player := _player as Player
     if room != null:
         RunStats.room(GameManager.get_current_stage_number(), room_id, room.room_type)
@@ -703,6 +728,12 @@ func _activate_room_contents(room_id: int) -> void:
     var room := _room_nodes.get(room_id) as FortressRoomTemplate
     if room == null:
         return
+    if room.room_type == "start":
+        # 生成内容前预留落点和底部跑入通道，避免木箱、水池或掩体占据入场路径。
+        var marker := get_node_or_null(spawn_marker_path) as Marker2D
+        var landing := marker.position if marker != null else DEFAULT_SPAWN_OFFSET
+        var bottom := room.room_size_units.y * FortressRoomTemplate.UNIT_SIZE * 0.5
+        room.set_meta("player_entry_clearance", Rect2(landing - Vector2(40, 45), Vector2(80, maxf(90, bottom - landing.y + 45))))
     room.activate_room()
     for enemy: Node in room.find_children("*", "Node", true, false):
         if enemy.is_in_group("enemies"):
@@ -717,6 +748,7 @@ func _emit_room_state(room_id: int) -> void:
     if room != null and player != null and player.tactical_equipment != null:
         player.tactical_equipment.enter_room(room, str(room_data.get("type", "")) in ["combat", "combat_supply", "boss"])
     sig_room_changed.emit(room_id, str(room_data.get("type", "combat")))
+    _update_route_progress()
 
 
 ## Boss 房真正安全后生成一次可选战术奖励，延迟添加避免修改物理查询。
@@ -728,3 +760,54 @@ func _create_tactical_reward(room: FortressRoomTemplate) -> void:
     reward.reward_seed = room.population_seed
     reward.position = Vector2(0.0, 64.0)
     room.add_child(reward)
+
+
+## 仅正式路线的起始房播放入场：暂停世界，以 Tween 驱动角色，落地后再恢复碰撞和输入。
+func _play_level_entry(airborne: bool) -> void:
+    var player := _player as Player
+    if player == null:
+        return
+    var previous_anim_process := player.anim.process_mode
+    player.anim.process_mode = Node.PROCESS_MODE_ALWAYS
+    var destination := player.global_position
+    var entry_marker := get_node_or_null(run_start_marker_path) as Marker2D
+    var room := _room_nodes.get(current_room_id) as FortressRoomTemplate
+    var canopy: Sprite2D
+    if airborne:
+        player.global_position = destination - Vector2(0, parachute_height)
+        canopy = Sprite2D.new()
+        canopy.texture = preload("res://Assets/Art/MilitaryArcade/Entry/parachute.svg")
+        canopy.position = Vector2(0, -60)
+        canopy.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+        player.add_child(canopy)
+        player.anim.play("idle_down")
+    else:
+        player.global_position = room.global_position + (entry_marker.position if entry_marker != null else DEFAULT_RUN_ENTRY_OFFSET)
+        player.anim.play("move_up")
+    # 起始坐标和降落伞准备完毕后同帧显示，首个可见画面即为动画起点。
+    player.show()
+    var tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+    tween.tween_property(player, "global_position", destination, parachute_duration if airborne else run_entry_duration).set_trans(Tween.TRANS_LINEAR)
+    if airborne:
+        tween.tween_property(canopy, "scale", Vector2(1.15, 0.16), 0.2)
+        tween.parallel().tween_property(canopy, "modulate:a", 0.0, 0.2)
+    await tween.finished
+    if is_instance_valid(canopy):
+        canopy.queue_free()
+    player.velocity = Vector2.ZERO
+    player.facing_direction = Vector2.DOWN
+    player.anim.play("idle_down")
+    player.anim.process_mode = previous_anim_process
+    _move_hired_mercenary_to_player()
+
+
+## 只统计真实触发过清场的房间；未激活房间即使没有实例化敌人也不视为完成。
+func _update_route_progress() -> void:
+    if not managed_run or not is_instance_valid(_hud):
+        return
+    var cleared := 0
+    for value: Variant in _room_nodes.values():
+        var room := value as FortressRoomTemplate
+        if room != null and room.is_room_cleared():
+            cleared += 1
+    _hud.set_level_room_progress(cleared, _room_nodes.size())

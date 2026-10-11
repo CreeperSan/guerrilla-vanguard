@@ -278,10 +278,23 @@ custom_minimum_size = Vector2(350, 44)
 text = "游戏设置"
 alignment = 0
 
-[node name="AboutButton" type="Button" parent="MainPage/MenuList"]
+[node name="AboutLinks" type="HBoxContainer" parent="MainPage/MenuList"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CreditsButton" type="Button" parent="MainPage/MenuList/AboutLinks"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(350, 44)
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(171, 44)
+text = "制作人员"
+alignment = 0
+
+[node name="AboutButton" type="Button" parent="MainPage/MenuList/AboutLinks"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(171, 44)
 text = "关于游戏"
 alignment = 0
 

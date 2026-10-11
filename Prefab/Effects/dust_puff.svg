@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8">
+<!-- Neutral stepped puff: particle gradients supply color, allowing one editable texture for dust and smoke. -->
+<path fill="white" opacity=".25" d="M2 0H6V1H7V2H8V6H7V7H6V8H2V7H1V6H0V2H1V1H2Z"/>
+<path fill="white" opacity=".7" d="M2 2H6V3H7V5H6V6H2V5H1V3H2Z"/>
+<path fill="white" d="M3 2H5V5H3Z"/>
+</svg>

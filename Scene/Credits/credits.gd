@@ -9,7 +9,9 @@ var _fast := false
 ## 文本在裁剪窗口中由下向上滚动，固定操作区始终可见。
 func _ready() -> void:
 	var page := FlowUI.page(self)
-	FlowUI.label(page, "行动完成  /  制作与致谢", 24)
+	# 首页进入时仅提供返回首页，避免跳到上次存档的战报或空白战报。
+	var from_menu := GameManager.run_state == RogueRunManager.RunState.IDLE
+	FlowUI.label(page, "制作与致谢" if from_menu else "行动完成  /  制作与致谢", 24)
 	_window = Control.new()
 	_window.clip_contents = true
 	_window.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -26,7 +28,8 @@ func _ready() -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 20)
 	page.add_child(row)
-	FlowUI.button(row, "返回战报", _back_report)
+	if not from_menu:
+		FlowUI.button(row, "返回战报", _back_report)
 	FlowUI.button(row, "返回首页", GameManager.return_to_main_menu)
 	FlowUI.label(row, "按住 Shift / 触摸可加速", 18)
 	await get_tree().process_frame

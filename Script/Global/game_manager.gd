@@ -195,14 +195,33 @@ func restart_run() -> void:
 	return_to_main_menu()
 
 
-## 首页启动入口：检查解锁和重复点击，再切换到战斗宿主，由宿主实际开始对局。
+## 首页启动入口：检查解锁与重复点击，生成真实路线后先进入作战规划。
 func start_from_menu(mode: int) -> bool:
 	if run_state != RunState.IDLE or _menu_mode >= 0 or mode not in [AttackMode.AIRBORNE, AttackMode.COUNTERATTACK] or not _is_mode_unlocked(mode):
 		return false
-	_menu_mode = mode
-	_run_revision += 1
-	_reload_run_scene.call_deferred(_run_revision)
+	# 先确定真实路线，规划场景和宿主读取同一份快照，不再二次抽取。
+	if not start_run(mode):
+		return false
+	_open_planning.call_deferred(_run_revision)
 	return true
+
+
+## 路线准备成功后进入独立规划页；导航失败释放本局状态，允许首页重新选择。
+func _open_planning(revision: int) -> void:
+	if revision != _run_revision:
+		return
+	get_tree().paused = true
+	var error := await SceneTransition.change_scene("res://Scene/BattlePlanning/BattlePlanning.tscn", "作战规划")
+	if error != OK:
+		reset_run()
+		get_tree().paused = false
+		sig_navigation_failed.emit("无法进入作战规划：%s" % error)
+
+
+## 规划页完成展示后加载宿主，保留种子、路线、模式和统计，不创建第二局。
+func launch_planned_run() -> void:
+	if run_state == RunState.TRANSITIONING and _get_host() == null:
+		_reload_run_scene.call_deferred(_run_revision)
 
 
 ## 宿主就绪后只读取一次首页选择；F6 独立调试战斗场景时返回 -1。

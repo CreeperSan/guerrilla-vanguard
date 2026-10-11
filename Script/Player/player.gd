@@ -19,6 +19,8 @@ signal sig_health_updated(current_health: int, max_health: int)
 ## 体力统一由玩家管理，HUD 通过信号同步进度，不直接读取输入或计时。
 signal sig_stamina_updated(current_stamina: float, max_stamina: float)
 ## 装备槽变化：装备类型、数量/护盾生命、护盾是否处于启用状态。
+## 装备共用冷却状态：只在真实使用及冷却推进时通知 HUD，暂停时不会流逝。
+signal sig_equipment_cooldown_updated(remaining: float, duration: float)
 signal sig_equipment_updated(equipment_type: EquipmentType, amount: int, shield_active: bool)
 ## 输入接口：由后续系统连接战场支援和自身技能效果。
 signal sig_battle_support_requested
@@ -120,6 +122,10 @@ var dodge_active: bool = false
 
 ## 三类装备共用冷却；替换或补充装备不重置，暂停时不推进。
 const EQUIPMENT_COOLDOWN := 1.0
+## 行走灰尘的场景与步距可独立编辑；按真实位移触发，撞墙原地移动不会扬尘。
+@export var walking_dust_scene: PackedScene = preload("res://Prefab/Effects/WalkingDust.tscn")
+@export_range(4.0, 60.0, 1.0) var walking_dust_spacing := 18.0
+var _walking_dust_distance := 0.0
 var _equipment_cooldown_remaining := 0.0
 var _skill_cooldown_remaining: float = 0.0
 var _dodge_time_remaining: float = 0.0
@@ -318,6 +324,7 @@ func _clear_equipment(emit_update: bool = true) -> void:
 func _emit_equipment_updated() -> void:
     var amount: int = shield_health if equipment_type == EquipmentType.SHIELD else equipment_amount
     sig_equipment_updated.emit(equipment_type, amount, shield_active)
+    sig_equipment_cooldown_updated.emit(_equipment_cooldown_remaining, EQUIPMENT_COOLDOWN)
 
 
 ## 播放装备操作音效。
@@ -496,6 +503,7 @@ func _update_enemy_contact(delta: float) -> void:
 
 ## 每个物理帧检查敌人接触，并用受地形约束的移动执行闪避或击退。
 func _physics_process(delta: float) -> void:
+    var previous_position := global_position
     _update_enemy_contact(delta)
     # 闪避期间忽略手动移动与瞄准，方向从启动时锁定。
     var move_input: Vector2 = Vector2.ZERO if dodge_active else Input.get_vector('move_left', 'move_right', 'move_up', 'move_down')
@@ -563,11 +571,14 @@ func _physics_process(delta: float) -> void:
     elif facing_direction_degree >= 292.5 and facing_direction_degree < 337.5:
         anim_name_direction = 'up_right'
     anim.play(anim_name_state + '_' + anim_name_direction)
+    _update_walking_dust(previous_position, move_input)
 
 
 func _process(delta: float) -> void:
     # 先推进装备冷却，闪避期间仍会计时；SceneTree 暂停时本节点不会处理。
-    _equipment_cooldown_remaining = maxf(0.0, _equipment_cooldown_remaining - delta)
+    if _equipment_cooldown_remaining > 0.0:
+        _equipment_cooldown_remaining = maxf(0.0, _equipment_cooldown_remaining - delta)
+        sig_equipment_cooldown_updated.emit(_equipment_cooldown_remaining, EQUIPMENT_COOLDOWN)
     _update_skill_input(delta)
     # 闪避为独占动作：仍推进体力/冷却，但不处理射击、道具、支援、换弹与切枪。
     if dodge_active:
@@ -703,3 +714,15 @@ func on_collect_item(item: Area2D):
 func play_currency_pickup_sound(kind: RunCurrencyWallet.Kind) -> void:
     node_pickup_audio.stream = SFX_MONEY_PICKUP if kind == RunCurrencyWallet.Kind.MONEY else SFX_RESEARCH_PICKUP
     node_pickup_audio.play()
+
+
+## 仅在自主地面移动时发射脚边灰尘，特效放在世界中，玩家离开后原地自然消散。
+func _update_walking_dust(previous_position: Vector2, move_input: Vector2) -> void:
+    if walking_dust_scene == null or not is_visible_in_tree() or move_input == Vector2.ZERO or dodge_active or _contact_knockback_remaining > 0.0:
+        _walking_dust_distance = 0.0
+        return
+    _walking_dust_distance += global_position.distance_to(previous_position)
+    if _walking_dust_distance < walking_dust_spacing:
+        return
+    _walking_dust_distance = fmod(_walking_dust_distance, walking_dust_spacing)
+    CombatParticleBurst.spawn(walking_dust_scene, get_parent() as Node2D, global_position + Vector2(0, 10), -move_input)

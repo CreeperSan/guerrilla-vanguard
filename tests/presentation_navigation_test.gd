@@ -35,9 +35,14 @@ func _run() -> void:
 	_check(get_tree().current_scene.name == "MainMenu", "跳过剧情设置仅略过漫画")
 	await _wait_transition()
 	_check(GameManager.start_from_menu(RogueRunManager.AttackMode.AIRBORNE), "首页可以开始空降模式")
+	await _wait_scene("BattlePlanning")
 	await _wait_scene("GameRun")
 	await _wait_transition()
-	await get_tree().create_timer(0.25, true).timeout
+	# 首关降落动画结束后才确认 ACTIVE；等待状态以覆盖完整入场流程。
+	for i: int in range(200):
+		if GameManager.run_state == RogueRunManager.RunState.ACTIVE:
+			break
+		await get_tree().create_timer(0.02, true).timeout
 	var host := get_tree().current_scene
 	_check(GameManager.run_state == RogueRunManager.RunState.ACTIVE, "正式首关正确生成并确认")
 	# 模拟安全出口已清场，只推进路线，不制造击杀或研究奖励。

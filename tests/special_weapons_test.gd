@@ -170,6 +170,8 @@ func _test_rocket_explosion() -> void:
     rocket.bullet_range = 30.0
     rocket._physics_process(0.2)
     rocket._finish_at(rocket.global_position)
+    # 爆炸区域延迟到查询结束后入树，验证实际创建结果而非回调中的排队状态。
+    await get_tree().process_frame
     var explosions: Array[ProjectileExplosion] = []
     for child: Node in _world.get_children():
         if child is ProjectileExplosion:

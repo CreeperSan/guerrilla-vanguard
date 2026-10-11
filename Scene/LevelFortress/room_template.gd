@@ -143,6 +143,11 @@ func _on_tracked_enemy_removed() -> void:
 	_check_room_cleared.call_deferred()
 
 
+## 与 is_room_safe 不同，此状态要求房间已激活并实际触发过清场，用于路线进度。
+func is_room_cleared() -> bool:
+	return _clear_signal_sent
+
+
 ## 房间变安全时只发一次通知，门口等待的玩家可在清场后继续传送。
 func _check_room_cleared() -> void:
 	# 固定竞技场不预生成守卫；等待首领生成后才允许清场检查，避免入场即开门。
@@ -364,7 +369,14 @@ func _add_water_patch(content_root: Node2D, center: Vector2, size: Vector2, patc
 ## 在房间中心安全边界内抽取内容坐标，给玩家出生点与墙边留出空间。
 func _random_inner_position(rng: RandomNumberGenerator, half_bounds: Vector2, margin: float) -> Vector2:
 	var safe_half_bounds := Vector2(maxf(half_bounds.x - margin, 24.0), maxf(half_bounds.y - margin, 24.0))
-	return Vector2(rng.randf_range(-safe_half_bounds.x, safe_half_bounds.x), rng.randf_range(-safe_half_bounds.y, safe_half_bounds.y))
+	# 起始房由控制器根据 Marker 传入入场通道；物件留出半尺寸，普通房随机逻辑不变。
+	var clearance: Rect2 = get_meta("player_entry_clearance", Rect2())
+	for attempt: int in range(24):
+		var candidate := Vector2(rng.randf_range(-safe_half_bounds.x, safe_half_bounds.x), rng.randf_range(-safe_half_bounds.y, safe_half_bounds.y))
+		if not clearance.has_area() or not clearance.grow(margin * 0.5).has_point(candidate):
+			return candidate
+	# 极端自定义落点下使用离入场区域较远的上角，避免随机重试无限循环。
+	return Vector2(-safe_half_bounds.x, -safe_half_bounds.y)
 
 
 ## 生成地面和带物理碰撞的墙体；导出的房间尺寸只改变占地与门位数量。
