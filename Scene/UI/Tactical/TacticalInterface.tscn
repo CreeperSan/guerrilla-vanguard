@@ -33,12 +33,22 @@ offset_right = 205.0
 offset_bottom = 152.0
 text = "战术装备 0 · T"
 
+[node name="EquippedIcons" type="GridContainer" parent="Root"]
+offset_left = 22.0
+offset_top = 158.0
+offset_right = 274.0
+offset_bottom = 244.0
+mouse_filter = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 8
+
 [node name="Feedback" type="Label" parent="Root"]
 visible = false
 offset_left = 22.0
-offset_top = 156.0
-offset_right = 242.0
-offset_bottom = 181.0
+offset_top = 250.0
+offset_right = 300.0
+offset_bottom = 275.0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.95, 0.84, 0.48, 1)
 

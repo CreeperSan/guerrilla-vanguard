@@ -11,7 +11,8 @@ func _init() -> void:
     fire_sound = preload("res://Assets/Audio/SFX/Weapons/rpg_fire.wav")
     ammo_magazine_max = 1
     ammo_magazine_cur = ammo_magazine_max
-    ammo_back_max = 8
+    # 基础弹药为弹匣 1 发、备弹 3 发；容量升级仍由公共武器配置应用。
+    ammo_back_max = 3
     ammo_back_cur = ammo_back_max
     reload_duration = 2.8
     fire_gap = 1.8

@@ -253,6 +253,7 @@ func _set_shape_radius(collision_shape: CollisionShape2D, radius: float) -> void
         circle_shape.radius = maxf(radius, 1.0)
 
 
-## 敌人死亡时移除整个士兵实例。
+## 立即移除战斗实例，由无碰撞的独立遗体播放倒地并保留最后一帧。
 func _on_die() -> void:
+    CharacterRemains.spawn_for_actor(self, CharacterRemains.Appearance.SOLDIER)
     queue_free()

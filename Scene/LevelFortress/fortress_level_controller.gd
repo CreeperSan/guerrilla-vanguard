@@ -120,6 +120,9 @@ func _on_run_stage_requested(stage_number: int, theme: BattlefieldTheme, stage_s
         if stage_number > 1:
             await SceneTransition.reveal()
         return
+    # 只在后续 Level 的有效请求中装填，避免过期请求重复扣备弹，也不重置首关弹药。
+    if stage_number > 1 and _player is Player:
+        (_player as Player).node_weapon_manager.reload_carried_for_level_entry()
     battlefield_theme = theme
     start_level(stage_number, stage_seed)
     if stage_number > 1:
@@ -258,7 +261,7 @@ func _build_rooms() -> void:
         initial_modulate.a = 0.0
         room.modulate = initial_modulate
         _room_nodes[int(room_data.id)] = room
-        if str(room_data.get("type", "")) == "boss":
+        if str(room_data.get("type", "")) == "boss" and not _is_final_run_stage():
             _boss_exit = _create_boss_exit(room, room_data)
 
 
@@ -698,7 +701,11 @@ func _on_room_cleared(room_id: int) -> void:
     if room != null and player != null and player.tactical_equipment != null:
         player.tactical_equipment.clear_room(room, room.room_type in ["combat", "combat_supply", "boss"])
     if room != null and room.room_type == "boss" and boss_defeated:
-        _create_tactical_reward.call_deferred(room)
+        if _is_final_run_stage():
+            # 延迟到本次死亡信号完成，确保 Boss 击杀计分与房间统计均已记录。
+            _finish_final_stage.call_deferred()
+        else:
+            _create_tactical_reward.call_deferred(room)
     if room_id == current_room_id:
         _emit_room_state(room_id)
     if room_id == int(level_map.get("boss_room_id", -1)) and boss_defeated:
@@ -716,6 +723,8 @@ func _room_camera_bounds(room: FortressRoomTemplate) -> Rect2:
 
 ## Boss 和房间内所有守卫清除后才开启 Boss 房出口。
 func _open_boss_exit() -> void:
+    if _is_final_run_stage():
+        return
     var boss_room := _room_nodes.get(int(level_map.get("boss_room_id", -1))) as FortressRoomTemplate
     if boss_room == null or not boss_room.is_room_safe() or not is_instance_valid(_boss_exit):
         return
@@ -753,6 +762,8 @@ func _emit_room_state(room_id: int) -> void:
 
 ## Boss 房真正安全后生成一次可选战术奖励，延迟添加避免修改物理查询。
 func _create_tactical_reward(room: FortressRoomTemplate) -> void:
+    if _is_final_run_stage():
+        return
     if not is_instance_valid(room) or room.is_queued_for_deletion() or room.has_meta("tactical_reward_spawned"):
         return
     room.set_meta("tactical_reward_spawned", true)
@@ -811,3 +822,20 @@ func _update_route_progress() -> void:
         if room != null and room.is_room_cleared():
             cleared += 1
     _hud.set_level_room_progress(cleared, _room_nodes.size())
+
+
+## 最后一关依据全局路线长度判断，空降/反击模式及以后新增路线共用此规则。
+func _is_final_run_stage() -> bool:
+    var total := int(GameManager.get_run_snapshot().get("total", 0))
+    return managed_run and total > 0 and level_number == total
+
+
+## 最终 Boss 房安全后直接提交通关；不生成出口或奖励，仍由管理器复核清场并结算一次。
+func _finish_final_stage() -> void:
+    if _level_completed or not _is_final_run_stage() or not is_current_level_cleared():
+        return
+    _level_completed = true
+    if not GameManager.report_level_cleared(self, level_number):
+        _level_completed = false
+        return
+    sig_level_completed.emit(level_number, 0)

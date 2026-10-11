@@ -79,7 +79,7 @@ func _ready() -> void:
 	health_component.health_max = initial_health
 	health_component.health = initial_health
 	health_component.sig_health_updated.connect(_update_health_bar)
-	health_component.sig_die.connect(_on_mercenary_die)
+	# 父类已连接 _on_die；由下面的覆盖函数转入佣兵专属死亡流程，避免执行两遍。
 	_update_health_bar(health_component.health, health_component.health_max)
 
 
@@ -330,7 +330,13 @@ func _process_departure(delta: float) -> void:
 
 ## 生命归零后立即离开战斗目标分组；佣兵不会复活、计分或掉落战利品。
 func _on_mercenary_die() -> void:
+	CharacterRemains.spawn_for_actor(self, CharacterRemains.Appearance.MERCENARY)
 	remove_from_group("hired_mercenaries")
 	remove_from_group("combat_targets")
 	sig_permanently_died.emit()
 	queue_free()
+
+
+## 覆盖士兵的死亡入口，保证友军使用佣兵图集且只通知一次永久死亡。
+func _on_die() -> void:
+	_on_mercenary_die()

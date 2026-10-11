@@ -28,6 +28,8 @@ signal sig_weapon_fired(weapon: PlayerWeaponSlot)
 
 # 武器成功开始换弹时通知玩家播放换弹音效。
 signal sig_reload_started(weapon: PlayerWeaponSlot)
+## 前台换弹因切枪被取消，供玩家停止装填音效。
+signal sig_reload_cancelled(weapon: PlayerWeaponSlot)
 
 var slotDefault: PlayerWeaponSlot
 var slot1: PlayerWeaponSlot
@@ -85,14 +87,18 @@ func _ready() -> void:
     sig_active_reload.emit(_get_reload_progress(active_slot))
 
 
-## 每帧推进武器换弹、射击冷却和切换冷却。
+## 只有前台武器推进换弹；后台仅推进射击冷却，防御性取消残留装填状态。
 func _process(delta: float) -> void:
     _switch_cooldown_remaining = maxf(_switch_cooldown_remaining - delta, 0.0)
     var switch_progress: float = 1.0 - _switch_cooldown_remaining / maxf(switch_weapon_duraiton, 0.01)
     sig_switch_progress.emit(clampf(switch_progress, 0.0, 1.0))
     for weapon: PlayerWeaponSlot in [slotDefault, slot1, slot2] + extra_weapons:
         if weapon != null:
+            if weapon != active_slot and weapon.cancel_reload():
+                sig_reload_cancelled.emit(weapon)
             weapon.update_weapon(delta)
+    # 不依赖开火或 R 键：空弹匣在可装填时自动启动，闪避结束后也会重试。
+    _auto_reload_empty_active()
 
 
 ## 按住开火时由玩家逐帧调用；弹匣空但还有备弹时自动开始换弹。
@@ -116,6 +122,8 @@ func action_fire(player: Player) -> void:
             var depleted := active_slot
             _drop_empty_weapon(depleted)
             _switch_to_best_available_weapon(depleted)
+        else:
+            _auto_reload_empty_active()
 
 
 ## 判断主武器是否已经没有弹匣子弹和备弹。
@@ -260,6 +268,9 @@ func _select_slot(weapon: PlayerWeaponSlot, slot_index: int, _automatic: bool) -
     if weapon == null or active_slot == weapon:
         return
 
+    # 先取消旧枪装填，保留原弹匣和备弹；新枪若为空弹匣会自动从头装填。
+    if active_slot != null and active_slot.cancel_reload():
+        sig_reload_cancelled.emit(active_slot)
     active_slot = weapon
     active_slot_index = slot_index
     _switch_cooldown_remaining = maxf(switch_weapon_duraiton, 0.0)
@@ -268,6 +279,7 @@ func _select_slot(weapon: PlayerWeaponSlot, slot_index: int, _automatic: bool) -
     sig_active_ammo_change.emit(active_slot.ammo_magazine_cur, active_slot.ammo_back_cur)
     sig_active_reload.emit(_get_reload_progress(active_slot))
     sig_switch_progress.emit(0.0 if _switch_cooldown_remaining > 0.0 else 1.0)
+    _auto_reload_empty_active()
 
 
 ## 仅在当前使用武器的弹药变化时转发弹药信号。
@@ -349,9 +361,9 @@ func _make_room_for_weapon(incoming: PlayerWeaponSlot) -> void:
         return
     while available.size() >= MAX_PRIMARY_WEAPONS:
         var replaced: PlayerWeaponSlot = active_slot if available.has(active_slot) else available.back()
-        # 清除解锁和弹药，同时终止后台换弹，防止丢弃后偷偷补回弹匣。
-        replaced.is_reloading = false
-        replaced.reload_time_remaining = 0.0
+        # 丢弃也走统一取消入口，避免切换前清除状态导致装填音效残留。
+        if replaced.cancel_reload():
+            sig_reload_cancelled.emit(replaced)
         _drop_empty_weapon(replaced)
         available.erase(replaced)
 
@@ -361,3 +373,27 @@ func _get_reload_progress(weapon: PlayerWeaponSlot) -> float:
     if not weapon.is_reloading:
         return 1.0
     return clampf(1.0 - weapon.reload_time_remaining / maxf(weapon.active_reload_duration, 0.01), 0.0, 1.0)
+
+
+## 空弹匣自动装填只针对前台武器，仍走统一入口以保留时长、音效和能力修正。
+## 没有备弹时不伪造弹药；闪避暂时阻止装填，由下一帧重试，无需玩家操作。
+func _auto_reload_empty_active() -> void:
+    if active_slot == null or active_slot.ammo_magazine_cur > 0 or active_slot.is_reloading:
+        return
+    var player := get_parent() as Player
+    if player == null or player.health_current <= 0:
+        return
+    _try_reload_active(player)
+
+
+## 切换 Level 的遮幕期间立即装填手枪及已携带主武器，不推进普通后台换弹。
+## 只把现有备弹转入弹匣，不恢复备弹总量，不解锁或填装未携带的武器。
+func reload_carried_for_level_entry() -> void:
+    var carried: Array[PlayerWeaponSlot] = [slotDefault]
+    carried.append_array(_get_available_primary_weapons())
+    for weapon: PlayerWeaponSlot in carried:
+        if weapon == null:
+            continue
+        if weapon.cancel_reload():
+            sig_reload_cancelled.emit(weapon)
+        weapon.reload_immediately_from_reserve()

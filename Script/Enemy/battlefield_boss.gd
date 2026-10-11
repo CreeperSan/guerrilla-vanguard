@@ -40,3 +40,8 @@ func _wait_for_action_start(delta: float) -> bool:
 		return false
 	_action_start_delay_remaining = maxf(_action_start_delay_remaining - delta, 0.0)
 	return true
+
+
+## 只在最终生命耗尽时调用；换阶段继续复用战斗实例，不产生遗体或额外清场信号。
+func _spawn_death_remains() -> void:
+	CharacterRemains.spawn_for_actor(self, CharacterRemains.Appearance.COMMANDER)

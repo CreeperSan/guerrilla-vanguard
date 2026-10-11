@@ -1,11 +1,10 @@
 [gd_scene format=3 uid="uid://d2y62vckamqr"]
 
 [ext_resource type="Script" uid="uid://ov8g1qxiq8k4" path="res://Script/Player/player.gd" id="1_player"]
-[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/player_reference_atlas.png" id="2_player_atlas"]
+[ext_resource type="Texture2D" uid="uid://dvdpr0vskus7f" path="res://Assets/Art/MilitaryArcade/player_reference_atlas.png" id="2_player_atlas"]
 [ext_resource type="Script" uid="uid://b8nes1grju8xv" path="res://Script/Player/player_weapon_manager.gd" id="3_weapon_manager"]
 [ext_resource type="Script" uid="uid://dd34o0ihgp627" path="res://Script/Component/health_component.gd" id="4_health"]
-
-[ext_resource type="Script" path="res://Script/Tactical/tactical_equipment.gd" id="5_tactical"]
+[ext_resource type="Script" uid="uid://cnl8bhpjkdawe" path="res://Script/Tactical/tactical_equipment.gd" id="5_tactical"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ne4hw"]
 radius = 5.0
@@ -279,12 +278,12 @@ collision_mask = 16
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CollectBox" unique_id=1770864492]
 shape = SubResource("CapsuleShape2D_6hsgd")
 
-[node name="EnemyContact" type="Area2D" parent="."]
+[node name="EnemyContact" type="Area2D" parent="." unique_id=693504237]
 collision_layer = 0
 collision_mask = 2
 monitorable = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyContact"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyContact" unique_id=896770743]
 shape = SubResource("CapsuleShape2D_ne4hw")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1781634386]
@@ -328,5 +327,5 @@ script = ExtResource("3_weapon_manager")
 [node name="Health" type="Node" parent="." unique_id=1947996941]
 script = ExtResource("4_health")
 
-[node name="TacticalEquipment" type="Node" parent="."]
+[node name="TacticalEquipment" type="Node" parent="." unique_id=1289302281]
 script = ExtResource("5_tactical")

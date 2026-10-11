@@ -15,6 +15,8 @@ var _last_focus: WeakRef
 @onready var _overlay: Control = $Root/Overlay
 @onready var _contents: VBoxContainer = $Root/Overlay/Center/Panel/Margin/Contents
 @onready var _feedback: Label = $Root/Feedback
+## 常驻小图标按库存事件更新，T 键弹窗保留完整说明。
+@onready var _equipped_icons: GridContainer = $Root/EquippedIcons
 
 
 ## 布局外壳在场景维护，动态装备列表单独生成，背包入口不会接管 HUD 暂停菜单。
@@ -179,9 +181,24 @@ func _can_open() -> bool:
     return is_instance_valid(equipment) and equipment.player.health_current > 0 and not _opened and not get_tree().paused and GameManager.run_state not in [RogueRunManager.RunState.COMPLETED, RogueRunManager.RunState.FAILED]
 
 
-## 背包计数与成功领取提示共用库存变化事件。
+## 背包数量与常驻图标共用库存变化事件；仅变化时重建，不逐帧分配控件。
 func _refresh_count() -> void:
     _inventory_button.text = "战术装备 %d · T" % equipment.get_ids().size()
+    for child: Node in _equipped_icons.get_children():
+        _equipped_icons.remove_child(child)
+        child.queue_free()
+    for id: StringName in equipment.get_ids():
+        var config := TacticalCatalog.get_definition(id)
+        if config == null:
+            continue
+        var icon := TextureRect.new()
+        icon.texture = config.icon
+        icon.custom_minimum_size = Vector2(28, 28)
+        icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        icon.mouse_filter = Control.MOUSE_FILTER_PASS
+        icon.tooltip_text = config.display_name + "\n" + config.description
+        _equipped_icons.add_child(icon)
 
 
 ## 低频触发显示装备名，独立反馈不改变其他 HUD 状态。

@@ -129,6 +129,7 @@ func _on_phase_depleted() -> void:
     velocity = Vector2.ZERO
     set_physics_process(false)
     _clear_owned_effects(true)
+    _spawn_death_remains()
     sig_defeated.emit()
     queue_free()
 
@@ -186,6 +187,9 @@ func _clear_owned_effects(include_companions: bool) -> void:
         for member: ExpeditionCompanion in _companions:
             if is_instance_valid(member):
                 member.set_physics_process(false)
+                # 最终胜利时一并倒地；阶段转换移除搭档仍沿用原来的离场逻辑。
+                if _defeated:
+                    CharacterRemains.spawn_for_actor(member, CharacterRemains.Appearance.SOLDIER)
                 member.queue_free()
         # 保留一帧引用供双人战判断存活身份，创建前会验证实例有效性。
 

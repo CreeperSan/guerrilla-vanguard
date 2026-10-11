@@ -1,13 +1,11 @@
-[gd_resource type="Resource" script_class="CombatBalanceConfig" load_steps=5 format=3]
-[ext_resource type="Script" path="res://Script/Balance/combat_balance_config.gd" id="1"]
-[ext_resource type="Script" path="res://Script/Balance/battle_mode_profile.gd" id="2"]
+[gd_resource type="Resource" script_class="CombatBalanceConfig" format=3 uid="uid://vkjhki02m51t"]
+
+[ext_resource type="Script" uid="uid://2jnb3o1tjimt" path="res://Script/Balance/combat_balance_config.gd" id="1"]
+[ext_resource type="Script" uid="uid://dejau8rymcxd8" path="res://Script/Balance/battle_mode_profile.gd" id="2"]
+
 [sub_resource type="Resource" id="Airborne"]
 script = ExtResource("2")
-mode_id = 0
-config_key = "airborne"
-display_name = "空降模式"
-enemy_health_multiplier = 1.0
-enemy_damage_multiplier = 1.0
+
 [sub_resource type="Resource" id="Counterattack"]
 script = ExtResource("2")
 mode_id = 1
@@ -15,6 +13,7 @@ config_key = "counterattack"
 display_name = "反击模式"
 enemy_health_multiplier = 2.0
 enemy_damage_multiplier = 2.0
+
 [resource]
 script = ExtResource("1")
 base_enemy_damage_multiplier = 2.0

@@ -100,6 +100,7 @@ func _die() -> void:
     if _dead:
         return
     _dead = true
+    CharacterRemains.spawn_for_actor(self, CharacterRemains.Appearance.SOLDIER)
     defeated.emit()
     queue_free()
 

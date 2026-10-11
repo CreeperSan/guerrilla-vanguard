@@ -87,7 +87,7 @@ func _run() -> void:
     for effect: Node in level.get_children():
         if effect is ProjectileBullet:
             effect.queue_free()
-    var cooldown := hud.get_node("UIRoot/ItemPanel/ItemContents/EquipmentCooldownBar") as ProgressBar
+    var cooldown := hud.get_node("UIRoot/ItemPanel/ItemContents/IconVisual/EquipmentCooldownBar") as ProgressBar
     _check(cooldown.value < 0.05, "真实投掷后冷却条清空")
     await get_tree().create_timer(0.3, true).timeout
     _check(cooldown.value > 0.1 and cooldown.value < 0.8, "冷却条随玩家真实冷却推进")
@@ -104,6 +104,11 @@ func _run() -> void:
     await get_tree().create_timer(0.85, true).timeout
     _check(is_equal_approx(cooldown.value, 1.0), "冷却恢复后显示就绪")
     # 只解除本次测试的首领安全门槛，以实际推进接口验证后续关入场，不写结算。
+    var weapons := player.node_weapon_manager
+    weapons.unlock_smg()
+    weapons.slot1.ammo_magazine_cur = 1
+    weapons.slot1.ammo_back_cur = 5
+    weapons.slotDefault.ammo_magazine_cur = 1
     level.boss_defeated = true
     _check(GameManager.report_level_cleared(level, 1), "首关通过正式接口推进")
     var second_spawn_flash := false
@@ -112,6 +117,8 @@ func _run() -> void:
             second_spawn_flash = second_spawn_flash or player.visible
         await get_tree().process_frame
     _check(not second_spawn_flash, "后续关揭幕期间也不闪现落点上的角色")
+    _check(weapons.slot1.ammo_magazine_cur == 6 and weapons.slot1.ammo_back_cur == 0, "真实 Level 切换完成携带武器装填且不增加弹药总量")
+    _check(weapons.slotDefault.ammo_magazine_cur == weapons.slotDefault.ammo_magazine_max, "新 Level 入场前备用手枪已装填完成")
     await get_tree().create_timer(0.2, true).timeout
     var second_room := level._room_nodes[level.current_room_id] as Node2D
     _check(get_tree().paused and player.global_position.y > second_room.global_position.y + spawn.position.y, "后续关从落点下方跑入且冻结战斗")

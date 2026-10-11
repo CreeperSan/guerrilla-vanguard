@@ -137,6 +137,9 @@ func try_fire(player: Player) -> bool:
 func try_reload(player: Player) -> bool:
     if player == null or player.dodge_active:
         return false
+    # 换弹仅允许当前前台武器，即使外部直接调用槽位也不能后台装填。
+    if player.node_weapon_manager != null and player.node_weapon_manager.active_slot != self:
+        return false
     if is_reloading or ammo_magazine_cur >= ammo_magazine_max:
         return false
     if not ammo_back_infinite and ammo_back_cur <= 0:
@@ -162,11 +165,7 @@ func update_weapon(delta: float) -> void:
     if reload_time_remaining > 0.0:
         return
 
-    var ammo_needed: int = maxi(ammo_magazine_max - ammo_magazine_cur, 0)
-    var ammo_to_load: int = ammo_needed if ammo_back_infinite else mini(ammo_needed, ammo_back_cur)
-    ammo_magazine_cur += ammo_to_load
-    if not ammo_back_infinite:
-        ammo_back_cur -= ammo_to_load
+    _transfer_reserve_to_magazine()
     is_reloading = false
     sig_ammo_change.emit(ammo_magazine_cur, ammo_back_cur)
     sig_reload.emit(1.0)
@@ -269,3 +268,33 @@ func _spawn_bullets(player: Player) -> int:
         spawned_count += 1
 
     return spawned_count
+
+
+## 取消尚未完成的换弹，不扣备弹、不补弹匣；再次开始时从完整换弹时长计算。
+func cancel_reload() -> bool:
+    if not is_reloading:
+        return false
+    is_reloading = false
+    reload_time_remaining = 0.0
+    active_reload_duration = 0.0
+    sig_reload.emit(1.0)
+    return true
+
+
+## Level 切换专用即时装填：普通战斗仍必须经过前台计时，不复用拾取的满弹重置。
+## 调用方负责取消正在进行的装填及音效，此函数不补充备弹或触发换弹开始音效。
+func reload_immediately_from_reserve() -> int:
+    var loaded := _transfer_reserve_to_magazine()
+    sig_ammo_change.emit(ammo_magazine_cur, ammo_back_cur)
+    sig_reload.emit(1.0)
+    return loaded
+
+
+## 普通换弹完成与切关装填共用弹药转移规则，备弹不足时只装入实际剩余数量。
+func _transfer_reserve_to_magazine() -> int:
+    var needed := maxi(ammo_magazine_max - ammo_magazine_cur, 0)
+    var loaded := needed if ammo_back_infinite else mini(needed, ammo_back_cur)
+    ammo_magazine_cur += loaded
+    if not ammo_back_infinite:
+        ammo_back_cur -= loaded
+    return loaded

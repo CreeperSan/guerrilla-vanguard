@@ -12,6 +12,8 @@
 
 [ext_resource type="PackedScene" path="res://Scene/UI/Tactical/TacticalInterface.tscn" id="tactical_ui"]
 
+[ext_resource type="Script" path="res://Scene/UI/HUD/circular_progress.gd" id="radial_progress"]
+
 [sub_resource type="StyleBoxTexture" id="StylePanel"]
 content_margin_left = 14.0
 content_margin_top = 12.0
@@ -544,36 +546,72 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -476.0
-offset_top = -66.0
+offset_top = -84.0
 offset_right = -296.0
-offset_bottom = -24.0
+offset_bottom = -28.0
 grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleCircle")
 
-[node name="ItemContents" type="VBoxContainer" parent="UIRoot/ItemPanel" unique_id=1328832951]
+[node name="ItemContents" type="BoxContainer" parent="UIRoot/ItemPanel" unique_id=1328832951]
 layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="IconVisual" type="Control" parent="UIRoot/ItemPanel/ItemContents"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="EquipmentIcon" type="TextureRect" parent="UIRoot/ItemPanel/ItemContents/IconVisual" unique_id=422144016]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = -7.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="EquipmentCooldownBar" type="ProgressBar" parent="UIRoot/ItemPanel/ItemContents/IconVisual"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+max_value = 1.0
+value = 1.0
+show_percentage = false
+script = ExtResource("radial_progress")
+
+[node name="Details" type="VBoxContainer" parent="UIRoot/ItemPanel/ItemContents"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 mouse_filter = 2
 theme_override_constants/separation = 2
 
-[node name="ItemTitle" type="Label" parent="UIRoot/ItemPanel/ItemContents" unique_id=1977647359]
+[node name="ItemTitle" type="Label" parent="UIRoot/ItemPanel/ItemContents/Details" unique_id=1977647359]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 12
 text = "装 备"
 horizontal_alignment = 1
 
-[node name="EquipmentIcon" type="TextureRect" parent="UIRoot/ItemPanel/ItemContents" unique_id=422144016]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(30, 30)
-layout_mode = 2
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="EquipmentValueLabel" type="Label" parent="UIRoot/ItemPanel/ItemContents" unique_id=2077101930]
+[node name="EquipmentValueLabel" type="Label" parent="UIRoot/ItemPanel/ItemContents/Details" unique_id=2077101930]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
@@ -581,23 +619,13 @@ theme_override_font_sizes/font_size = 10
 text = "未装备"
 horizontal_alignment = 1
 
-[node name="EquipmentCooldownBar" type="ProgressBar" parent="UIRoot/ItemPanel/ItemContents"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-mouse_filter = 2
-max_value = 1.0
-value = 1.0
-show_percentage = false
-theme_override_styles/background = SubResource("StyleHealthTrack")
-theme_override_styles/fill = SubResource("StyleHealthFill")
-
-[node name="ItemHint" type="Label" parent="UIRoot/ItemPanel/ItemContents" unique_id=1335037098]
+[node name="ItemHint" type="Label" parent="UIRoot/ItemPanel/ItemContents/Details" unique_id=1335037098]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 10
 text = "F"
 horizontal_alignment = 1
+
 
 [node name="BattleSupportPanel" type="PanelContainer" parent="UIRoot" unique_id=1273741360]
 custom_minimum_size = Vector2(110, 42)
@@ -661,36 +689,88 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -174.0
-offset_top = -66.0
+offset_top = -84.0
 offset_right = -22.0
-offset_bottom = -24.0
+offset_bottom = -28.0
 grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleCircle")
 
-[node name="SkillContents" type="VBoxContainer" parent="UIRoot/SkillPanel" unique_id=675574630]
+[node name="SkillContents" type="BoxContainer" parent="UIRoot/SkillPanel" unique_id=675574630]
 layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="IconVisual" type="Control" parent="UIRoot/SkillPanel/SkillContents"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="SkillIcon" type="TextureRect" parent="UIRoot/SkillPanel/SkillContents/IconVisual" unique_id=1771359697]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = -7.0
+offset_bottom = -7.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SkillCooldownBar" type="ProgressBar" parent="UIRoot/SkillPanel/SkillContents/IconVisual" unique_id=1894776399]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+value = 100.0
+show_percentage = false
+script = ExtResource("radial_progress")
+ring_inset = 4.0
+
+[node name="StaminaBar" type="ProgressBar" parent="UIRoot/SkillPanel/SkillContents/IconVisual"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+value = 100.0
+show_percentage = false
+script = ExtResource("radial_progress")
+fill_color = Color(0.4, 0.73, 0.78, 1)
+
+[node name="Details" type="VBoxContainer" parent="UIRoot/SkillPanel/SkillContents"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 mouse_filter = 2
 theme_override_constants/separation = 2
 
-[node name="SkillTitle" type="Label" parent="UIRoot/SkillPanel/SkillContents" unique_id=1672153913]
+[node name="SkillTitle" type="Label" parent="UIRoot/SkillPanel/SkillContents/Details" unique_id=1672153913]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
 theme_override_font_sizes/font_size = 12
 text = "自身技能"
 horizontal_alignment = 1
 
-[node name="SkillIcon" type="TextureRect" parent="UIRoot/SkillPanel/SkillContents" unique_id=1771359697]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(30, 30)
-layout_mode = 2
-mouse_filter = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="SkillName" type="Label" parent="UIRoot/SkillPanel/SkillContents" unique_id=2061254226]
+[node name="SkillName" type="Label" parent="UIRoot/SkillPanel/SkillContents/Details" unique_id=2061254226]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.894118, 0.913725, 0.847059, 1)
@@ -698,37 +778,14 @@ theme_override_font_sizes/font_size = 10
 text = "未装备"
 horizontal_alignment = 1
 
-[node name="SkillCooldownBar" type="ProgressBar" parent="UIRoot/SkillPanel/SkillContents" unique_id=1894776399]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(54, 4)
-layout_mode = 2
-mouse_filter = 2
-theme_override_styles/background = SubResource("StyleReloadTrack")
-theme_override_styles/fill = SubResource("StyleReloadFill")
-value = 100.0
-show_percentage = false
-
-[node name="StaminaBar" type="ProgressBar" parent="UIRoot/SkillPanel/SkillContents"]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(28, 4)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-mouse_filter = 2
-theme_override_styles/background = SubResource("StyleHealthTrack")
-theme_override_styles/fill = SubResource("StyleStaminaFill")
-value = 100.0
-show_percentage = false
-
-[node name="SkillHint" type="Label" parent="UIRoot/SkillPanel/SkillContents" unique_id=1660509330]
+[node name="SkillHint" type="Label" parent="UIRoot/SkillPanel/SkillContents/Details" unique_id=1660509330]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.568627, 0.639216, 0.576471, 1)
 theme_override_font_sizes/font_size = 10
 text = "拾取技能"
 horizontal_alignment = 1
+
 
 [node name="InputHintPanel" type="PanelContainer" parent="UIRoot" unique_id=1540250437]
 custom_minimum_size = Vector2(100, 26)

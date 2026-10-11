@@ -136,6 +136,7 @@ func _on_phase_depleted() -> void:
 	_is_defeated = true
 	velocity = Vector2.ZERO
 	_sync_track_audio(false)
+	_spawn_death_remains()
 	sig_defeated.emit()
 	queue_free()
 

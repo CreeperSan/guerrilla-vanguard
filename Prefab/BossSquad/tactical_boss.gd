@@ -128,6 +128,7 @@ func _on_phase_depleted() -> void:
             guard.set_physics_process(false)
             var health := guard.get_node("Health") as HealthComponent
             health.damage(health.health)
+    _spawn_death_remains()
     sig_defeated.emit()
     queue_free()
 

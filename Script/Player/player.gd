@@ -168,6 +168,7 @@ func _ready() -> void:
     # 武器管理器只在实际射击或成功开始换弹时发信号，避免按键无效时播放音效。
     node_weapon_manager.sig_weapon_fired.connect(_on_weapon_fired)
     node_weapon_manager.sig_reload_started.connect(_on_reload_started)
+    node_weapon_manager.sig_reload_cancelled.connect(_on_reload_cancelled)
     node_reload_audio.stream = SFX_RELOAD
     node_pickup_audio.stream = SFX_PICKUP
     if node_shield_outline != null:
@@ -188,22 +189,19 @@ func obtain_equipment_from_loot(loot_type: LootItem.Type, item_count: int) -> bo
     return false
 
 
-## 同类投掷物累加；护盾同类拾取只将护盾生命补满，不叠加上限。
+## 拾取始终覆盖装备数量；同类投掷物也不叠加，护盾只恢复固定耐久。
 func _store_equipment(new_type: EquipmentType, amount: int) -> bool:
     if equipment_type == EquipmentType.SHIELD and shield_active and new_type != EquipmentType.SHIELD:
         _set_shield_active(false)
         _play_equipment_audio(SFX_SHIELD_LOWER)
 
-    if equipment_type == new_type and new_type in [EquipmentType.GRENADE, EquipmentType.MOLOTOV]:
-        equipment_amount += amount
+    equipment_type = new_type
+    if new_type == EquipmentType.SHIELD:
+        shield_health = SHIELD_MAX_HEALTH
+        equipment_amount = shield_health
     else:
-        equipment_type = new_type
-        if new_type == EquipmentType.SHIELD:
-            shield_health = SHIELD_MAX_HEALTH
-            equipment_amount = shield_health
-        else:
-            shield_health = 0
-            equipment_amount = amount
+        shield_health = 0
+        equipment_amount = amount
 
     _emit_equipment_updated()
     return true
@@ -726,3 +724,14 @@ func _update_walking_dust(previous_position: Vector2, move_input: Vector2) -> vo
         return
     _walking_dust_distance = fmod(_walking_dust_distance, walking_dust_spacing)
     CombatParticleBurst.spawn(walking_dust_scene, get_parent() as Node2D, global_position + Vector2(0, 10), -move_input)
+
+
+## 终局保留玩家数据节点供 HUD/战报读取，独立视觉节点播放死亡或胜利动作。
+## 关闭原角色输入和碰撞，动画结束后也不会再接收伤害或拾取物品。
+func play_outcome_pose(won: bool) -> CharacterRemains:
+    return CharacterRemains.spawn_for_actor(self, CharacterRemains.Appearance.VICTORY if won else CharacterRemains.Appearance.PLAYER)
+
+
+## 切枪取消前台换弹时同步停止装填音效，避免后台仍有装填声。
+func _on_reload_cancelled(_weapon: PlayerWeaponSlot) -> void:
+    node_reload_audio.stop()

@@ -26,9 +26,8 @@ const WEAPON_NAME_SMG := "冲锋枪 / SMG"
 const WEAPON_NAME_SHORTGUN := "霰弹枪 / SHOTGUN"
 
 @onready var _health_bar: ProgressBar = %HealthBar
-## 体力条的布局与样式由 HUD 场景配置，数值由玩家信号提供。
+## 体力圆环围绕技能图标显示，数值由玩家信号提供。
 @onready var _stamina_bar: ProgressBar = %StaminaBar
-@onready var _stamina_fill_style: StyleBoxFlat = _stamina_bar.get_theme_stylebox("fill").duplicate() as StyleBoxFlat
 @onready var _enemy_hints: EnemyDirectionHints = %EnemyDirectionHints
 @onready var _health_value_label: Label = %HealthValueLabel
 @onready var _health_fill_style: StyleBoxFlat = _health_bar.get_theme_stylebox("fill").duplicate() as StyleBoxFlat
@@ -51,6 +50,8 @@ const WEAPON_NAME_SHORTGUN := "霰弹枪 / SHOTGUN"
 ## 直接绑定玩家共用装备冷却，最后一枚投掷后仍显示剩余时间。
 @onready var _equipment_cooldown: ProgressBar = %EquipmentCooldownBar
 var _equipment_remaining_cooldown := 0.0
+## 保存场景内桌面布局，触控切回键鼠/手柄时恢复，避免仍保留大按钮位置。
+var _desktop_panel_layout: Dictionary = {}
 @onready var _score_value: Label = $UIRoot/ScorePanel/ScoreContents/ScoreValue
 @onready var _pause_overlay: Control = $UIRoot/PauseOverlay
 @onready var _defeat_overlay: Control = $UIRoot/DefeatOverlay
@@ -84,14 +85,14 @@ var _equipment_remaining_cooldown := 0.0
 @onready var _reload_hint: Label = $UIRoot/ReloadPanel/ReloadContents/ReloadHint
 @onready var _reload_title: Label = $UIRoot/ReloadPanel/ReloadContents/ReloadTitle
 @onready var _reload_contents: BoxContainer = $UIRoot/ReloadPanel/ReloadContents
-@onready var _item_hint: Label = $UIRoot/ItemPanel/ItemContents/ItemHint
+@onready var _item_hint: Label = $UIRoot/ItemPanel/ItemContents/Details/ItemHint
 @onready var _item_contents: BoxContainer = $UIRoot/ItemPanel/ItemContents
-@onready var _item_title: Label = $UIRoot/ItemPanel/ItemContents/ItemTitle
+@onready var _item_title: Label = $UIRoot/ItemPanel/ItemContents/Details/ItemTitle
 @onready var _support_hint: Label = $UIRoot/BattleSupportPanel/BattleSupportContents/BattleSupportHint
 @onready var _support_contents: BoxContainer = $UIRoot/BattleSupportPanel/BattleSupportContents
 @onready var _support_title: Label = $UIRoot/BattleSupportPanel/BattleSupportContents/BattleSupportTitle
 @onready var _skill_contents: BoxContainer = $UIRoot/SkillPanel/SkillContents
-@onready var _skill_title: Label = $UIRoot/SkillPanel/SkillContents/SkillTitle
+@onready var _skill_title: Label = $UIRoot/SkillPanel/SkillContents/Details/SkillTitle
 @onready var _run_progress_panel: PanelContainer = %RunProgressPanel
 ## 上方资源区域同步局内金钱、待结算研究和已经持久化的研究账户。
 @onready var _currency_value: Label = %ResourceValue
@@ -143,6 +144,12 @@ func _ready() -> void:
     CurrencyManager.sig_currency_changed.connect(_on_currency_changed)
     _on_currency_changed(CurrencyManager.get_snapshot())
     _configure_gamepad_bindings()
+    for panel: Control in [_movement_panel, _attack_panel, _reload_panel, _item_panel, _support_panel, _skill_panel]:
+        _desktop_panel_layout[panel] = {
+            "offsets": Vector4(panel.offset_left, panel.offset_top, panel.offset_right, panel.offset_bottom),
+            "minimum": panel.custom_minimum_size,
+            "right": panel.anchor_left == 1.0,
+        }
     _set_control_mode(_get_initial_control_mode())
     call_deferred("_cache_player")
     set_score(0)
@@ -263,27 +270,25 @@ func _apply_control_hud_layout(is_touch: bool) -> void:
         _set_bottom_panel_rect(_item_panel, true, -352.0, -252.0, -252.0, -152.0, Vector2(100.0, 100.0))
         _set_bottom_panel_rect(_support_panel, true, -462.0, -252.0, -362.0, -152.0, Vector2(100.0, 100.0))
         _set_bottom_panel_rect(_skill_panel, true, -352.0, -134.0, -264.0, -34.0, Vector2(88.0, 100.0))
-        _equipment_icon.custom_minimum_size = Vector2(30.0, 30.0)
         _battle_support_icon.custom_minimum_size = Vector2(34.0, 34.0)
-        _skill_icon.custom_minimum_size = Vector2(30.0, 30.0)
-        _skill_cooldown.custom_minimum_size = Vector2(54.0, 4.0)
-        _stamina_bar.custom_minimum_size = Vector2(54.0, 4.0)
     else:
+        for panel: Control in _desktop_panel_layout:
+            var layout: Dictionary = _desktop_panel_layout[panel]
+            var offsets: Vector4 = layout.offsets
+            _set_bottom_panel_rect(panel, layout.right, offsets.x, offsets.y, offsets.z, offsets.w, layout.minimum)
         _movement_title.add_theme_font_size_override("font_size", 10)
         _movement_hint.add_theme_font_size_override("font_size", 9)
         _attack_title.add_theme_font_size_override("font_size", 10)
         _attack_hint.add_theme_font_size_override("font_size", 9)
         _reload_title.add_theme_font_size_override("font_size", 10)
         _reload_hint.add_theme_font_size_override("font_size", 9)
-        _equipment_icon.custom_minimum_size = Vector2(24.0, 24.0)
         _battle_support_icon.custom_minimum_size = Vector2(24.0, 24.0)
-        _skill_icon.custom_minimum_size = Vector2(22.0, 22.0)
-        _skill_cooldown.custom_minimum_size = Vector2(28.0, 4.0)
-        _stamina_bar.custom_minimum_size = Vector2(28.0, 4.0)
 
 
 ## 给触控布局统一设置底边锚点；紧凑桌面尺寸由 HUD.tscn 配置，触控尺寸在此恢复。
 func _set_bottom_panel_rect(control: Control, right_anchored: bool, left: float, top: float, right: float, bottom: float, minimum_size: Vector2) -> void:
+    # 先释放旧模式的最小尺寸约束，再写入新偏移，避免大触控按钮撑开桌面布局。
+    control.custom_minimum_size = minimum_size
     var anchor_x := 1.0 if right_anchored else 0.0
     control.anchor_left = anchor_x
     control.anchor_right = anchor_x
@@ -293,7 +298,6 @@ func _set_bottom_panel_rect(control: Control, right_anchored: bool, left: float,
     control.offset_top = top
     control.offset_right = right
     control.offset_bottom = bottom
-    control.custom_minimum_size = minimum_size
 
 
 ## 为常用操作添加标准手柄映射；键盘方向键独立射击，手柄动作在不同设备间即时生效。
@@ -520,18 +524,9 @@ func resume_game() -> void:
     get_tree().paused = false
 
 
-## 显示战败结果并冻结关卡，避免角色死亡后继续操作。
+## 战败先完成死亡动作，再展示字幕并自动进入结算。
 func show_defeat(total_score: int) -> void:
-    if _game_over:
-        return
-    _game_over = true
-    _start_sequence_id += 1
-    _game_started = false
-    _clear_touch_input()
-    _pause_overlay.hide()
-    _start_overlay.hide()
-    get_tree().paused = true
-    GameManager.show_run_result(false, total_score)
+    _show_outcome(false, total_score)
 
 
 ## 正式对局由宿主启用流程界面；单关场景不显示全局路线和重新开始入口。
@@ -602,8 +597,14 @@ func start_run_stage(stage_number: int, theme_name: String) -> void:
     get_tree().paused = false
 
 
-## 最后一个 Level 的安全出口完成后显示胜利；单关测试也可以使用同一结果页。
+## 最后一关清场立即播放胜利；中间关卡仍由出口推进。
 func show_run_victory(total_score: int, _title: String = "任务完成") -> void:
+    _show_outcome(true, total_score)
+
+
+## 胜负共用一次性的终局序列，防止重复伤害或清场信号打开多份结算。
+## 场景继续运行，玩家独立视觉接管并关闭 HurtBox；战报已冻结，不计入演出时间。
+func _show_outcome(won: bool, total_score: int) -> void:
     if _game_over:
         return
     _game_over = true
@@ -613,8 +614,17 @@ func show_run_victory(total_score: int, _title: String = "任务完成") -> void
     _start_overlay.hide()
     _pause_overlay.hide()
     _run_mode_overlay.hide()
-    get_tree().paused = true
-    GameManager.show_run_result(true, total_score)
+    get_tree().paused = false
+    var player := _get_player()
+    if is_instance_valid(player):
+        var pose := player.play_outcome_pose(won)
+        if not pose.is_settled:
+            await pose.settled
+    var outcome := preload("res://Scene/UI/RunOutcome/RunOutcome.tscn").instantiate()
+    $UIRoot.add_child(outcome)
+    outcome.play(won)
+    await outcome.finished
+    GameManager.show_run_result(won, total_score)
 
 
 ## 从全局快照更新整局直线路线，完成节点绿色、当前黄色、失败红色，固定终点额外标记。
@@ -775,12 +785,11 @@ func set_enemy_hint_player(player: Node2D) -> void:
     _enemy_hints.player = player
 
 
-## 更新体力条；满体力为冷蓝色，体力低于四分之一时转为琥珀色。
+## 更新体力圆环；满体力为冷蓝色，体力低于四分之一时转为琥珀色。
 func set_stamina(current: float, maximum: float) -> void:
     _stamina_bar.max_value = maxf(maximum, 1.0)
     _stamina_bar.value = clampf(current, 0.0, maximum)
-    _stamina_fill_style.bg_color = Color("edb666") if current < maximum * 0.25 else Color("66bac7")
-    _stamina_bar.add_theme_stylebox_override("fill", _stamina_fill_style)
+    _stamina_bar.set("fill_color", Color("edb666") if current < maximum * 0.25 else Color("66bac7"))
 
 
 ## 根据玩家当前生命值和上限更新血条与数值。
@@ -865,7 +874,7 @@ func set_ammo(current: int, back: int) -> void:
     _ammo_value.text = "%d  /  %s" % [current, back_text]
 
 
-## 更新背景换弹条；ProgressBar 默认从左向右填充。
+## 更新当前前台武器的换弹条；切枪取消后立即隐藏，不显示后台装填。
 func set_reload_progress(progress: float) -> void:
     var safe_progress: float = clampf(progress, 0.0, 1.0)
     _reload_progress.value = safe_progress * 100.0
