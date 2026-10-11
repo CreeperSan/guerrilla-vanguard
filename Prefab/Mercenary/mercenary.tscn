@@ -24,8 +24,8 @@ corner_radius_bottom_right = 1
 
 [node name="Mercenary" instance=ExtResource("1_soldier")]
 script = ExtResource("2_mercenary")
-health = 120
-move_speed = 180.0
+health = 60
+move_speed = 125.0
 uniform_color = Color(0.72, 0.96, 0.61, 1)
 
 [node name="HealthBar" type="ProgressBar" parent="."]
@@ -38,6 +38,6 @@ offset_bottom = -20.0
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_health_background")
 theme_override_styles/fill = SubResource("StyleBoxFlat_health_fill")
-max_value = 120.0
-value = 120.0
+max_value = 60.0
+value = 60.0
 show_percentage = false

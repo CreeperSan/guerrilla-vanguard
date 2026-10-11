@@ -126,8 +126,7 @@ func _on_phase_depleted() -> void:
 ## 将阶段配置写入生命组件、弹药和换弹状态，并重置分段移动节奏。
 func _apply_phase_settings(reset_magazine: bool) -> void:
 	var phase_health: int = phase_one_health if current_phase == Phase.FIRST else phase_two_health
-	health_component.health_max = maxi(phase_health, 1)
-	health_component.health = health_component.health_max
+	health_component.reset_enemy_health(phase_health)
 	if reset_magazine:
 		_ammo_in_magazine = _current_magazine_size()
 		_reload_remaining = 0.0

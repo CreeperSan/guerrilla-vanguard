@@ -3,7 +3,8 @@
 class_name RogueRunManager
 extends Node
 
-enum AttackMode { AIRBORNE, FULL_ASSAULT }
+## 模式枚举由外部配置类型统一定义，旧 FULL_ASSAULT 名称保留兼容。
+const AttackMode = BattleModeProfile.Mode
 enum RunState { IDLE, TRANSITIONING, ACTIVE, COMPLETED, FAILED }
 
 signal sig_run_changed(snapshot: Dictionary)
@@ -15,11 +16,13 @@ const RUN_SCENE_PATH := "res://Scene/GameRun/GameRun.tscn"
 const MAIN_MENU_PATH := "res://Scene/MainMenu/MainMenu.tscn"
 const DEFAULT_LEVEL_POOL: BattlefieldCampaign = preload("res://Script/Level/run_level_pool.tres")
 const AIRBORNE_LEVEL_COUNT := 5
-const FULL_ASSAULT_LEVEL_COUNT := 7
+const COUNTERATTACK_LEVEL_COUNT := 7
+## 旧工具的关数常量兼容别名。
+const FULL_ASSAULT_LEVEL_COUNT := COUNTERATTACK_LEVEL_COUNT
 
 ## 全局可替换的主题池；不在各关卡脚本内分别维护随机顺序。
 @export var level_pool: BattlefieldCampaign = DEFAULT_LEVEL_POOL
-## 总攻的固定终点不参与任何模式的随机抽取；使用项目现有 UndergroundFortress 目录。
+## 反击的固定终点不参与任何模式的随机抽取；使用项目现有 UndergroundFortress 目录。
 @export var full_assault_final_theme: BattlefieldTheme = preload("res://Scene/LevelUndergroundFortress/theme.tres")
 
 ## 只读约定：外部通过方法请求推进，不直接修改当前状态、序号与完成数。
@@ -73,24 +76,24 @@ func detach_level_host(host: Node) -> void:
 
 ## 开始新局：先校验主题池，再用独立 RNG 不重复抽取，保证无效配置不会覆盖已有路线。
 func start_run(mode: int, seed_value: int = 0, pool: BattlefieldCampaign = null) -> bool:
-	if mode not in [AttackMode.AIRBORNE, AttackMode.FULL_ASSAULT]:
+	if mode not in [AttackMode.AIRBORNE, AttackMode.COUNTERATTACK]:
 		push_error("GameManager：未知进攻模式 %s。" % mode)
 		return false
 	if not _is_mode_unlocked(mode):
-		push_warning("强攻尚未解锁，需要先完整通关一次空降。")
+		push_warning("反击尚未解锁，需要先完整通关一次空降。")
 		return false
 	if run_state != RunState.IDLE:
 		push_warning("GameManager：当前不是待开始状态，请通过 restart_run 重建玩家并创建新局。")
 		return false
-	var required_count := AIRBORNE_LEVEL_COUNT if mode == AttackMode.AIRBORNE else FULL_ASSAULT_LEVEL_COUNT
+	var required_count := AIRBORNE_LEVEL_COUNT if mode == AttackMode.AIRBORNE else COUNTERATTACK_LEVEL_COUNT
 	var candidates := _get_valid_themes(pool if pool != null else level_pool)
 	var fixed_directory := full_assault_final_theme.room_template_root.trim_suffix("/") if full_assault_final_theme != null else "res://Scene/LevelUndergroundFortress"
 	for index: int in range(candidates.size() - 1, -1, -1):
 		if candidates[index].room_template_root.trim_suffix("/") == fixed_directory:
 			candidates.remove_at(index)
-	var random_count := required_count - 1 if mode == AttackMode.FULL_ASSAULT else required_count
-	if mode == AttackMode.FULL_ASSAULT and (full_assault_final_theme == null or not _has_room_templates(fixed_directory)):
-		push_error("GameManager：总攻模式缺少有效的固定地下要塞终点。")
+	var random_count := required_count - 1 if mode == AttackMode.COUNTERATTACK else required_count
+	if mode == AttackMode.COUNTERATTACK and (full_assault_final_theme == null or not _has_room_templates(fixed_directory)):
+		push_error("GameManager：反击模式缺少有效的固定地下要塞终点。")
 		return false
 	if candidates.size() < random_count:
 		push_error("GameManager：%s需要随机抽取 %d 个不同主题，目前只有 %d 个有效随机主题。" % [get_mode_name(mode), random_count, candidates.size()])
@@ -110,13 +113,17 @@ func start_run(mode: int, seed_value: int = 0, pool: BattlefieldCampaign = null)
 	var next_route: Array[Dictionary] = []
 	for index: int in range(random_count):
 		next_route.append({"theme": candidates[index], "seed": rng.randi_range(1, 2147483646), "fixed": false})
-	if mode == AttackMode.FULL_ASSAULT:
+	if mode == AttackMode.COUNTERATTACK:
 		next_route.append({"theme": full_assault_final_theme, "seed": rng.randi_range(1, 2147483646), "fixed": true})
+	# 先确认规则有效，再提交路线；房间与敌人稍后生成时读取本局快照。
+	if not BattleBalance.configure_mode(mode):
+		return false
 	_route = next_route
 	attack_mode = mode
 	run_seed = actual_seed
 	current_stage_index = 0
 	completed_level_count = 0
+	RunStats.begin(mode, actual_seed)
 	run_state = RunState.TRANSITIONING
 	_run_revision += 1
 	_emit_snapshot()
@@ -172,6 +179,7 @@ func fail_run(host: Node) -> bool:
 
 ## 清空流程数据；测试或外部菜单可调用，正式重新开始通过 restart_run 同时重建玩家。
 func reset_run() -> void:
+	BattleBalance.configure_mode(AttackMode.AIRBORNE)
 	_run_revision += 1
 	_route.clear()
 	current_stage_index = -1
@@ -189,7 +197,7 @@ func restart_run() -> void:
 
 ## 首页启动入口：检查解锁和重复点击，再切换到战斗宿主，由宿主实际开始对局。
 func start_from_menu(mode: int) -> bool:
-	if run_state != RunState.IDLE or _menu_mode >= 0 or mode not in [AttackMode.AIRBORNE, AttackMode.FULL_ASSAULT] or not _is_mode_unlocked(mode):
+	if run_state != RunState.IDLE or _menu_mode >= 0 or mode not in [AttackMode.AIRBORNE, AttackMode.COUNTERATTACK] or not _is_mode_unlocked(mode):
 		return false
 	_menu_mode = mode
 	_run_revision += 1
@@ -219,6 +227,8 @@ func return_to_main_menu() -> void:
 	if host != null:
 		detach_level_host(host)
 	CurrencyManager.close_run()
+	# 提前返回也停止计时，最近一份冻结战报仍保留供查看。
+	RunStats.recording = false
 	_open_main_menu.call_deferred(_run_revision)
 
 
@@ -227,7 +237,7 @@ func _open_main_menu(revision: int) -> void:
 	if revision != _run_revision:
 		return
 	get_tree().paused = false
-	var error := get_tree().change_scene_to_file(MAIN_MENU_PATH)
+	var error := await SceneTransition.change_scene(MAIN_MENU_PATH, "返回指挥部")
 	if error != OK:
 		push_error("无法返回首页，错误码 %s。" % error)
 
@@ -251,7 +261,7 @@ func get_current_stage_number() -> int:
 
 ## 模式名称集中定义，日志、HUD 和模式菜单使用相同规则。
 func get_mode_name(mode: int) -> String:
-	return "空降模式" if mode == AttackMode.AIRBORNE else "强攻模式"
+	return BattleBalance.get_mode_name(mode)
 
 
 ## 排除空资源和重复主题目录，保证抽取到的主题包含全部九种尺寸的两个样式。
@@ -314,8 +324,23 @@ func _reload_run_scene(revision: int) -> void:
 	if revision != _run_revision:
 		return
 	get_tree().paused = false
-	var error := get_tree().change_scene_to_file(RUN_SCENE_PATH)
+	var error := await SceneTransition.change_scene(RUN_SCENE_PATH, "进入战场")
 	if error != OK:
 		_menu_mode = -1
 		sig_navigation_failed.emit("无法进入战场，错误码 %s，请检查资源与输出日志。" % error)
 		push_error("GameManager：无法重新加载对局场景，错误码 %s。" % error)
+
+
+## 结束页导航延迟到信号派发后，冻结战斗直到全屏遮幕完全覆盖。
+func show_run_result(won: bool, score: int) -> void:
+	RunStats.finish(won, score, get_run_snapshot(), CurrencyManager.get_snapshot())
+	open_presentation.call_deferred("res://Scene/RunResult/RunResult.tscn", "行动战报")
+
+
+## 结果、片尾等非战斗页面复用统一转场，失败时保留当前页供重试。
+func open_presentation(path: String, title: String) -> void:
+	if SceneTransition.busy:
+		return
+	var error := await SceneTransition.change_scene(path, title)
+	if error != OK:
+		sig_navigation_failed.emit("页面加载失败，错误码 %s。" % error)

@@ -31,6 +31,7 @@ func _run() -> void:
 	mercenary_room.configure_room({"id": 77, "origin": Vector2i.ZERO, "size": Vector2i.ONE, "type": "mercenary", "style_index": 1}, {
 		"north": [], "east": [], "south": [], "west": [],
 	})
+	mercenary_room.set("recruitment_role", 0)
 	controller.add_child(mercenary_room)
 	mercenary_room.activate_room()
 	_check(mercenary_room.has_node("RecruitmentPoint"), "佣兵房加载专属招募点")
@@ -53,8 +54,8 @@ func _run() -> void:
 	_check(first_mercenary != null, "佣兵加入关卡并成为唯一雇佣单位")
 	_check(first_mercenary == room_candidate and first_mercenary.get_parent() == controller, "签约后招募预览角色转移到关卡控制器")
 	if first_mercenary != null:
-		_check(first_mercenary.health_component.health_max == 120, "佣兵生命值为 120")
-		_check(first_mercenary.weapon_damage == 3 and first_mercenary.magazine_size == 6, "佣兵使用伤害 3、六发弹匣手枪")
+		_check(first_mercenary.health_component.health_max == 60, "佣兵生命值为 60")
+		_check(first_mercenary.weapon_damage == 2 and first_mercenary.magazine_size == 3, "佣兵使用伤害 2、三发弹匣手枪")
 	_check(CurrencyManager.money == 120, "招募扣除 80 金")
 	await _check_companion_behavior(controller, player, first_mercenary)
 
@@ -95,15 +96,15 @@ func _check_companion_behavior(controller: Node, player: Player, mercenary: Hire
 	player.set_physics_process(false)
 	mercenary.set_physics_process(false)
 	player.position = Vector2(350.0, 0.0)
-	mercenary.position = Vector2(80.0, 0.0)
-	_check(mercenary._health_bar.visible and mercenary._health_bar.value == 120.0, "已雇佣佣兵显示满生命血条")
+	mercenary.position = Vector2(40.0, 0.0)
+	_check(mercenary._health_bar.visible and mercenary._health_bar.value == 60.0, "已雇佣佣兵显示满生命血条")
 	var enemy := _create_enemy(controller)
 	enemy.set_physics_process(false)
 	enemy.position = Vector2.ZERO
 	_check(enemy._find_combat_target() == mercenary, "普通敌人主动选择更近的已雇佣佣兵")
 	var retreat := mercenary._get_safe_follow_direction(player, enemy, Vector2.ZERO)
-	_check(retreat.dot(Vector2.RIGHT) > 0.9, "进入最低安全距离时远离敌人")
-	mercenary.position = Vector2(120.0, 0.0)
+	_check(retreat.dot(Vector2.RIGHT) > 0.4 and retreat.length() <= 0.5, "进入最低安全距离时远离敌人")
+	mercenary.position = Vector2(68.0, 0.0)
 	var buffer_move := mercenary._get_safe_follow_direction(player, enemy, Vector2.ZERO)
 	_check(buffer_move.dot(Vector2.LEFT) <= 0.0, "缓冲区内不会跟随玩家贴向敌人")
 	var bosses: Array[BattlefieldBoss] = []
@@ -120,9 +121,9 @@ func _check_companion_behavior(controller: Node, player: Player, mercenary: Hire
 	for child: Node in controller.get_children():
 		if child is ProjectileBullet and not previous_children.has(child):
 			child._handle_hit(mercenary)
-	_check(mercenary.health_component.health == 118 and mercenary._health_bar.value == 118.0, "敌方子弹可伤害佣兵并同步头顶血条")
+	_check(mercenary.health_component.health == 58 and mercenary._health_bar.value == 58.0, "敌方子弹可伤害佣兵并同步头顶血条")
 	mercenary.health_component.heal(2)
-	_check(mercenary._health_bar.value == 120.0, "治疗实时恢复头顶血条")
+	_check(mercenary._health_bar.value == 60.0, "治疗实时恢复头顶血条")
 	mercenary.position = Vector2(450.0, 0.0)
 	_check(enemy._find_combat_target() == player, "玩家更近时普通敌人仍攻击玩家")
 	for boss: BattlefieldBoss in bosses:
@@ -130,7 +131,7 @@ func _check_companion_behavior(controller: Node, player: Player, mercenary: Hire
 		boss.queue_free()
 	enemy.queue_free()
 	await get_tree().process_frame
-	# 连续行走及冲刺均手动推进玩家与佣兵，验证能追上且不会触发脱队瞬移计时。
+	# 连续行走及冲刺允许佣兵适度落后，验证速度上限与短时脱队不瞬移。
 	# 跟随测试放在专属房间墙体之外，给行走和冲刺提供足够长的直线空间。
 	player.position = Vector2(3000.0, 3000.0)
 	mercenary.position = player.position + Vector2(-64.0, 0.0)
@@ -142,8 +143,23 @@ func _check_companion_behavior(controller: Node, player: Player, mercenary: Hire
 			player.velocity = Vector2(speed, 0.0)
 			player.position += player.velocity / 60.0
 			mercenary._physics_process(1.0 / 60.0)
-		_check(mercenary.global_position.distance_to(player.global_position) < HiredMercenary.FOLLOW_DISTANCE_MAX, "以 %.0f 速度连续移动时佣兵能跟上玩家，距离 %.1f" % [speed, mercenary.global_position.distance_to(player.global_position)])
+		_check(mercenary.global_position.distance_to(player.global_position) < 320.0, "以 %.0f 速度连续移动时短时落后仍可控，距离 %.1f" % [speed, mercenary.global_position.distance_to(player.global_position)])
 		_check(mercenary._far_from_player_remaining == 0.0, "常规跟随不触发脱队瞬移倒计时")
+	# 固定玩家和相对点位，验证抵达后停稳，不在圆周目标附近来回抖动。
+	player.velocity = Vector2.ZERO
+	mercenary.position = player.position + Vector2(-100.0, 0.0)
+	mercenary.velocity = Vector2.ZERO
+	mercenary._wander_remaining = 100.0
+	for step: int in range(180):
+		await get_tree().physics_frame
+		mercenary._physics_process(1.0 / 60.0)
+	_check(mercenary.velocity.length() < 0.1, "固定跟随目标抵达后停稳")
+	var settled_position := mercenary.position
+	for step: int in range(30):
+		await get_tree().physics_frame
+		mercenary._physics_process(1.0 / 60.0)
+	_check(mercenary.position.distance_to(settled_position) < 0.1, "停止后位置不反复振荡")
+	_check(mercenary._get_follow_speed(player, 110.0) == 125.0 and mercenary._get_follow_speed(player, 200.0) == 200.0, "常规与追赶速度均降低并封顶")
 	player.velocity = Vector2.ZERO
 	player.set_physics_process(true)
 	mercenary.set_physics_process(true)

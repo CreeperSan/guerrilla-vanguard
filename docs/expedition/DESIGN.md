@@ -1,6 +1,6 @@
 # 八主题远征设计与实现规格
 
-本扩展保留既有关卡数、成长、武器、奖励与随机地图逻辑。正式主题池从 7 项扩至 15 项；空降仍随机取 5 个主题，总攻仍取 6 个随机主题并以地下要塞结束。八个新主题固定绑定各自 Boss。
+本扩展保留既有关卡数、成长、武器、奖励与随机地图逻辑。正式主题池从 7 项扩至 15 项；空降仍随机取 5 个主题，反击仍取 6 个随机主题并以地下要塞结束。八个新主题固定绑定各自 Boss。
 
 ## 视觉与声音制作规格
 
@@ -100,8 +100,9 @@
 
 `assets.json` 是逐主题素材状态；`art_provisional: true` 代表仍复用旧主题纹理和旧 Boss 图集，仅支持逻辑试战，绝不能作为新场景正式美术验收。
 
-本轮 imagegen 请求遭遇网络错误。提示词保存在 `imagegen_prompts.json`，源图目录预留在 `source/`；没有使用 API 密钥或切换付费 CLI。生成成功后将图放到 `source/<主题ID>.png`，运行 `python3 tools/build_expedition_content.py` 即可重新打包并更新资源状态；脚本保留旧主题素材和既有资源引用。
+2026-10-10 已为八个主题各生成一张 4×4 RGBA 图集，源图放在 `source/<主题ID>.png`。内置 imagegen 返回的图集尺寸为 1254×1254；`build_expedition_content.py --art-only` 按实际尺寸等比分格，打包地面、墙、水、箱、掩体、装饰、入口、备用物件、Boss 与同伴共十类资源。`assets.json` 中八个主题目前均为 `art_provisional: false`，且 `completed_art` 已记录每项素材。早期连接失败与后续成功结果见 `IMAGEGEN_RETRIES_2026-10-10.json`，主题提示词范式保存在 `imagegen_prompts.json`。
 
+这些图集已经打包并由 Godot 导入。2026-10-10 补齐第八格物件的场景引用：普通房间沿边缘交替摆放装饰与物件，Boss 房四角交替使用两类素材。地面、墙和水面在打包时裁出最大的实色矩形并设为不透明，避免源图留白平铺后出现网格空隙；人物与道具保留透明通道。八主题实际 Boss 试战场截图保存在 `<主题ID>_runtime.png`，已检查静态场景显示；长时间战斗可读性、合成音频的真实设备听感、Boss 难度与手柄流程仍需单独验收。
 入口：`Scene/BossRooms/BossPractice.tscn` 可选十五个主题；各 `Scene/Level<主题ID>/<主题ID>Level.tscn` 可独立 F6 运行完整 Level。正式入口仍是 `Scene/GameRun/GameRun.tscn`。
 
 自动测试不等同于实际画面与声音验收。后续应在 Godot 中确认透明边缘、角色方向、掩体轮廓、枪声提示可辨性、连续玩耍难度和手柄操作。

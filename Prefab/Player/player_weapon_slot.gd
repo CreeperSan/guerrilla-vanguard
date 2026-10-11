@@ -73,6 +73,10 @@ var fire_cooldown_remaining: float = 0.0
 
 # 当前换弹剩余时间。
 var reload_time_remaining: float = 0.0
+## 本次换弹实际总时长，开局为基础值；过程中拾取装备不重置计时。
+var active_reload_duration: float = 0.0
+## 本次射击独立快照，全部弹丸共用；不改永久升级后的基础伤害。
+var _shot_damage_multiplier: float = 1.0
 
 # 子弹变化信号（current 当前子弹，back 备弹）
 signal sig_ammo_change(current: int, back: int)
@@ -114,11 +118,14 @@ func try_fire(player: Player) -> bool:
     if is_reloading or fire_cooldown_remaining > 0.0 or ammo_magazine_cur <= 0:
         return false
 
+    _shot_damage_multiplier = player.tactical_equipment.shot_multiplier(self) if player.tactical_equipment != null else 1.0
     var spawned_count: int = _spawn_bullets(player)
     if spawned_count <= 0:
         return false
 
     ammo_magazine_cur -= 1
+    # 仅实际生成投射物且消耗弹夹才记开火，空枪、冷却和换弹不计。
+    RunStats.shot(self, spawned_count)
     fire_cooldown_remaining = maxf(fire_gap, 0.01)
     sig_ammo_change.emit(ammo_magazine_cur, ammo_back_cur)
     return true
@@ -136,7 +143,9 @@ func try_reload(player: Player) -> bool:
         return false
 
     is_reloading = true
-    reload_time_remaining = maxf(reload_duration, 0.01)
+    var factor: float = player.tactical_equipment.multiplier(&"reload") if player.tactical_equipment != null else 1.0
+    active_reload_duration = maxf(reload_duration * factor, 0.01)
+    reload_time_remaining = active_reload_duration
     sig_reload.emit(0.0)
     return true
 
@@ -148,7 +157,7 @@ func update_weapon(delta: float) -> void:
         return
 
     reload_time_remaining = maxf(reload_time_remaining - delta, 0.0)
-    var reload_progress: float = 1.0 - reload_time_remaining / maxf(reload_duration, 0.01)
+    var reload_progress: float = 1.0 - reload_time_remaining / maxf(active_reload_duration, 0.01)
     sig_reload.emit(clampf(reload_progress, 0.0, 1.0))
     if reload_time_remaining > 0.0:
         return
@@ -177,13 +186,29 @@ func add_ammo(amount: int) -> int:
     return ammo_added
 
 
-## 武器拾取只将备弹重置到当前上限，保持弹匣、换弹进度与射击冷却不变。
-## 返回是否实际增加备弹，供普通地面拾取判断是否保留物品；容量升级自然生效。
+## 仅备弹补给的兼容接口，保持弹匣、换弹进度与射击冷却；整把武器拾取改用 reset_pickup_ammo。
+## 返回是否实际增加备弹；容量升级自然生效。
 func refill_reserve_ammo() -> bool:
     if ammo_back_infinite or ammo_back_cur >= ammo_back_max:
         return false
     ammo_back_cur = ammo_back_max
     sig_ammo_change.emit(ammo_magazine_cur, ammo_back_cur)
+    return true
+
+
+## 完整武器拾取按升级后的容量重置弹匣与备弹，并终止旧换弹事务。
+## 射击冷却保持原值，避免拾取成为连续开火的冷却绕过入口。
+## 全满且没有换弹时返回 false，地面物品可保留到需要补给时再拾取。
+func reset_pickup_ammo() -> bool:
+    var changed := ammo_magazine_cur != ammo_magazine_max or (not ammo_back_infinite and ammo_back_cur != ammo_back_max) or is_reloading
+    if not changed:
+        return false
+    ammo_magazine_cur = ammo_magazine_max
+    ammo_back_cur = ammo_back_max
+    is_reloading = false
+    reload_time_remaining = 0.0
+    sig_ammo_change.emit(ammo_magazine_cur, ammo_back_cur)
+    sig_reload.emit(1.0)
     return true
 
 
@@ -224,7 +249,7 @@ func _spawn_bullets(player: Player) -> int:
         var bullet_direction: Vector2 = Vector2.from_angle(base_angle + angle_offset)
         var bullet: ProjectileBullet = PrefabManager.create_bullet(
             Definition.Faction.Player,
-            bullet_basic_damage,
+            maxi(roundi(bullet_basic_damage * _shot_damage_multiplier), 1),
             bullet_direction,
             bullet_type
         )

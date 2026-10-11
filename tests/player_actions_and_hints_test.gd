@@ -108,6 +108,12 @@ func _run() -> void:
 	add_child(hud)
 	hud.set_stamina(20.0, 100.0)
 	_check(hud._stamina_bar.value == 20.0 and hud._stamina_fill_style.bg_color == Color("edb666"), "正式 HUD 体力进度与低体力样式同步")
+	hud.set_skill(LootItem.Type.SkillSprint, 0.0, 0.3, false)
+	_check(hud._stamina_bar.visible and hud._stamina_bar.get_parent() == hud._skill_contents, "体力条位于位移技能栏，奔跑时显示")
+	hud.set_skill(LootItem.Type.SkillDodge, 0.0, 3.0, false)
+	_check(not hud._stamina_bar.visible, "切换闪避后隐藏奔跑体力条")
+	player.obtain_equipment_from_loot(LootItem.Type.EquipmentShield, 1)
+	_check(player.shield_health == 10, "护盾拾取耐久固定为 10")
 	var room := load("res://Scene/LevelFortress/Room_1x1_01/Room_1x1_01.tscn").instantiate() as FortressRoomTemplate
 	room.configure_room({"id": 7, "size": Vector2i.ONE, "type": "combat"}, {"north": [0], "east": [0], "south": [0], "west": [0]})
 	world.add_child(room)

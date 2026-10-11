@@ -10,6 +10,8 @@
 
 [ext_resource type="Script" path="res://Scene/UI/HUD/enemy_direction_hints.gd" id="enemy_hints"]
 
+[ext_resource type="PackedScene" path="res://Scene/UI/Tactical/TacticalInterface.tscn" id="tactical_ui"]
+
 [sub_resource type="StyleBoxTexture" id="StylePanel"]
 content_margin_left = 14.0
 content_margin_top = 12.0
@@ -204,28 +206,6 @@ theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
 theme_override_font_sizes/font_size = 13
 text = "100 / 100"
 horizontal_alignment = 2
-
-[node name="StaminaRow" type="HBoxContainer" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 5
-
-[node name="StaminaCaption" type="Label" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails/StaminaRow"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 10
-text = "体力"
-
-[node name="StaminaBar" type="ProgressBar" parent="UIRoot/PlayerPanel/PlayerRow/PlayerDetails/StaminaRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(80, 9)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-mouse_filter = 2
-theme_override_styles/background = SubResource("StyleHealthTrack")
-theme_override_styles/fill = SubResource("StyleStaminaFill")
-value = 100.0
-show_percentage = false
 
 [node name="ResourcePanel" type="PanelContainer" parent="UIRoot/PlayerPanel/PlayerRow" unique_id=1125924187]
 custom_minimum_size = Vector2(0, 28)
@@ -718,6 +698,19 @@ theme_override_styles/fill = SubResource("StyleReloadFill")
 value = 100.0
 show_percentage = false
 
+[node name="StaminaBar" type="ProgressBar" parent="UIRoot/SkillPanel/SkillContents"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(28, 4)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleHealthTrack")
+theme_override_styles/fill = SubResource("StyleStaminaFill")
+value = 100.0
+show_percentage = false
+
 [node name="SkillHint" type="Label" parent="UIRoot/SkillPanel/SkillContents" unique_id=1660509330]
 unique_name_in_owner = true
 layout_mode = 2
@@ -1083,7 +1076,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.741176, 0.823529, 0.541176, 1)
 theme_override_font_sizes/font_size = 14
 text = "每局重新抽取一条路线，击败各关 Boss 后继续前进。
-地下要塞仅作为强攻的固定终点。"
+地下要塞仅作为反击的固定终点。"
 horizontal_alignment = 1
 autowrap_mode = 3
 
@@ -1099,7 +1092,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-text = "强攻模式 · 随机 6 关 + 地下要塞"
+text = "反击模式 · 随机 6 关 + 地下要塞"
 
 [node name="RunModeError" type="Label" parent="UIRoot/RunModeOverlay/CenterContainer/MenuCard/Contents" unique_id=222830265]
 unique_name_in_owner = true
@@ -1189,3 +1182,5 @@ visible = false
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "返回首页"
+
+[node name="TacticalInterface" parent="." instance=ExtResource("tactical_ui")]

@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3]
 [ext_resource type="Script" path="res://Prefab/BossExpedition/expedition_boss.gd" id="boss"]
-[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Expedition/OldTown/boss.tres" id="art"]
-[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Expedition/OldTown/boss.tres" id="companion"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Expedition/OldTown/boss.png" id="art"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Expedition/OldTown/companion.png" id="companion"]
 [ext_resource type="Script" path="res://Script/Component/health_component.gd" id="health"]
 [ext_resource type="Script" path="res://Script/Component/hurt_box.gd" id="hurt"]
 [sub_resource type="CircleShape2D" id="body"]
@@ -25,8 +25,8 @@ shape = SubResource("body")
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("art")
 scale = Vector2(0.24, 0.24)
-hframes = 1
-vframes = 4
+hframes = 4
+vframes = 1
 [node name="Health" type="Node" parent="."]
 script = ExtResource("health")
 [node name="HurtBox" type="Area2D" parent="."]

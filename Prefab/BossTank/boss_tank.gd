@@ -143,8 +143,7 @@ func _on_phase_depleted() -> void:
 ## 更新生命、形态碰撞与三个独立弹匣，切驾驶员时立即收缩形状并开始移动接敌。
 func _apply_phase_settings() -> void:
 	var phases: Array[int] = [tank_health, overload_health, driver_health]
-	health_component.health_max = maxi(phases[current_phase - 1], 1)
-	health_component.health = health_component.health_max
+	health_component.reset_enemy_health(phases[current_phase - 1])
 	_cannon = _new_weapon_state(cannon_magazine)
 	_machine = _new_weapon_state(machine_magazine)
 	_pistol = _new_weapon_state(driver_magazine)

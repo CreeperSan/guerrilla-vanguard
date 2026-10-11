@@ -69,8 +69,7 @@ var _rng := RandomNumberGenerator.new()
 func _ready() -> void:
     add_to_group("enemies")
     collision_mask = Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
-    health_component.health_max = first_health
-    health_component.health = first_health
+    health_component.reset_enemy_health(first_health)
     health_component.sig_die.connect(_on_phase_depleted)
     if kind == Kind.SHIELD:
         health_component.damage_filter = _filter_shield_damage
@@ -112,15 +111,14 @@ func _on_phase_depleted() -> void:
         return
     if current_phase == 1:
         current_phase = 2
-        health_component.health_max = second_health
-        health_component.health = second_health
+        health_component.reset_enemy_health(second_health)
         state = "approach"
         state_remaining = 1.0
         _attack_remaining = 1.5
         _shots = 0
         body_sprite.modulate = Color(1, 0.78, 0.68)
         _play("phase")
-        sig_phase_changed.emit(2, second_health, second_health)
+        sig_phase_changed.emit(2, health_component.health, health_component.health_max)
         return
     _defeated = true
     velocity = Vector2.ZERO

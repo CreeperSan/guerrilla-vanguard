@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="CreditsData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://Script/Presentation/credits_data.gd" id="1"]
+[resource]
+script = ExtResource("1")
+text = "[center][font_size=46]游击先锋[/font_size]
+GUERRILLA VANGUARD
+
+
+[color=#edc879][font_size=36]SUNNY STUDIO[/font_size][/color]
+
+一场从敌后开始的冒险
+
+
+[font_size=28]创作与制作[/font_size]
+策划 / 制作人
+（请填写姓名）
+
+程序与系统设计
+（请填写姓名）
+
+美术与视觉设计
+（请填写姓名）
+
+音乐与音效
+（请填写姓名）
+
+测试与本地化
+（请填写姓名）
+
+
+[font_size=28]特别鸣谢[/font_size]
+每一位参与测试、提出建议的玩家
+以及所有支持独立游戏创作的朋友
+
+
+[font_size=28]技术与素材致谢[/font_size]
+Godot Engine — MIT License
+游戏字体与第三方素材的完整许可
+请以项目发布包随附的许可证文件为准
+
+部分画面与音效使用生成工具辅助制作
+具体创作者及工具信息请在发布前补充核实
+
+
+[font_size=28]版权与使用声明[/font_size]
+Sunny Studio
+（请填写版权年份、权利人和联系地址）
+
+本作故事与人物为虚构创作
+如有雷同，纯属巧合
+
+
+[font_size=36]感谢游玩[/font_size]
+你的每一次出发，都让这段故事继续
+
+
+THE END[/center]"
+scroll_speed = 36.0

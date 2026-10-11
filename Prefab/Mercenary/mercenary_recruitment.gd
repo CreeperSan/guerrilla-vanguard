@@ -5,6 +5,8 @@ extends Node2D
 @onready var _area: Area2D = $Area2D
 @onready var _prompt: Label = $Prompt
 @onready var _hire_button: Button = $CanvasLayer/HireButton
+## 兵种信息在房间完成候选人选择后同步，避免招募结果与展示外形不一致。
+var _candidate_name: String = "手枪佣兵"
 var _nearby_player: Player
 var _contract_used: bool = false
 var _feedback_message: String = ""
@@ -17,6 +19,17 @@ func _ready() -> void:
 	_area.body_exited.connect(_on_body_exited)
 	_hire_button.pressed.connect(_try_hire)
 	_prompt.text = "靠近签约 · %d 金\n按 Enter / A" % HiredMercenary.HIRE_COST
+	_update_prompt()
+
+
+## 房间选择兵种后更新肖像、名称和统一费用，按钮与键盘使用同一招募流程。
+func configure_candidate(candidate: HiredMercenary) -> void:
+	_candidate_name = candidate.get_display_name()
+	($Portrait as Sprite2D).texture = candidate.get_portrait()
+	# 新兵种肖像为 128 方形，保持与原 1024 方形肖像相同的世界显示尺寸。
+	var width := maxf(float(($Portrait as Sprite2D).texture.get_width()), 1.0)
+	($Portrait as Sprite2D).scale = Vector2.ONE * 82.0 / width
+	_hire_button.text = "雇佣%s · %d 金" % [_candidate_name, HiredMercenary.HIRE_COST]
 	_update_prompt()
 
 
@@ -80,7 +93,7 @@ func _try_hire() -> void:
 		return
 	if bool(level_controller.call("hire_mercenary", candidate)):
 		_contract_used = true
-		_feedback_message = "合同生效 · 佣兵已加入"
+		_feedback_message = "合同生效 · %s已加入" % _candidate_name
 		_update_prompt()
 	else:
 		_feedback_message = "金钱不足 · 需要 %d 金" % HiredMercenary.HIRE_COST
@@ -112,4 +125,4 @@ func _update_prompt() -> void:
 	if not _feedback_message.is_empty():
 		_prompt.text = _feedback_message
 	else:
-		_prompt.text = "靠近签约 · %d 金\n%s" % [HiredMercenary.HIRE_COST, "点击按钮" if _touch_mode else "按 Enter / A"]
+		_prompt.text = "%s · %d 金\n%s" % [_candidate_name, HiredMercenary.HIRE_COST, "点击按钮" if _touch_mode else "按 Enter / A"]

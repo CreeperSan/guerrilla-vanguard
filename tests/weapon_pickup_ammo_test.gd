@@ -1,4 +1,4 @@
-## 武器拾取回归：验证普通掉落、首次解锁、备弹重置、容量升级及 HUD 信号。
+## 武器拾取回归：验证普通掉落、首次解锁、完整弹药重置、容量升级及 HUD 信号。
 ## 使用真实玩家和拾取物，不保存永久升级；测试只修改本局武器容量。
 extends Node
 
@@ -34,25 +34,35 @@ func _run() -> void:
 	weapons.slot2.ammo_magazine_cur = 3
 	weapons.slot2.ammo_back_cur = 2
 	var smg := PrefabManager.create_loot_item(LootItem.Type.WeaponSMG, LootItem.get_default_drop_amount(LootItem.Type.WeaponSMG))
-	_check(smg.apply_to(player) and _last_ammo == Vector2i(30, 120), "首次拾取补满备弹并同步 HUD，弹匣不变")
+	_check(smg.apply_to(player) and _last_ammo == Vector2i(30, 120), "首次拾取补满完整弹药并同步 HUD")
 	weapons.slot1.ammo_magazine_cur = 7
 	weapons.slot1.ammo_back_cur = 15
-	_check(smg.apply_to(player) and _last_ammo == Vector2i(7, 120), "重复拾取直接补满备弹，部分弹匣不变")
-	_check(not smg.apply_to(player), "备弹已满时普通拾取物不消耗")
+	_check(smg.apply_to(player) and _last_ammo == Vector2i(30, 120), "重复拾取重置弹匣与备弹")
+	_check(not smg.apply_to(player), "弹匣与备弹都满时普通拾取物不消耗")
 	weapons._drop_empty_weapon(weapons.slot1)
-	_check(smg.apply_to(player) and _last_ammo == Vector2i(0, 120), "丢弃后重新拾取只补备弹，空弹匣仍为空")
+	_check(smg.apply_to(player) and _last_ammo == Vector2i(30, 120), "丢弃后重新拾取立即补满弹匣和备弹")
 	weapons.slot1.ammo_magazine_max = 44
 	weapons.slot1.ammo_back_max = 192
 	weapons.slot1.ammo_magazine_cur = 17
 	weapons.slot1.ammo_back_cur = 4
 	smg.num = 999
-	_check(smg.apply_to(player) and _last_ammo == Vector2i(17, 192), "使用升级后备弹上限，忽略拾取数量，弹匣不变")
+	_check(smg.apply_to(player) and _last_ammo == Vector2i(44, 192), "使用升级后的弹匣和备弹上限，忽略拾取数量")
 	weapons.slot1.is_reloading = true
 	weapons.slot1.reload_time_remaining = 0.5
 	weapons.slot1.ammo_back_cur = 1
-	_check(smg.apply_to(player) and weapons.slot1.is_reloading and is_equal_approx(weapons.slot1.reload_time_remaining, 0.5), "拾取不打断进行中的换弹")
+	_check(smg.apply_to(player) and not weapons.slot1.is_reloading and is_zero_approx(weapons.slot1.reload_time_remaining), "拾取取消换弹并补满完整弹药")
 	var shotgun := PrefabManager.create_loot_item(LootItem.Type.WeaponShortgun, LootItem.get_default_drop_amount(LootItem.Type.WeaponShortgun))
-	_check(shotgun.apply_to(player) and _last_ammo == Vector2i(3, 40), "霰弹枪同样补满备弹，弹匣保持 3 发")
+	_check(shotgun.apply_to(player) and _last_ammo == Vector2i(8, 40), "霰弹枪同样补满 8 发弹匣和全部备弹")
+	# 两把主武器占满后，特殊武器替换当前槽；升级解锁同样不能增加隐藏槽。
+	weapons.obtain_special_weapon("sniper", 1)
+	_check(weapons._get_available_primary_weapons().size() == 2 and not weapons.shortgun_unlocked, "第三把武器替换当前霰弹枪")
+	_check(weapons.get_secondary_slot() == weapons.slot1, "HUD 后备槽保持未替换的冲锋枪")
+	weapons.obtain_shortgun(1)
+	_check(weapons._get_available_primary_weapons().size() == 2 and not weapons.extra_unlocked.has("sniper"), "普通武器也可替换特殊武器")
+	weapons._drop_empty_weapon(weapons.slot1)
+	weapons.obtain_special_weapon("rpg", 1)
+	weapons.unlock_smg()
+	_check(weapons._get_available_primary_weapons().size() == 2 and not weapons.extra_unlocked.has("rpg"), "升级解锁也遵守两槽上限")
 	smg.free()
 	shotgun.free()
 	# 实际木箱掉落流程覆盖随机武器种类，验证调用方也使用统一数量。

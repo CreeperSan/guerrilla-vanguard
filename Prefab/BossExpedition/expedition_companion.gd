@@ -26,8 +26,7 @@ func _ready() -> void:
     collision_mask = Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
     _health = HealthComponent.new()
     _health.name = "Health"
-    _health.health_max = 70 if role == 0 else (45 if role == 1 else 18)
-    _health.health = _health.health_max
+    _health.reset_enemy_health(70 if role == 0 else (45 if role == 1 else 18))
     add_child(_health)
     _health.sig_die.connect(_die)
     _sprite = Sprite2D.new()

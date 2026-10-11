@@ -30,7 +30,7 @@ const ROOM_FADE_DURATION := 0.32
 ## 正式 GameRun 场景开启，单独 F6 运行主题场景时只测试当前 Level。
 @export var managed_run: bool = false
 @export var show_run_mode_selection: bool = true
-@export_enum("空降模式", "总攻模式") var initial_run_mode: int = 0
+@export_enum("空降模式", "反击模式") var initial_run_mode: int = 0
 ## 0 表示每局随机；固定整数同时复现主题顺序和房间布局。
 @export var run_seed: int = 0
 
@@ -94,13 +94,20 @@ func _on_run_stage_requested(stage_number: int, theme: BattlefieldTheme, stage_s
         return
     _run_stage_revision = revision
     _hud.prepare_run_stage(stage_number, theme.display_name)
+    # 首关沿用菜单遮幕；后续 Level 在清理房间前先完整遮住画面。
+    if stage_number > 1:
+        await SceneTransition.cover("第 %d 关 · %s" % [stage_number, theme.display_name])
     _clear_generated_level()
     # 等到旧房间和效果真正释放后再生成，避免同帧节点重名与旧子弹命中新关角色。
     await get_tree().process_frame
     if _run_stage_revision != revision or not GameManager.is_stage_request_current(self, stage_number, revision):
+        if stage_number > 1:
+            await SceneTransition.reveal()
         return
     battlefield_theme = theme
     start_level(stage_number, stage_seed)
+    if stage_number > 1:
+        await SceneTransition.reveal()
     if GameManager.confirm_stage_ready(self, stage_number, revision):
         _hud.start_run_stage(stage_number, theme.display_name)
 
@@ -108,6 +115,7 @@ func _on_run_stage_requested(stage_number: int, theme: BattlefieldTheme, stage_s
 ## 胜利由全局路线完成触发；失败画面仍沿用通用控制器的玩家死亡处理。
 func _on_run_finished(won: bool) -> void:
     if won:
+        RunStats.finish(true, total_score, GameManager.get_run_snapshot(), CurrencyManager.get_snapshot())
         CurrencyManager.settle_run(GameManager.attack_mode == RogueRunManager.AttackMode.AIRBORNE)
         if is_instance_valid(_hud):
             _hud.show_run_victory(total_score)
@@ -447,6 +455,7 @@ func _on_boss_exit_entered(body: Node2D) -> void:
     else:
         _level_completed = true
         sig_level_completed.emit(completed_level, 0)
+        RunStats.finish(true, total_score, {"completed": 1, "total": 1, "mode_name": "单关行动"}, CurrencyManager.get_snapshot())
         CurrencyManager.settle_run()
         if _hud != null:
             _hud.show_run_victory(total_score, "本关完成")
@@ -657,6 +666,14 @@ func _transition_room_visibility(previous_room_id: int, next_room_id: int) -> vo
 
 ## 房间首次清场后通知 HUD 控制状态；实际换房仍必须由玩家触发门区。
 func _on_room_cleared(room_id: int) -> void:
+    var room := _room_nodes.get(room_id) as FortressRoomTemplate
+    var player := _player as Player
+    if room != null:
+        RunStats.room(GameManager.get_current_stage_number(), room_id, room.room_type)
+    if room != null and player != null and player.tactical_equipment != null:
+        player.tactical_equipment.clear_room(room, room.room_type in ["combat", "combat_supply", "boss"])
+    if room != null and room.room_type == "boss" and boss_defeated:
+        _create_tactical_reward.call_deferred(room)
     if room_id == current_room_id:
         _emit_room_state(room_id)
     if room_id == int(level_map.get("boss_room_id", -1)) and boss_defeated:
@@ -695,4 +712,19 @@ func _activate_room_contents(room_id: int) -> void:
 ## 通知关卡外部的敌群、遭遇与 Boss 血条控制器当前进入的房间类型。
 func _emit_room_state(room_id: int) -> void:
     var room_data := _get_room_data(room_id)
+    var room := _room_nodes.get(room_id) as FortressRoomTemplate
+    var player := _player as Player
+    if room != null and player != null and player.tactical_equipment != null:
+        player.tactical_equipment.enter_room(room, str(room_data.get("type", "")) in ["combat", "combat_supply", "boss"])
     sig_room_changed.emit(room_id, str(room_data.get("type", "combat")))
+
+
+## Boss 房真正安全后生成一次可选战术奖励，延迟添加避免修改物理查询。
+func _create_tactical_reward(room: FortressRoomTemplate) -> void:
+    if not is_instance_valid(room) or room.is_queued_for_deletion() or room.has_meta("tactical_reward_spawned"):
+        return
+    room.set_meta("tactical_reward_spawned", true)
+    var reward := TacticalReward.new()
+    reward.reward_seed = room.population_seed
+    reward.position = Vector2(0.0, 64.0)
+    room.add_child(reward)

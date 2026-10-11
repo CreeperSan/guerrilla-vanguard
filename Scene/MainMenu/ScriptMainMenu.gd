@@ -27,8 +27,10 @@ var _launching: bool = false
 func _ready() -> void:
 	get_tree().paused = false
 	GameSettings.play_menu_music()
+	%SkipStoryIntro.set_pressed_no_signal(GameSettings.skip_story_intro)
+	%SkipStoryIntro.toggled.connect(GameSettings.set_skip_story_intro)
 	btnStart.pressed.connect(_start_game.bind(RogueRunManager.AttackMode.AIRBORNE))
-	_assault_button.pressed.connect(_start_game.bind(RogueRunManager.AttackMode.FULL_ASSAULT))
+	_assault_button.pressed.connect(_start_game.bind(RogueRunManager.AttackMode.COUNTERATTACK))
 	%UpgradeButton.pressed.connect(_show_page.bind(_upgrade_page))
 	# 点击设置
 	btnSetting.pressed.connect(_show_page.bind(_settings_page))
@@ -112,8 +114,10 @@ func _on_account_changed(snapshot: Dictionary) -> void:
 	%ResearchBadge.text = "◆  研究点数  %s" % str(research)
 	%UpgradeResearch.text = "研究点数  ◆ %s" % str(research)
 	_assault_button.disabled = _launching or not bool(snapshot["assault_unlocked"])
-	%AssaultLock.text = "强攻已解锁 · 6 个随机战场 + 地下要塞" if bool(snapshot["assault_unlocked"]) else "强攻锁定 · 通关一次空降后开放"
-	_assault_button.tooltip_text = "" if bool(snapshot["assault_unlocked"]) else "需要完整通关一次空降模式"
+	%AssaultLock.text = "反击已解锁 · 6 个随机战场 + 地下要塞" if bool(snapshot["assault_unlocked"]) else "反击锁定 · 通关一次空降后开放"
+	var profile := BattleBalance.config.get_profile(RogueRunManager.AttackMode.COUNTERATTACK)
+	var difficulty := "敌军生命 %.0f%% · 伤害 %.0f%%（相对基础难度）" % [profile.enemy_health_multiplier * 100.0, profile.enemy_damage_multiplier * 100.0]
+	_assault_button.tooltip_text = difficulty if bool(snapshot["assault_unlocked"]) else "需要完整通关一次空降模式\n" + difficulty
 
 
 ## 同步滑块时不再次触发保存，快捷静音保留原有音量数值。
@@ -149,7 +153,7 @@ func _delete_save() -> void:
 		%SettingsStatus.text = "删除失败，错误码 %s；请检查存档目录权限。" % error
 		return
 	GameManager.reset_run()
-	%SettingsStatus.text = "存档已删除，研究点数与升级归零，强攻恢复锁定。"
+	%SettingsStatus.text = "存档已删除，研究点数与升级归零，反击恢复锁定。"
 
 
 ## 点击退出游戏：先保存最后一次音量修改，再正常结束进程。

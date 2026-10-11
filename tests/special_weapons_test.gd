@@ -64,7 +64,7 @@ func _test_upgrades() -> void:
         weapon.free()
 
 
-## 真实物品应用后，数字槽与轮换能选中新武器；重拾仅补备弹、弹尽后丢弃。
+## 真实物品应用后，数字槽与轮换能选中新武器；重拾重置完整弹药、弹尽后丢弃。
 func _test_pickup_and_switch() -> void:
     var player := load("res://Prefab/Player/player.tscn").instantiate() as Player
     player.position = Vector2(10000, 10000)
@@ -80,9 +80,10 @@ func _test_pickup_and_switch() -> void:
         weapon.ammo_magazine_cur = 0
         weapon.ammo_back_cur = 0
         _check(item.apply_to(player) and manager.active_slot == weapon, "首次拾取解锁并选中新武器")
-        _check(weapon.ammo_magazine_cur == 0 and weapon.ammo_back_cur == weapon.ammo_back_max, "只补备弹，空弹匣不变")
-        _check(not item.apply_to(player), "满备弹拒绝重复消耗地面武器")
-        _check(weapon.try_reload(player), "空弹匣能正常装填")
+        _check(weapon.ammo_magazine_cur == weapon.ammo_magazine_max and weapon.ammo_back_cur == weapon.ammo_back_max, "空弹匣与备弹都补满")
+        _check(not item.apply_to(player), "完整弹药全满时不消耗地面武器")
+        weapon.ammo_magazine_cur = 0
+        _check(weapon.try_reload(player), "耗空弹匣后能正常装填")
         weapon.update_weapon(weapon.reload_duration)
         _check(weapon.ammo_magazine_cur == weapon.ammo_magazine_max, "换弹转移备弹")
         var magazine_before := weapon.ammo_magazine_cur
@@ -106,7 +107,11 @@ func _test_pickup_and_switch() -> void:
         item.free()
     manager._switch_cooldown_remaining = 0.0
     manager.action_switch_next_weapon()
-    _check(manager.active_slot is PlayerWeaponSniper and manager.get_secondary_slot() is PlayerWeaponRPG, "轮换与 HUD 下一武器一致")
+    _check(manager.active_slot is PlayerWeaponSniper and manager.get_secondary_slot() is PlayerWeaponFlamethrower, "满槽替换 RPG 后轮换与 HUD 两槽一致")
+    _check(manager._get_available_primary_weapons().size() == 2 and not manager.extra_unlocked.has("rpg"), "连续拾取第三把主武器不增加携带槽")
+    manager._switch_cooldown_remaining = 0.0
+    manager.action_switch_weapon(4)
+    _check(manager.active_slot is PlayerWeaponSniper, "被替换的武器无法通过数字键再次选中")
     var flame := manager.extra_weapons[2]
     flame.set_ammo_from_total(0)
     manager._drop_empty_weapon(flame)

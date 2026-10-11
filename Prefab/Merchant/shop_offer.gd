@@ -36,8 +36,9 @@ func refresh_appearance() -> void:
 	var factor := 32.0 / maxf(product.icon.get_width(), product.icon.get_height())
 	$Sprite2D.scale = Vector2.ONE * factor
 	$NameLabel.text = product.display_name
-	$PriceLabel.text = "%d 金" % product.price
-	$DetailLabel.text = product.description
+	var player := get_tree().get_first_node_in_group("player") as Player
+	$PriceLabel.text = "%d 金" % get_price(player)
+	$DetailLabel.text = product.description if product.tactical_id.is_empty() else "战术装备 · 本轮有效"
 
 
 ## 只接受存活玩家，余额不足保留商品；离开后重新触碰可再次尝试。
@@ -120,13 +121,19 @@ func _update_purchase_prompt() -> void:
 	purchase_prompt.visible = _can_confirm_purchase()
 	purchase_button.visible = _touch_mode
 	confirm_hint.visible = not _touch_mode
+	$PurchaseUI/Prompt/TacticalPanel.visible = product != null and not product.tactical_id.is_empty()
 	if purchase_prompt.visible:
-		purchase_button.text = "购买 %s · %d 金" % [product.display_name, product.price]
-		confirm_hint.text = "回车 / A 购买 %s · %d 金" % [product.display_name, product.price]
+		var price := get_price(_nearby_player)
+		$PriceLabel.text = "%d 金" % price
+		purchase_button.text = "购买 %s · %d 金" % [product.display_name, price]
+		confirm_hint.text = "回车 / A 购买 %s · %d 金" % [product.display_name, price]
+		if not product.tactical_id.is_empty():
+			$PurchaseUI/Prompt/TacticalPanel/TacticalDescription.text = product.description
+			purchase_button.tooltip_text = product.description
 
 
 ## 同步购买事务：扣款失败不发放、不销毁；成功只发放一次并立即停止显示和触碰。
-## 发放结果不决定退款：满血、满备弹时效果可能为零，但用户明确要求仍然购买。
+## 发放结果不决定退款：满血、完整弹药全满时效果可能为零，但用户明确要求仍然购买。
 func try_purchase(player: Player) -> bool:
 	if get_tree().paused or sold or _purchasing or product == null or not product.is_valid():
 		return false
@@ -134,17 +141,29 @@ func try_purchase(player: Player) -> bool:
 		return false
 	if product.loot_type in [LootItem.Type.WeaponSMG, LootItem.Type.WeaponShortgun] and player.node_weapon_manager == null:
 		return false
+	# 战术装备重复时不能扣款，与原满血满弹仍购买的补给规则隔离。
+	if not product.tactical_id.is_empty() and (player.tactical_equipment == null or player.tactical_equipment.has_equipment(product.tactical_id)):
+		sig_purchase_result.emit(false, "已持有该战术装备")
+		return false
 	_purchasing = true
-	if not CurrencyManager.try_spend_money(product.price):
+	var final_price := get_price(player)
+	if not CurrencyManager.try_spend_money(final_price):
 		_purchasing = false
 		sig_purchase_result.emit(false, "金钱不足")
 		return false
 	# 复用既有武器、装备、治疗和研究收益规则；不把效果节点加入场景以免免费拾取。
-	var effect := LootItem.new()
-	effect.type = product.loot_type
-	effect.num = product.amount
-	effect.apply_to(player)
-	effect.free()
+	if not product.tactical_id.is_empty():
+		if not player.tactical_equipment.obtain(product.tactical_id):
+			# 扣款信号可能重入并发放同件装备；失败精确退回实扣金额，不走收益倍率。
+			CurrencyManager.refund_money(final_price)
+			_purchasing = false
+			return false
+	else:
+		var effect := LootItem.new()
+		effect.type = product.loot_type
+		effect.num = product.amount
+		effect.apply_to(player)
+		effect.free()
 	sold = true
 	purchase_prompt.hide()
 	hide()
@@ -152,3 +171,10 @@ func try_purchase(player: Player) -> bool:
 	sig_purchase_result.emit(true, "已购买 %s" % product.display_name)
 	queue_free()
 	return true
+
+
+## 所有商品使用玩家本轮通用价格修正，显示与扣款读取同一入口。
+func get_price(player: Player) -> int:
+	if product == null:
+		return 0
+	return player.tactical_equipment.price_for(product.price) if player != null and player.tactical_equipment != null else product.price

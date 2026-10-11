@@ -51,7 +51,7 @@ func _run_tests() -> void:
 				_check(not seen.has(path), "同一局主题不重复")
 				seen[path] = true
 				var fixed := mode == RogueRunManager.AttackMode.FULL_ASSAULT and index == 6
-				_check((path == FINAL_THEME_PATH) == fixed, "地下要塞仅作为总攻第七关")
+				_check((path == FINAL_THEME_PATH) == fixed, "地下要塞仅作为反击第七关")
 				_check(bool(level["fixed"]) == fixed, "固定终点标记一致")
 				_check(int(level["seed"]) > 0, "各关种子有效")
 			if repetition == 0:
@@ -77,7 +77,7 @@ func _run_tests() -> void:
 	root.add_child(host)
 	root.add_child(outsider)
 	_check(manager.attach_level_host(host), "有效宿主可绑定")
-	_check(manager.start_run(RogueRunManager.AttackMode.FULL_ASSAULT, 1234), "总攻流程开始")
+	_check(manager.start_run(RogueRunManager.AttackMode.FULL_ASSAULT, 1234), "反击流程开始")
 	await _flush_requests()
 	for stage: int in range(1, 8):
 		_check(host.requests.size() == stage, "每关只发送一个加载请求")

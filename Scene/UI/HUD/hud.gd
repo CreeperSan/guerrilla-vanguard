@@ -130,7 +130,7 @@ func _ready() -> void:
     _volume_slider.value_changed.connect(_on_volume_changed)
     _menu_panel.gui_input.connect(_on_menu_panel_gui_input)
     _airborne_button.pressed.connect(_choose_run_mode.bind(RogueRunManager.AttackMode.AIRBORNE))
-    _assault_button.pressed.connect(_choose_run_mode.bind(RogueRunManager.AttackMode.FULL_ASSAULT))
+    _assault_button.pressed.connect(_choose_run_mode.bind(RogueRunManager.AttackMode.COUNTERATTACK))
     _defeat_restart_button.pressed.connect(GameManager.restart_run)
     %VictoryRestartButton.pressed.connect(GameManager.restart_run)
     %VictoryExitButton.pressed.connect(_exit_game)
@@ -262,6 +262,7 @@ func _apply_control_hud_layout(is_touch: bool) -> void:
         _battle_support_icon.custom_minimum_size = Vector2(34.0, 34.0)
         _skill_icon.custom_minimum_size = Vector2(30.0, 30.0)
         _skill_cooldown.custom_minimum_size = Vector2(54.0, 4.0)
+        _stamina_bar.custom_minimum_size = Vector2(54.0, 4.0)
     else:
         _movement_title.add_theme_font_size_override("font_size", 10)
         _movement_hint.add_theme_font_size_override("font_size", 9)
@@ -273,6 +274,7 @@ func _apply_control_hud_layout(is_touch: bool) -> void:
         _battle_support_icon.custom_minimum_size = Vector2(24.0, 24.0)
         _skill_icon.custom_minimum_size = Vector2(22.0, 22.0)
         _skill_cooldown.custom_minimum_size = Vector2(28.0, 4.0)
+        _stamina_bar.custom_minimum_size = Vector2(28.0, 4.0)
 
 
 ## 给触控布局统一设置底边锚点；紧凑桌面尺寸由 HUD.tscn 配置，触控尺寸在此恢复。
@@ -521,16 +523,10 @@ func show_defeat(total_score: int) -> void:
     _start_sequence_id += 1
     _game_started = false
     _clear_touch_input()
-    _pause_overlay.visible = false
-    _start_overlay.visible = false
-    _defeat_score_label.text = "总积分  %s" % _format_score(total_score)
-    if _run_ui_enabled:
-        var snapshot := GameManager.get_run_snapshot()
-        _defeat_score_label.text += "\n%s · 已完成 %d / %d 关" % [snapshot["mode_name"], snapshot["completed"], snapshot["total"]]
-    _defeat_overlay.visible = true
+    _pause_overlay.hide()
+    _start_overlay.hide()
     get_tree().paused = true
-    if _run_ui_enabled:
-        _defeat_restart_button.grab_focus()
+    GameManager.show_run_result(false, total_score)
 
 
 ## 正式对局由宿主启用流程界面；单关场景不显示全局路线和重新开始入口。
@@ -602,27 +598,18 @@ func start_run_stage(stage_number: int, theme_name: String) -> void:
 
 
 ## 最后一个 Level 的安全出口完成后显示胜利；单关测试也可以使用同一结果页。
-func show_run_victory(total_score: int, title: String = "任务完成") -> void:
+func show_run_victory(total_score: int, _title: String = "任务完成") -> void:
+    if _game_over:
+        return
     _game_over = true
     _game_started = false
     _start_sequence_id += 1
     _clear_touch_input()
-    _start_overlay.visible = false
-    _pause_overlay.visible = false
-    _run_mode_overlay.visible = false
-    _victory_title.text = title
-    _victory_score.text = "总积分  %s" % _format_score(total_score)
-    if _run_ui_enabled:
-        var snapshot := GameManager.get_run_snapshot()
-        _victory_score.text += "\n%s · 完成 %d / %d 关" % [snapshot["mode_name"], snapshot["completed"], snapshot["total"]]
-    %VictoryRestartButton.visible = _run_ui_enabled
-    %VictoryHomeButton.visible = _run_ui_enabled
-    _victory_overlay.visible = true
+    _start_overlay.hide()
+    _pause_overlay.hide()
+    _run_mode_overlay.hide()
     get_tree().paused = true
-    if _run_ui_enabled:
-        %VictoryRestartButton.grab_focus()
-    else:
-        %VictoryExitButton.grab_focus()
+    GameManager.show_run_result(true, total_score)
 
 
 ## 从全局快照更新整局直线路线，完成节点绿色、当前黄色、失败红色，固定终点额外标记。
@@ -889,6 +876,8 @@ func set_reload_progress(progress: float) -> void:
 
 ## 更新唯一技能槽图标、提示和冷却进度；奔跑/闪避状态会即时反馈在名称上。
 func set_skill(skill_type: LootItem.Type, cooldown_remaining: float, cooldown_duration: float, is_active: bool) -> void:
+    # 体力属于奔跑技能资源，换成闪避或未装备时不占用技能栏空间。
+    _stamina_bar.visible = skill_type == LootItem.Type.SkillSprint
     _skill_icon.visible = skill_type != LootItem.Type.Empty
     _skill_cooldown.visible = cooldown_remaining > 0.0
     _skill_cooldown.value = (1.0 - clampf(cooldown_remaining / maxf(cooldown_duration, 0.01), 0.0, 1.0)) * 100.0
@@ -928,6 +917,6 @@ func set_equipment(equipment_type: Player.EquipmentType, amount: int, shield_act
             _equipment_value.text = "燃烧瓶  × %d" % amount
         Player.EquipmentType.SHIELD:
             _equipment_icon.texture = EQUIPMENT_ICON_SHIELD
-            _equipment_value.text = "护盾%s  %d / 50" % ["已启用" if shield_active else "待命", amount]
+            _equipment_value.text = "护盾%s  %d / %d" % ["已启用" if shield_active else "待命", amount, Player.SHIELD_MAX_HEALTH]
         _:
             _equipment_value.text = "未装备"

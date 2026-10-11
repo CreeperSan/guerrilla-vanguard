@@ -21,7 +21,7 @@ loot_type = 1
 amount = 1
 price = 35
 icon = ExtResource("icon_smg")
-description = "备弹补满 · 弹匣不变"
+description = "弹匣与备弹补满"
 
 [sub_resource type="Resource" id="Product_shotgun"]
 script = ExtResource("2_product")
@@ -30,7 +30,7 @@ loot_type = 2
 amount = 1
 price = 35
 icon = ExtResource("icon_shotgun")
-description = "备弹补满 · 弹匣不变"
+description = "弹匣与备弹补满"
 
 [sub_resource type="Resource" id="Product_medkit"]
 script = ExtResource("2_product")
@@ -48,7 +48,7 @@ loot_type = 6
 amount = 1
 price = 20
 icon = ExtResource("icon_grenade")
-description = "10 个 · 替换装备"
+description = "2 个 · 替换装备"
 
 [sub_resource type="Resource" id="Product_molotov"]
 script = ExtResource("2_product")
@@ -57,7 +57,7 @@ loot_type = 7
 amount = 1
 price = 20
 icon = ExtResource("icon_molotov")
-description = "10 个 · 替换装备"
+description = "2 个 · 替换装备"
 
 [sub_resource type="Resource" id="Product_shield"]
 script = ExtResource("2_product")
@@ -66,7 +66,7 @@ loot_type = 8
 amount = 1
 price = 28
 icon = ExtResource("icon_shield")
-description = "50 点 · 替换装备"
+description = "10 点 · 替换装备"
 
 [sub_resource type="Resource" id="Product_research"]
 script = ExtResource("2_product")
@@ -84,7 +84,7 @@ loot_type = 17
 amount = 1
 price = 50
 icon = ExtResource("icon_sniper")
-description = "高伤害 · 六目标穿透 · 备弹补满，弹匣不变"
+description = "高伤害 · 六目标穿透 · 弹匣与备弹补满"
 
 [sub_resource type="Resource" id="Product_rpg"]
 script = ExtResource("2_product")
@@ -93,7 +93,7 @@ loot_type = 18
 amount = 1
 price = 65
 icon = ExtResource("icon_rpg")
-description = "单发装填 · 范围爆炸 · 备弹补满，弹匣不变"
+description = "单发装填 · 范围爆炸 · 弹匣与备弹补满"
 
 [sub_resource type="Resource" id="Product_flamethrower"]
 script = ExtResource("2_product")
@@ -102,7 +102,7 @@ loot_type = 19
 amount = 1
 price = 45
 icon = ExtResource("icon_flamethrower")
-description = "近程火焰 · 三目标穿透 · 备弹补满，弹匣不变"
+description = "近程火焰 · 三目标穿透 · 弹匣与备弹补满"
 
 [resource]
 script = ExtResource("1_catalog")

@@ -4,6 +4,7 @@
 缺失源图时显式记录临时复用资源，方便逻辑验证及后续替换，绝不冒充完成美术。
 """
 from pathlib import Path
+import argparse
 import json
 import math
 import random
@@ -31,6 +32,41 @@ def save(path, content):
     path.write_text(content, encoding='utf-8')
 
 
+def crop_terrain_interior(cell):
+    """裁出地形格内最大的实色矩形，避免把图集透明留白重复铺进房间。
+
+    生成图的地形边框和留白不固定，按 alpha 逐行累计直方图寻找矩形，
+    不对人物或独立物件执行此步骤。地形内部的轻微半透明统一为不透明。
+    """
+    alpha = cell.getchannel('A')
+    pixels = alpha.load()
+    heights = [0] * cell.width
+    best_area = 0
+    best_box = None
+    for y in range(cell.height):
+        for x in range(cell.width):
+            heights[x] = heights[x] + 1 if pixels[x, y] >= 200 else 0
+        # 单调栈在线性时间求当前行向上延伸的最大矩形。
+        stack = []
+        for x in range(cell.width + 1):
+            height = heights[x] if x < cell.width else 0
+            start = x
+            while stack and stack[-1][1] > height:
+                left, previous_height = stack.pop()
+                area = (x - left) * previous_height
+                if area > best_area:
+                    best_area = area
+                    best_box = (left, y + 1 - previous_height, x, y + 1)
+                start = left
+            if height and (not stack or stack[-1][1] < height):
+                stack.append((start, height))
+    if best_box is None or best_area < cell.width * cell.height * 0.15:
+        raise ValueError('terrain cell has no sufficiently large opaque interior')
+    tile = cell.crop(best_box)
+    tile.putalpha(255)
+    return tile
+
+
 def package_art(name, fallback, column):
     """切分生成图集；没有源图则返回明确的旧素材引用和临时状态。"""
     source = ROOT / f'docs/expedition/source/{name}.png'
@@ -40,6 +76,14 @@ def package_art(name, fallback, column):
         terrain = {kind: f'res://Assets/Art/MilitaryArcade/World/Terrain/{fallback}/{kind}.png'
                    for kind in ['ground', 'wall', 'water', 'box', 'cover', 'decoration']}
         terrain['entrance'] = 'res://Assets/Art/MilitaryArcade/World/entrance.png'
+        # 单张素材成功时也能独立接入；完整图集未到齐时继续保留临时状态。
+        for kind in terrain:
+            individual = ROOT / f'docs/expedition/source/{name}_{kind}.png'
+            if not individual.exists():
+                continue
+            size = (64, 64) if kind in ['ground', 'wall', 'water'] else ((64, 32) if kind == 'cover' else (48, 48))
+            Image.open(individual).convert('RGBA').resize(size, Image.Resampling.LANCZOS).save(folder / f'{kind}.png')
+            terrain[kind] = f'res://Assets/Art/MilitaryArcade/Expedition/{name}/{kind}.png'
         # AtlasTexture 保留已有透明度和四方向，不改写已有图片。
         atlas = f'''[gd_resource type="AtlasTexture" load_steps=2 format=3]
 [ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Bosses/tactical_boss_atlas.png" id="art"]
@@ -50,15 +94,25 @@ region = Rect2({column * 280}, 0, 280, 1120)
         save(folder / 'boss.tres', atlas)
         return terrain, f'res://Assets/Art/MilitaryArcade/Expedition/{name}/boss.tres', True
     image = Image.open(source).convert('RGBA')
-    cell_x, cell_y = image.width // 4, image.height // 4
+    # 验证真正透明的方形图集，拒绝把缺失透明度或错误网格标成正式资源。
+    if image.width != image.height or image.width < 512:
+        raise ValueError(f'{source}: expected a square atlas large enough for four cells per row')
+    if image.getchannel('A').getextrema() != (0, 255):
+        raise ValueError(f'{source}: atlas must preserve opaque terrain and transparent sprite backgrounds')
+    # 内置服务可能返回 1254 等非四倍数尺寸，按比例取边界覆盖完整源图。
+    columns = [round(index * image.width / 4) for index in range(5)]
+    rows = [round(index * image.height / 4) for index in range(5)]
     for index, kind in enumerate(['ground', 'wall', 'water', 'box', 'cover', 'decoration', 'entrance', 'prop']):
         x, y = index % 4, index // 4
         size = (64, 64) if index < 3 else ((64, 32) if kind == 'cover' else (48, 48))
-        image.crop((x * cell_x, y * cell_y, (x + 1) * cell_x, (y + 1) * cell_y)).resize(size, Image.Resampling.LANCZOS).save(folder / f'{kind}.png')
+        cell = image.crop((columns[x], rows[y], columns[x + 1], rows[y + 1]))
+        if index < 3:
+            cell = crop_terrain_interior(cell)
+        cell.resize(size, Image.Resampling.LANCZOS).save(folder / f'{kind}.png')
     for row, kind in [(2, 'boss'), (3, 'companion')]:
-        image.crop((0, row * cell_y, image.width, (row + 1) * cell_y)).resize((1024, 256), Image.Resampling.LANCZOS).save(folder / f'{kind}.png')
+        image.crop((0, rows[row], image.width, rows[row + 1])).resize((1024, 256), Image.Resampling.LANCZOS).save(folder / f'{kind}.png')
     terrain = {kind: f'res://Assets/Art/MilitaryArcade/Expedition/{name}/{kind}.png'
-               for kind in ['ground', 'wall', 'water', 'box', 'cover', 'decoration', 'entrance']}
+               for kind in ['ground', 'wall', 'water', 'box', 'cover', 'decoration', 'entrance', 'prop']}
     return terrain, f'res://Assets/Art/MilitaryArcade/Expedition/{name}/boss.png', False
 
 
@@ -161,10 +215,13 @@ script = ExtResource("hurt")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
 shape = SubResource("hurt_shape")
 ''')
-    arena = ['[gd_scene load_steps=5 format=3]',
+    # 完整图集的第八格是独立场景物件；缺图时继续使用该主题的已有装饰。
+    arena_prop = terrain.get('prop', terrain['decoration'])
+    arena = ['[gd_scene load_steps=6 format=3]',
              '[ext_resource type="Script" path="res://Scene/LevelFortress/room_template.gd" id="room"]',
              f'[ext_resource type="Texture2D" path="{terrain["cover"]}" id="cover"]',
              f'[ext_resource type="Texture2D" path="{terrain["decoration"]}" id="decoration"]',
+             f'[ext_resource type="Texture2D" path="{arena_prop}" id="prop"]',
              '[sub_resource type="RectangleShape2D" id="shape"]\nsize = Vector2(64, 32)',
              f'[node name="{name}Arena" type="Node2D"]\nscript = ExtResource("room")\nroom_size_units = Vector2i(2, 2)\nroom_type = "boss"\npopulate_on_first_entry = false',
              '[node name="BossSpawn" type="Marker2D" parent="."]\nposition = Vector2(0, -100)']
@@ -177,9 +234,14 @@ shape = SubResource("hurt_shape")
                   f'[node name="Shape" type="CollisionShape2D" parent="Cover{i}"]\nshape = SubResource("shape")',
                   f'[node name="Art" type="Sprite2D" parent="Cover{i}"]\ntexture = ExtResource("cover")\ntexture_repeat = 2\nregion_enabled = true\nregion_rect = Rect2(0, 0, 64, 32)']
     for i, (x,y) in enumerate([(-380,-340),(380,-340),(-380,340),(380,340)]):
-        arena += [f'[node name="Prop{i}" type="Sprite2D" parent="."]\nposition = Vector2({x}, {y})\ntexture = ExtResource("decoration")']
+        # 四角交替使用两种物件，保持手工竞技场布局和通道宽度。
+        art_id = 'prop' if i % 2 else 'decoration'
+        arena += [f'[node name="Prop{i}" type="Sprite2D" parent="."]\nposition = Vector2({x}, {y})\ntexture = ExtResource("{art_id}")']
     save(ROOT / f'Scene/BossRooms/{name}.tscn', '\n\n'.join(arena)+'\n')
-    return {'id': name, 'title': title, 'boss': boss_title, 'art_provisional': provisional, 'bpm': bpm}
+    completed = [kind for kind, path in terrain.items() if '/Expedition/' in path]
+    if not provisional:
+        completed += ['boss', 'companion']
+    return {'id': name, 'title': title, 'boss': boss_title, 'art_provisional': provisional, 'completed_art': completed, 'bpm': bpm}
 
 
 def write_wave(path, samples, rate=22050):
@@ -247,11 +309,15 @@ def register_pool():
 
 
 def main():
-    """仅管理本扩展文件和正式池新增条目，产出可审计的素材完成状态。"""
+    """仅管理本扩展文件；美术接入可跳过已验收音频，避免无关资源重新生成。"""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--art-only', action='store_true', help='package art and scene references without rebuilding audio')
+    args = parser.parse_args()
     manifest=[]
     for index, spec in enumerate(THEMES):
         manifest.append(build_theme(index,spec))
-        build_audio(index,spec)
+        if not args.art_only:
+            build_audio(index,spec)
         print('Built',spec[0],flush=True)
     register_pool()
     save(ROOT / 'docs/expedition/assets.json', json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')

@@ -11,11 +11,16 @@ config_version=5
 [application]
 
 config/name="Guerrilla Vanguard"
-run/main_scene="res://Scene/MainMenu/MainMenu.tscn"
+run/main_scene="res://Scene/StudioIntro/StudioIntro.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
+
+BattleBalance="*res://Script/Balance/battle_balance.gd"
+
+SceneTransition="*res://Script/Presentation/scene_transition.gd"
+RunStats="*res://Script/Presentation/run_statistics.gd"
 
 PrefabManager="*uid://shaobo7fdqqv"
 Global="*uid://dy2hssl1cel62"

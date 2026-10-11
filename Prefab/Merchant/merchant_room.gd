@@ -34,6 +34,7 @@ func _ready() -> void:
 		offer.product = stock[index]
 		# 子节点先于父节点 ready；这里配置后主动同步展示，触碰到下一物理帧才发生。
 		offer.refresh_appearance()
+	_add_tactical_stock()
 
 
 ## 商品发出结果后在商人位置反馈；商品销毁后音效仍能播放完，失败不逐帧重试。
@@ -42,3 +43,18 @@ func _on_purchase_result(success: bool, message: String) -> void:
 	feedback_label.modulate = Color("9fdfab") if success else Color("efb074")
 	feedback_audio.stream = PURCHASE_SOUND if success else DENIED_SOUND
 	feedback_audio.play()
+
+
+## 在原三件补给之外增加一个战术位；使用独立随机流并排除本轮已拥有装备。
+func _add_tactical_stock() -> void:
+	var player := get_tree().get_first_node_in_group("player") as Player
+	var owned: Array[StringName] = player.tactical_equipment.get_ids() if player != null and player.tactical_equipment != null else []
+	var stock := TacticalCatalog.select(stock_seed ^ 0x53484F50, owned, 1)
+	if stock.is_empty():
+		return
+	var offer := preload("res://Prefab/Merchant/shop_offer.tscn").instantiate() as ShopOffer
+	offer.name = "TacticalOffer"
+	offer.position = Vector2(150, -105)
+	offer.product = ShopProduct.from_tactical(stock[0])
+	offer.sig_purchase_result.connect(_on_purchase_result)
+	add_child(offer)

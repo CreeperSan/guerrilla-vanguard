@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="StoryIntroData" load_steps=3 format=3]
+[ext_resource type="Script" path="res://Script/Presentation/story_data.gd" id="1"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Story/prologue.png" id="2"]
+[resource]
+script = ExtResource("1")
+sheet = ExtResource("2")
+captions = Array[String](["前线告急。炮火日夜不停，部队承受着越来越大的压力。", "战场报告：攻势陷入僵持。继续正面推进，只会付出更大的代价。", "指挥官决定改变战局：派遣空降部队，越过战线，突袭敌后。", "你被选中了。检查装备，记住任务——从敌人的背后，打开一道缺口。", "运输机已抵达目标空域。舱门开启，最后一次确认降落区域。", "绿灯亮起。跃入黎明，深入敌后。你的行动，现在开始。"])

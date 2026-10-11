@@ -28,7 +28,7 @@
 | 5 | 地下要塞 | `Scene/LevelUndergroundFortress/UndergroundFortressLevel.tscn` | 金属地面、钢墙、冷却水、设备掩体、通风口 |
 | 6 | 矿井 | `Scene/LevelMineShaft/MineShaftLevel.tscn` | 矿道地面、岩壁木支架、积水、矿石、木箱 |
 
-上表编号为独立主题测试场景的默认难度编号，不代表正式对局的主题顺序。每个入口均包含 Player、HUD、FollowCamera，可用 F6 独立测试单关。正式入口改为 `Scene/GameRun/GameRun.tscn`，由 AutoLoad GameManager 开局抽取路线：空降随机 5 关，总攻随机 6 关加固定地下要塞末关。地下要塞不参与随机抽取。安全 Boss 出口推进下一关并保留玩家状态，最后一关进入胜利结算。完整规则和测试方法见 [对局流程](RUN_FLOW.md)。
+上表编号为独立主题测试场景的默认难度编号，不代表正式对局的主题顺序。每个入口均包含 Player、HUD、FollowCamera，可用 F6 独立测试单关。正式入口改为 `Scene/GameRun/GameRun.tscn`，由 AutoLoad GameManager 开局抽取路线：空降随机 5 关，反击随机 6 关加固定地下要塞末关。地下要塞不参与随机抽取。安全 Boss 出口推进下一关并保留玩家状态，最后一关进入胜利结算。完整规则和测试方法见 [对局流程](RUN_FLOW.md)。
 
 主题顺序保存在 `Script/Level/themed_campaign.tres`，由 `BattlefieldCampaign` 配置；主题贴图、模板目录、掩体数量和尺寸保存在各主题目录下的 `theme.tres`，由 `BattlefieldTheme` 配置。
 

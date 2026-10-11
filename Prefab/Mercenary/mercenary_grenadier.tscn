@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://Prefab/Mercenary/mercenary.tscn" id="1_base"]
+[ext_resource type="Script" path="res://Prefab/Mercenary/mercenary_grenadier.gd" id="2_script"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/SFX/Mercenary/grenadier_throw.wav" id="3_sound"]
+
+[node name="Grenadier" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
+initial_health = 45
+health = 45
+move_speed = 105.0
+
+[node name="AttackAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_sound")
+volume_db = -6.0
+max_distance = 800.0

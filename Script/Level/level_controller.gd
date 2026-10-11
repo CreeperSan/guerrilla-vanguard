@@ -31,6 +31,7 @@ var _registered_enemy_ids: Dictionary = {}
 func _ready() -> void:
 	# 只在创建新宿主时重置局内货币，同一宿主内切换关卡时保留钱包。
 	CurrencyManager.begin_run()
+	RunStats.begin()
 	controlled_player = get_node_or_null(player_path) as Node2D if not player_path.is_empty() else null
 	controlled_hud = get_node_or_null(hud_path) as GameHUD if not hud_path.is_empty() else null
 	controlled_camera = get_node_or_null(camera_path) as FollowCamera if not camera_path.is_empty() else null
@@ -130,6 +131,7 @@ func _on_enemy_died(enemy: Node2D) -> void:
 	if is_instance_valid(enemy) and enemy.get_meta("suppress_death_rewards", false):
 		return
 	var enemy_health := enemy.get_node_or_null("Health") as HealthComponent if is_instance_valid(enemy) else null
+	RunStats.enemy(enemy, enemy_health != null and enemy_health.last_damage_faction == Definition.Faction.Friend)
 	# 佣兵击杀仍走普通敌人的掉落逻辑，但不给玩家或佣兵增加击杀积分。
 	if enemy_health == null or enemy_health.last_damage_faction != Definition.Faction.Friend:
 		total_score += 100
@@ -140,7 +142,11 @@ func _on_enemy_died(enemy: Node2D) -> void:
 	# 在敌人所属房间生成，使隐藏房间和切关清理规则同样作用于掉落物。
 	var parent := enemy.get_parent()
 	var death_position := enemy.global_position
-	if randf() < money_drop_chance:
+	var effective_money_chance := money_drop_chance
+	var player := controlled_player as Player
+	if player != null and player.tactical_equipment != null:
+		effective_money_chance = player.tactical_equipment.money_drop_probability(money_drop_chance)
+	if randf() < effective_money_chance:
 		_spawn_currency_drop.call_deferred(parent, death_position + Vector2(-8, 0), RunCurrencyWallet.Kind.MONEY, _roll_currency_amount(money_drop_amount))
 	if randf() < research_drop_chance:
 		_spawn_currency_drop.call_deferred(parent, death_position + Vector2(8, 0), RunCurrencyWallet.Kind.RESEARCH, _roll_currency_amount(research_drop_amount))
@@ -164,6 +170,7 @@ func _spawn_currency_drop(parent: Node, drop_position: Vector2, kind: RunCurrenc
 
 ## 玩家死亡时冻结游戏并显示本局积分。
 func _on_player_died() -> void:
+	RunStats.finish(false, total_score, GameManager.get_run_snapshot(), CurrencyManager.get_snapshot())
 	# 战败也带出已经获得的研究点数；未拾取的地面货币不计入收益。
 	CurrencyManager.settle_run()
 	if controlled_hud != null:
@@ -173,6 +180,7 @@ func _on_player_died() -> void:
 ## Boss 最终死亡时增加积分并隐藏 Boss 血条。
 func _on_registered_boss_defeated(boss: BattlefieldBoss) -> void:
 	var boss_health := boss.get_node_or_null("Health") as HealthComponent if is_instance_valid(boss) else null
+	RunStats.enemy(boss, boss_health != null and boss_health.last_damage_faction == Definition.Faction.Friend)
 	# 佣兵可以完成 Boss 战并保留研究奖励，但其击杀不增加计分。
 	if boss_health == null or boss_health.last_damage_faction != Definition.Faction.Friend:
 		total_score += 500

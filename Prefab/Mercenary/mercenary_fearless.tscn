@@ -1,0 +1,22 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://Prefab/Mercenary/mercenary.tscn" id="1_base"]
+[ext_resource type="Script" path="res://Prefab/Mercenary/mercenary_fearless.gd" id="2_script"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/SFX/Mercenary/fearless_strike.wav" id="3_sound"]
+[ext_resource type="AudioStream" path="res://Assets/Audio/SFX/Mercenary/fearless_armor.wav" id="4_armor"]
+
+[node name="Fearless" instance=ExtResource("1_base")]
+script = ExtResource("2_script")
+initial_health = 120
+health = 120
+move_speed = 85.0
+
+[node name="AttackAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("3_sound")
+volume_db = -6.0
+max_distance = 800.0
+
+[node name="ArmorAudio" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("4_armor")
+volume_db = -9.0
+max_distance = 800.0

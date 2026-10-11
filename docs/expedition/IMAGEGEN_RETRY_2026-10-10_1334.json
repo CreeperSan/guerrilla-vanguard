@@ -1,0 +1,15 @@
+{
+  "tool": "image_gen.imagegen",
+  "asset": "OldTown_full_atlas",
+  "started": {
+    "current_time": "2026-10-10 05:34:02 UTC"
+  },
+  "ended": {
+    "current_time": "2026-10-10 05:36:47 UTC"
+  },
+  "success": false,
+  "error": "image generation failed: network error: error sending request",
+  "elapsed_seconds": 165,
+  "prompt": "Production sprite sheet for a hand-painted non-pixel top-down military arcade game. Square canvas, exact 4 columns and 4 rows of equal cells. No labels, gutters or borders. Hong Kong Guangdong old neighborhood theme. Row 1: seamless terrazzo floor, faded teal plaster wall, jade drain water, wooden produce crate. Row 2: concrete planter cover, balcony air conditioner, north entrance arrow, old balcony facade. Row 3: the same burly short-sleeve militia boss holding steel riot shield and shotgun, facing down, right, up, left. Row 4: the same rifle gunner, facing down, right, up, left. Entire bodies centered with margin inside their own cells. Dark outlines, worn materials, elevated overhead view. First three terrain cells opaque and edge to edge; all objects on real transparent backgrounds. No checkerboard or watermark.",
+  "new_art_applied": false
+}

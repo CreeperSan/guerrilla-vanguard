@@ -1,0 +1,239 @@
+[gd_resource type="Resource" script_class="TacticalCatalog" format=3]
+
+[ext_resource type="Script" path="res://Script/Tactical/tactical_catalog.gd" id="catalog"]
+[ext_resource type="Script" path="res://Script/Tactical/tactical_definition.gd" id="definition"]
+[ext_resource type="Texture2D" path="res://Assets/Art/MilitaryArcade/Tactical/tactical_atlas.png" id="atlas"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/ancient_coin.gd" id="ability_0"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/quick_hands.gd" id="ability_1"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/light_vest.gd" id="ability_2"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/holy_crowbar.gd" id="ability_3"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/last_round.gd" id="ability_4"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/tactical_holster.gd" id="ability_5"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/shooting_rest.gd" id="ability_6"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/pressure_ammo.gd" id="ability_7"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/emergency_plate.gd" id="ability_8"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/escape_whistle.gd" id="ability_9"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/recoil_spring.gd" id="ability_10"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/fragment_sleeve.gd" id="ability_11"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/field_bandage.gd" id="ability_12"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/salvage_magnet.gd" id="ability_13"]
+[ext_resource type="Script" path="res://Script/Tactical/Abilities/black_market_card.gd" id="ability_14"]
+
+[sub_resource type="AtlasTexture" id="icon_0"]
+atlas = ExtResource("atlas")
+region = Rect2(0, 0, 96, 96)
+
+[sub_resource type="Resource" id="equipment_0"]
+script = ExtResource("definition")
+id = &"ancient_coin"
+display_name = "古老金币"
+description = "金钱掉落概率增加 5 个百分点。"
+price = 35
+icon = SubResource("icon_0")
+ability_script = ExtResource("ability_0")
+parameters = {"chance": 0.05}
+
+[sub_resource type="AtlasTexture" id="icon_1"]
+atlas = ExtResource("atlas")
+region = Rect2(96, 0, 96, 96)
+
+[sub_resource type="Resource" id="equipment_1"]
+script = ExtResource("definition")
+id = &"quick_hands"
+display_name = "快手"
+description = "所有枪械换弹时间减少 10%。"
+price = 40
+icon = SubResource("icon_1")
+ability_script = ExtResource("ability_1")
+parameters = {"duration": 0.9}
+
+[sub_resource type="AtlasTexture" id="icon_2"]
+atlas = ExtResource("atlas")
+region = Rect2(192, 0, 96, 96)
+
+[sub_resource type="Resource" id="equipment_2"]
+script = ExtResource("definition")
+id = &"light_vest"
+display_name = "轻量化战术背心"
+description = "移动速度提高 10%，最大生命降低 20%。当前生命只截断到新上限。"
+price = 35
+icon = SubResource("icon_2")
+ability_script = ExtResource("ability_2")
+parameters = {"speed": 1.1, "health": 0.8}
+
+[sub_resource type="AtlasTexture" id="icon_3"]
+atlas = ExtResource("atlas")
+region = Rect2(288, 0, 96, 96)
+
+[sub_resource type="Resource" id="equipment_3"]
+script = ExtResource("definition")
+id = &"holy_crowbar"
+display_name = "物理学圣剑"
+description = "接触敌人造成 8 点伤害并轻微击退，同一敌人间隔 0.8 秒。不提供接触免伤。"
+price = 50
+icon = SubResource("icon_3")
+ability_script = ExtResource("ability_3")
+parameters = {"damage": 8, "cooldown": 0.8, "push": 8}
+
+[sub_resource type="AtlasTexture" id="icon_4"]
+atlas = ExtResource("atlas")
+region = Rect2(0, 96, 96, 96)
+
+[sub_resource type="Resource" id="equipment_4"]
+script = ExtResource("definition")
+id = &"last_round"
+display_name = "最后一颗子弹"
+description = "弹匣最后一发伤害提高 60%；霰弹枪整次射击生效。"
+price = 45
+icon = SubResource("icon_4")
+ability_script = ExtResource("ability_4")
+parameters = {"damage": 1.6}
+
+[sub_resource type="AtlasTexture" id="icon_5"]
+atlas = ExtResource("atlas")
+region = Rect2(96, 96, 96, 96)
+
+[sub_resource type="Resource" id="equipment_5"]
+script = ExtResource("definition")
+id = &"tactical_holster"
+display_name = "战术枪套"
+description = "切枪后下一次射击伤害提高 30%，成功触发后冷却 3 秒。"
+price = 45
+icon = SubResource("icon_5")
+ability_script = ExtResource("ability_5")
+parameters = {"damage": 1.3, "cooldown": 3}
+
+[sub_resource type="AtlasTexture" id="icon_6"]
+atlas = ExtResource("atlas")
+region = Rect2(192, 96, 96, 96)
+
+[sub_resource type="Resource" id="equipment_6"]
+script = ExtResource("definition")
+id = &"shooting_rest"
+display_name = "定点射击架"
+description = "站定 0.8 秒后枪械伤害提高 20%，移动或闪避解除。"
+price = 40
+icon = SubResource("icon_6")
+ability_script = ExtResource("ability_6")
+parameters = {"wait": 0.8, "damage": 1.2}
+
+[sub_resource type="AtlasTexture" id="icon_7"]
+atlas = ExtResource("atlas")
+region = Rect2(288, 96, 96, 96)
+
+[sub_resource type="Resource" id="equipment_7"]
+script = ExtResource("definition")
+id = &"pressure_ammo"
+display_name = "加压弹药"
+description = "枪械伤害提高 20%，换弹时间增加 15%。"
+price = 45
+icon = SubResource("icon_7")
+ability_script = ExtResource("ability_7")
+parameters = {"damage": 1.2, "duration": 1.15}
+
+[sub_resource type="AtlasTexture" id="icon_8"]
+atlas = ExtResource("atlas")
+region = Rect2(0, 192, 96, 96)
+
+[sub_resource type="Resource" id="equipment_8"]
+script = ExtResource("definition")
+id = &"emergency_plate"
+display_name = "应急护板"
+description = "每个战斗房首次实际入血伤害降低 50%；闪避与主动盾不消耗。"
+price = 50
+icon = SubResource("icon_8")
+ability_script = ExtResource("ability_8")
+parameters = {"damage": 0.5}
+
+[sub_resource type="AtlasTexture" id="icon_9"]
+atlas = ExtResource("atlas")
+region = Rect2(96, 192, 96, 96)
+
+[sub_resource type="Resource" id="equipment_9"]
+script = ExtResource("definition")
+id = &"escape_whistle"
+display_name = "逃生哨"
+description = "受伤后移动速度提高 25%，持续 2 秒；重复受伤刷新时间，不叠加。"
+price = 35
+icon = SubResource("icon_9")
+ability_script = ExtResource("ability_9")
+parameters = {"speed": 1.25, "duration": 2}
+
+[sub_resource type="AtlasTexture" id="icon_10"]
+atlas = ExtResource("atlas")
+region = Rect2(192, 192, 96, 96)
+
+[sub_resource type="Resource" id="equipment_10"]
+script = ExtResource("definition")
+id = &"recoil_spring"
+display_name = "回力弹簧"
+description = "闪避结束后 1 秒内，下一次接触攻击伤害翻倍。需物理学圣剑提供接触攻击。"
+price = 35
+icon = SubResource("icon_10")
+ability_script = ExtResource("ability_10")
+parameters = {"damage": 2, "duration": 1}
+
+[sub_resource type="AtlasTexture" id="icon_11"]
+atlas = ExtResource("atlas")
+region = Rect2(288, 192, 96, 96)
+
+[sub_resource type="Resource" id="equipment_11"]
+script = ExtResource("definition")
+id = &"fragment_sleeve"
+display_name = "破片衬套"
+description = "手雷爆炸半径增加 20%，伤害降低 10%；不影响 RPG、燃烧瓶或支援。"
+price = 40
+icon = SubResource("icon_11")
+ability_script = ExtResource("ability_11")
+parameters = {"radius": 1.2, "damage": 0.9}
+
+[sub_resource type="AtlasTexture" id="icon_12"]
+atlas = ExtResource("atlas")
+region = Rect2(0, 288, 96, 96)
+
+[sub_resource type="Resource" id="equipment_12"]
+script = ExtResource("definition")
+id = &"field_bandage"
+display_name = "战地绷带"
+description = "首次清空战斗房恢复最大生命的 3%，至少 1 点；安全房不触发。"
+price = 45
+icon = SubResource("icon_12")
+ability_script = ExtResource("ability_12")
+parameters = {"healing": 0.03}
+
+[sub_resource type="AtlasTexture" id="icon_13"]
+atlas = ExtResource("atlas")
+region = Rect2(96, 288, 96, 96)
+
+[sub_resource type="Resource" id="equipment_13"]
+script = ExtResource("definition")
+id = &"salvage_magnet"
+display_name = "拾荒磁环"
+description = "金钱和弹药拾取范围扩大 80%；不会远程拾取武器、研究或其他装备。"
+price = 30
+icon = SubResource("icon_13")
+ability_script = ExtResource("ability_13")
+parameters = {"range": 1.8}
+
+[sub_resource type="AtlasTexture" id="icon_14"]
+atlas = ExtResource("atlas")
+region = Rect2(192, 288, 96, 96)
+
+[sub_resource type="Resource" id="equipment_14"]
+script = ExtResource("definition")
+id = &"black_market_card"
+display_name = "黑市会员卡"
+description = "商店价格降低 15%（向上取整），所有治疗效果降低 20%。"
+price = 35
+icon = SubResource("icon_14")
+ability_script = ExtResource("ability_14")
+parameters = {"price": 0.85, "healing": 0.8}
+
+[sub_resource type="AtlasTexture" id="reward_icon"]
+atlas = ExtResource("atlas")
+region = Rect2(288, 288, 96, 96)
+
+[resource]
+script = ExtResource("catalog")
+definitions = Array[ExtResource("definition")]([SubResource("equipment_0"), SubResource("equipment_1"), SubResource("equipment_2"), SubResource("equipment_3"), SubResource("equipment_4"), SubResource("equipment_5"), SubResource("equipment_6"), SubResource("equipment_7"), SubResource("equipment_8"), SubResource("equipment_9"), SubResource("equipment_10"), SubResource("equipment_11"), SubResource("equipment_12"), SubResource("equipment_13"), SubResource("equipment_14")])
+reward_texture = SubResource("reward_icon")

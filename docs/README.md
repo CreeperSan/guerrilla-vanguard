@@ -11,7 +11,7 @@
 3. [关卡与扩展约定](LEVEL_AND_SYSTEMS.md)：随机地图的低风险做法、房间清单、系统边界、存档。
    - 该文档的第 6 节记录了六关 Boss 路线、500 单位矩形房间、每种尺寸至少两种样式的目录规则与门位规则；生成器、`FortressLevel.tscn` 运行控制器和模板位于 `Scene/LevelFortress/`。
    - [多主题关卡与键盘操作](LEVEL_THEMES.md)：六个主题关卡入口、主题配置、素材目录，以及 WASD 移动与方向键射击的操作表。
-   - [Roguelike 对局流程](RUN_FLOW.md)：当前已接入的随机直线 Level 路线、空降 5 关、总攻 6 关加固定地下要塞、GameManager 接口、进度 HUD 和测试方法；关卡递进以此处的最新规则为准。
+   - [Roguelike 对局流程](RUN_FLOW.md)：当前已接入的随机直线 Level 路线、空降 5 关、反击 6 关加固定地下要塞、GameManager 接口、进度 HUD 和测试方法；关卡递进以此处的最新规则为准。
    - [金钱与研究点数](CURRENCY.md)：敌人概率掉落、Boss 直接奖励、触碰拾取、HUD、胜败结算和持久研究账户。
    - [游戏首页](MAIN_MENU.md)：封面、图片标题、模式解锁、升级占位、音频设置与二次确认删除存档。
 4. [开发与验收](DEVELOPMENT_PLAN.md)：从当前原型出发的任务顺序、完成标准与检查清单。
@@ -61,3 +61,11 @@
 ## 2026-10-10 八主题远征扩展
 
 [八主题设计与行为规格](expedition/DESIGN.md) 包含老城、霓虹街、公园、化工厂、公路、沼泽、运河和医院的 Boss、视觉及音频规格；[资源状态](expedition/assets.json) 明确标记正式美术是否就绪。独立试战入口仍为 `Scene/BossRooms/BossPractice.tscn`。
+
+## 2026-10-10 战术装备
+
+[战术装备方案与扩展方式](TACTICAL_EQUIPMENT.md)：15 件本轮被动装备、独立能力、Inspector 配置、Boss 三选一、商店和背包。实现范围与验证边界见 [验证记录](TACTICAL_VALIDATION.md)。
+
+## 2026-10-11 反击模式与外部平衡参数
+
+[配置说明与扩展约定](COMBAT_BALANCE_CONFIG.md)：模式名称与存档兼容、敌军生命/伤害分层倍率、Godot 资源、外部 CFG 和命令行覆盖。可直接复制 [参数模板](config/combat_balance.example.cfg) 调整难度。

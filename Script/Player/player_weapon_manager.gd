@@ -2,6 +2,9 @@
 class_name PlayerWeaponManager
 extends Node
 
+## 最多保留两把主武器；不足两把时无限手枪填补备用槽。
+const MAX_PRIMARY_WEAPONS := 2
+
 # 切换武器时间
 @export var switch_weapon_duraiton: float = 0.2
 
@@ -206,33 +209,36 @@ func action_switch_next_weapon() -> void:
 
 ## 由升级系统调用以解锁冲锋枪，并将其设为当前武器。
 func unlock_smg() -> void:
+    _make_room_for_weapon(slot1)
     smg_unlocked = true
     _select_slot(slot1, 1, true)
 
 
-## 拾取冲锋枪只补满备弹；首次获得时解锁并选中，任何情况下均不重置弹匣。
+## 拾取冲锋枪重置弹匣和备弹至当前上限；首次获得时解锁并选中。
 ## 参数保留给现有物品接口做有效性判断，不再参与弹药加法或分配。
 func obtain_smg(ammo_amount: int) -> bool:
     if ammo_amount <= 0:
         return false
     if not smg_unlocked:
-        slot1.refill_reserve_ammo()
+        _make_room_for_weapon(slot1)
+        slot1.reset_pickup_ammo()
         smg_unlocked = true
         _select_slot(slot1, 1, true)
         return true
-    return slot1.refill_reserve_ammo()
+    return slot1.reset_pickup_ammo()
 
 
-## 拾取霰弹枪只补满备弹；首次解锁与重复拾取共用同一规则，弹匣保持原样。
+## 拾取霰弹枪重置完整弹药；首次解锁与重复拾取共用同一规则。
 func obtain_shortgun(ammo_amount: int) -> bool:
     if ammo_amount <= 0:
         return false
     if not shortgun_unlocked:
-        slot2.refill_reserve_ammo()
+        _make_room_for_weapon(slot2)
+        slot2.reset_pickup_ammo()
         shortgun_unlocked = true
         _select_slot(slot2, 2, true)
         return true
-    return slot2.refill_reserve_ammo()
+    return slot2.reset_pickup_ammo()
 
 
 ## 向已解锁的冲锋枪增加备弹，并返回实际加入的数量。
@@ -317,7 +323,7 @@ func _get_slot_index(weapon: PlayerWeaponSlot) -> int:
     return extra_weapons.find(weapon) + 3
 
 
-## 扩展武器拾取保持原有规则：只补满备弹，首次解锁并选中，不重置弹匣。
+## 扩展武器拾取同样重置弹匣、备弹及换弹状态，首次解锁并选中。
 func obtain_special_weapon(id: String, amount: int) -> bool:
     if amount <= 0:
         return false
@@ -325,7 +331,9 @@ func obtain_special_weapon(id: String, amount: int) -> bool:
         if weapon.weapon_id != id:
             continue
         var first_pickup: bool = not extra_unlocked.get(id, false)
-        var refilled := weapon.refill_reserve_ammo()
+        if first_pickup:
+            _make_room_for_weapon(weapon)
+        var refilled := weapon.reset_pickup_ammo()
         if first_pickup:
             extra_unlocked[id] = true
             _select_slot(weapon, _get_slot_index(weapon), true)
@@ -333,8 +341,23 @@ func obtain_special_weapon(id: String, amount: int) -> bool:
     return false
 
 
+## 新武器占用真实携带名额：满槽时替换当前主武器，重复拾取只补弹。
+## 所有拾取及升级解锁入口共用此处，避免特殊武器成为隐藏的第三槽。
+func _make_room_for_weapon(incoming: PlayerWeaponSlot) -> void:
+    var available := _get_available_primary_weapons()
+    if available.has(incoming):
+        return
+    while available.size() >= MAX_PRIMARY_WEAPONS:
+        var replaced: PlayerWeaponSlot = active_slot if available.has(active_slot) else available.back()
+        # 清除解锁和弹药，同时终止后台换弹，防止丢弃后偷偷补回弹匣。
+        replaced.is_reloading = false
+        replaced.reload_time_remaining = 0.0
+        _drop_empty_weapon(replaced)
+        available.erase(replaced)
+
+
 ## 获取武器当前换弹进度，供切换武器时同步 HUD。
 func _get_reload_progress(weapon: PlayerWeaponSlot) -> float:
     if not weapon.is_reloading:
         return 1.0
-    return clampf(1.0 - weapon.reload_time_remaining / maxf(weapon.reload_duration, 0.01), 0.0, 1.0)
+    return clampf(1.0 - weapon.reload_time_remaining / maxf(weapon.active_reload_duration, 0.01), 0.0, 1.0)

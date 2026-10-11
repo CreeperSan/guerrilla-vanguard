@@ -67,9 +67,9 @@ func _run() -> void:
 			LootItem.Type.MedicalKit:
 				_check(player.node_health.health == 75, "医疗包恢复 35 点")
 			LootItem.Type.EquipmentGrenade, LootItem.Type.EquipmentMolotov:
-				_check(player.equipment_amount == 10, "装备补给为 10 个")
+				_check(player.equipment_amount == 2, "装备补给为 2 个")
 			LootItem.Type.EquipmentShield:
-				_check(player.shield_health == 50, "护盾商品发放 50 点")
+				_check(player.shield_health == 10, "护盾商品发放 10 点")
 			LootItem.Type.CurrencyResearch:
 				_check(CurrencyManager.run_research > research_before, "研究商品进入本局收益")
 	var medkit := catalog.products[2]

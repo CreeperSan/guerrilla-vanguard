@@ -66,10 +66,10 @@ func apply_to(player: Player) -> bool:
 
     match type:
         Type.WeaponSMG:
-            # 武器数量仅表示有效拾取物，效果为备弹补满，未拥有时同时解锁。
+            # 武器数量仅表示有效拾取物，效果为弹匣与备弹重置，未拥有时同时解锁。
             return player.node_weapon_manager.obtain_smg(num)
         Type.WeaponShortgun:
-            # 弹匣始终保留当前数量，首次获得与重复拾取都只补满备弹。
+            # 首次获得与重复拾取都重置完整弹药，并取消正在进行的换弹。
             return player.node_weapon_manager.obtain_shortgun(num)
         Type.WeaponSniper:
             return player.node_weapon_manager.obtain_special_weapon("sniper", num)
@@ -109,7 +109,10 @@ func _apply_health_to(player: Player) -> bool:
 
     var health_before: int = player.node_health.health
     player.node_health.heal(num)
-    return player.node_health.health > health_before
+    var healed := player.node_health.health > health_before
+    if healed:
+        RunStats.count("items", "医疗补给")
+    return healed
 
 
 ## 武器拾取物显示对应图标，其他道具沿用场景中配置的 Sprite2D 样式。
@@ -205,3 +208,9 @@ func _start_zoom_animation() -> void:
     zoom_tween.set_ease(Tween.EASE_IN_OUT)
     zoom_tween.tween_property(self, "scale", _base_scale * 1.06, 0.7)
     zoom_tween.tween_property(self, "scale", _base_scale, 0.7)
+
+
+## 扩距拾取显式白名单：当前只包含金钱；未来弹药可声明 magnetic_ammo 元数据。
+## 武器补弹拾取仍是武器，不属于磁环可远程领取的弹药。
+func is_magnetic_supply() -> bool:
+    return type == Type.CurrencyMoney or bool(get_meta("magnetic_ammo", false))

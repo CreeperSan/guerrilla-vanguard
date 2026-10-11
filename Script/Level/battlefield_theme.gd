@@ -26,6 +26,8 @@ extends Resource
 ## 掩体阻挡角色和子弹；装饰只绘制，不参与碰撞。
 @export var cover_texture: Texture2D
 @export var decoration_texture: Texture2D
+## 可选的第二种边缘物件；远征图集第八格用于丰富场景，不参与碰撞。
+@export var prop_texture: Texture2D
 @export var secondary_style_tint: Color = Color(0.9, 0.94, 0.9, 1.0)
 
 @export_group("主题内容")

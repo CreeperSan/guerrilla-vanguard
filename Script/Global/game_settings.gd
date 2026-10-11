@@ -11,6 +11,8 @@ const FORTRESS_MUSIC: AudioStream = preload("res://Assets/Audio/Music/level_fort
 const MUSIC_FADE_DURATION := 0.8
 const MUSIC_GAIN := 0.4
 
+## 剧情偏好与音量同文件保存，删除研究账户不会改变开场设置。
+var skip_story_intro := false
 var music_volume: float = 0.65
 var sfx_volume: float = 0.8
 var music_muted: bool = false
@@ -187,6 +189,7 @@ func _load_settings() -> void:
 		music_volume = clampf(float(music), 0.0, 1.0)
 	if sfx is float or sfx is int:
 		sfx_volume = clampf(float(sfx), 0.0, 1.0)
+	skip_story_intro = settings.get_value("presentation", "skip_story_intro", false) == true
 	music_muted = settings.get_value("audio", "music_muted", false) == true
 	sfx_muted = settings.get_value("audio", "sfx_muted", false) == true
 
@@ -194,6 +197,7 @@ func _load_settings() -> void:
 ## 退出按钮在结束进程前主动调用，避免最后一次拖动还没经过合并计时就丢失设置。
 func save_now() -> void:
 	var settings := ConfigFile.new()
+	settings.set_value("presentation", "skip_story_intro", skip_story_intro)
 	settings.set_value("audio", "music_volume", music_volume)
 	settings.set_value("audio", "sfx_volume", sfx_volume)
 	settings.set_value("audio", "music_muted", music_muted)
@@ -206,3 +210,9 @@ func save_now() -> void:
 ## 正常关闭窗口也落盘，保留尚未经过定时器保存的最后一次调整。
 func _exit_tree() -> void:
 	save_now()
+
+
+## 只跳过漫画，不影响每次启动必播的工作室信息。
+func set_skip_story_intro(value: bool) -> void:
+	skip_story_intro = value
+	_save_timer.start()

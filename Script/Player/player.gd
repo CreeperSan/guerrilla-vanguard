@@ -1,3 +1,5 @@
+## 玩家角色：统一处理移动、装备、技能与敌人接触后的伤害和击退。
+## 玩家输入与动作宿主；本轮被动装备由独立 TacticalEquipment 子组件管理。
 class_name Player
 extends CharacterBody2D
 
@@ -22,8 +24,14 @@ signal sig_equipment_updated(equipment_type: EquipmentType, amount: int, shield_
 signal sig_battle_support_requested
 signal sig_battle_support_updated(support_type: LootItem.Type)
 signal sig_skill_requested
+## 通用动作事件供外部能力订阅，玩家不包含任何具体战术装备判断。
+signal sig_dodge_finished
+signal sig_projectile_thrown(projectile: ProjectileBullet)
 ## 自身技能状态：类型、剩余冷却、冷却总时长和是否正在使用。
 signal sig_skill_updated(skill_type: LootItem.Type, cooldown_remaining: float, cooldown_duration: float, is_active: bool)
+
+## 护盾初始耐久统一为 10，HUD 与拾取共用该上限。
+const SHIELD_MAX_HEALTH := 10
 
 const SFX_FIRE_SMG: AudioStream = preload("res://Assets/Audio/SFX/smg_fire.wav")
 const SFX_FIRE_PISTOL: AudioStream = preload("res://Assets/Audio/SFX/pistol_fire.wav")
@@ -44,6 +52,18 @@ const SFX_BATTLE_SUPPORT: AudioStream = preload("res://Assets/Audio/SFX/battle_s
 # 移动速度
 @export var prop_move_speed: float = 150
 
+@export_group("敌人接触")
+## 接触伤害经由 Health 结算，保留护盾吸收与闪避无敌。
+@export_range(1, 999, 1) var contact_damage: int = 5
+## 所有敌人共享接触间隔，避免重叠或被围住时逐帧叠加伤害。
+@export_range(0.05, 10.0, 0.05) var contact_damage_interval: float = 0.75
+## 击退使用实际物理移动；默认 240 × 0.2 = 48 像素，遇墙提前停止。
+@export_range(0.0, 1000.0, 1.0) var contact_knockback_speed: float = 240.0
+@export_range(0.01, 2.0, 0.01) var contact_knockback_duration: float = 0.2
+var _contact_cooldown_remaining: float = 0.0
+var _contact_knockback_remaining: float = 0.0
+var _contact_knockback_direction: Vector2 = Vector2.ZERO
+
 @export_group("奔跑体力")
 ## 满体力可连续移动奔跑约四秒，停止后三秒等待，再用五秒从零回满。
 @export_range(1.0, 999.0, 1.0) var stamina_max: float = 100.0
@@ -58,7 +78,11 @@ var _sprint_exhausted: bool = false
 @onready var anim : AnimatedSprite2D = $AnimatedSprite2D # 动画节点
 @onready var node_collect_box: Area2D = $CollectBox # 拾取判定区域
 @onready var node_weapon_manager: PlayerWeaponManager = $WeaponManager # 武器管理器
+## 独立的本轮被动组件，与原唯一投掷装备槽完全分离。
+@onready var tactical_equipment: TacticalEquipment = get_node_or_null("TacticalEquipment") as TacticalEquipment
 @onready var node_health: HealthComponent = get_node_or_null("Health") as HealthComponent
+## 仅检测敌人受击区域，不增加角色间的实体阻挡。
+@onready var node_enemy_contact: Area2D = $EnemyContact
 @onready var node_fire_audio: AudioStreamPlayer2D = $FireAudioPlayer
 @onready var node_reload_audio: AudioStreamPlayer2D = $ReloadAudioPlayer
 @onready var node_pickup_audio: AudioStreamPlayer2D = $PickupAudioPlayer
@@ -94,6 +118,9 @@ var sprint_active: bool = false
 ## 闪避期间屏蔽所有进入生命值组件的伤害。
 var dodge_active: bool = false
 
+## 三类装备共用冷却；替换或补充装备不重置，暂停时不推进。
+const EQUIPMENT_COOLDOWN := 1.0
+var _equipment_cooldown_remaining := 0.0
 var _skill_cooldown_remaining: float = 0.0
 var _dodge_time_remaining: float = 0.0
 var _dodge_direction: Vector2 = Vector2.DOWN
@@ -123,7 +150,7 @@ func _ready() -> void:
     add_to_group("player")
     # 普通敌人可在玩家与已雇佣佣兵之间选择存活的攻击目标。
     add_to_group("combat_targets")
-    # 玩家只与地形和水发生实体碰撞；敌我角色的命中继续由子弹和 HurtBox 单独处理。
+    # 玩家只与地形和水发生实体碰撞；接触伤害由 EnemyContact 检测敌人的 HurtBox。
     collision_mask = Definition.PHYSICS_LAYER_TERRAIN | Definition.PHYSICS_LAYER_WATER
     facing_direction = Vector2.DOWN
     # 拾取区域事件检测
@@ -143,15 +170,15 @@ func _ready() -> void:
     _emit_skill_updated()
 
 
-## 从战利品装入唯一装备槽；手雷和燃烧瓶每件补充 10 个，护盾恢复至 50 点。
+## 从战利品装入唯一装备槽；手雷和燃烧瓶每份补充 2 个，护盾恢复至 10 点。
 func obtain_equipment_from_loot(loot_type: LootItem.Type, item_count: int) -> bool:
     match loot_type:
         LootItem.Type.EquipmentGrenade:
-            return _store_equipment(EquipmentType.GRENADE, maxi(item_count, 1) * 10)
+            return _store_equipment(EquipmentType.GRENADE, maxi(item_count, 1) * 2)
         LootItem.Type.EquipmentMolotov:
-            return _store_equipment(EquipmentType.MOLOTOV, maxi(item_count, 1) * 10)
+            return _store_equipment(EquipmentType.MOLOTOV, maxi(item_count, 1) * 2)
         LootItem.Type.EquipmentShield:
-            return _store_equipment(EquipmentType.SHIELD, 50)
+            return _store_equipment(EquipmentType.SHIELD, SHIELD_MAX_HEALTH)
     return false
 
 
@@ -166,7 +193,7 @@ func _store_equipment(new_type: EquipmentType, amount: int) -> bool:
     else:
         equipment_type = new_type
         if new_type == EquipmentType.SHIELD:
-            shield_health = 50
+            shield_health = SHIELD_MAX_HEALTH
             equipment_amount = shield_health
         else:
             shield_health = 0
@@ -176,9 +203,9 @@ func _store_equipment(new_type: EquipmentType, amount: int) -> bool:
     return true
 
 
-## 使用装备键；投掷物向面朝方向发射，护盾按键切换启用状态。
+## 使用装备键；投掷与举盾/收盾共用 1 秒冷却，失败操作不消耗冷却。
 func use_equipment() -> void:
-    if sprint_active or dodge_active:
+    if sprint_active or dodge_active or _equipment_cooldown_remaining > 0.0:
         return
     match equipment_type:
         EquipmentType.GRENADE:
@@ -211,9 +238,13 @@ func _throw_equipment(bullet_type: Definition.BulletType, damage: int) -> void:
     if bullet_type == Definition.BulletType.Burning:
         bullet.bullet_effect_duration = 5.0
         bullet.bullet_effect_damage_gap = 0.5
+    # 外部组件在入树前修正投掷快照，不影响已经飞出的弹丸。
+    sig_projectile_thrown.emit(bullet)
     get_parent().add_child(bullet)
     bullet.global_position = global_position + facing_direction.normalized() * 8.0
     equipment_amount -= 1
+    _equipment_cooldown_remaining = EQUIPMENT_COOLDOWN
+    RunStats.count("items", "手雷" if equipment_type == EquipmentType.GRENADE else "燃烧瓶")
     var throw_sound: AudioStream = SFX_GRENADE_THROW
     if bullet_type == Definition.BulletType.Burning:
         throw_sound = SFX_MOLOTOV_THROW
@@ -259,6 +290,9 @@ func _toggle_shield() -> void:
     if equipment_type != EquipmentType.SHIELD or shield_health <= 0:
         return
     _set_shield_active(not shield_active)
+    _equipment_cooldown_remaining = EQUIPMENT_COOLDOWN
+    if shield_active:
+        RunStats.count("items", "举起护盾")
     _play_equipment_audio(SFX_SHIELD_RAISE if shield_active else SFX_SHIELD_LOWER)
     _emit_equipment_updated()
 
@@ -323,6 +357,7 @@ func use_battle_support() -> void:
     support.global_position = global_position
     if support.has_method("start_strike"):
         support.call("start_strike", facing_direction.normalized())
+    RunStats.count("items", "迫击炮支援" if battle_support_type == LootItem.Type.SupportMortarStriker else "战术轰炸")
     battle_support_type = LootItem.Type.Empty
     if node_equipment_audio != null:
         node_equipment_audio.stream = SFX_BATTLE_SUPPORT
@@ -428,7 +463,40 @@ func _update_keyboard_aim() -> bool:
     return true
 
 
+## 持续检查重叠，而非只监听进入事件，使墙角持续接触也按间隔结算。
+## 仅接受存活敌人的 HurtBox，排除友军、陷阱、尸体与等待回收的敌人。
+func _update_enemy_contact(delta: float) -> void:
+    _contact_cooldown_remaining = maxf(_contact_cooldown_remaining - delta, 0.0)
+    if dodge_active or node_health == null or node_health.health <= 0 or _contact_cooldown_remaining > 0.0:
+        return
+    for area: Area2D in node_enemy_contact.get_overlapping_areas():
+        if not area is HurtBox:
+            continue
+        var enemy := area.get_parent() as Node2D
+        if enemy == null or not enemy.is_in_group("enemies") or enemy.is_queued_for_deletion():
+            continue
+        var enemy_health := enemy.get_node_or_null("Health") as HealthComponent
+        if enemy_health == null or enemy_health.health <= 0:
+            continue
+
+        # 先设置间隔，保证同帧多个敌人最多结算一次；护盾吸收时仍产生碰撞击退。
+        _contact_cooldown_remaining = contact_damage_interval
+        _contact_knockback_direction = enemy.global_position.direction_to(global_position)
+        if _contact_knockback_direction == Vector2.ZERO:
+            # 完全重叠时无法计算远离方向，退向当前朝向的反方向。
+            _contact_knockback_direction = -facing_direction.normalized()
+            if _contact_knockback_direction == Vector2.ZERO:
+                _contact_knockback_direction = Vector2.UP
+        node_health.damage(contact_damage, Definition.Faction.Enemy, enemy.global_position)
+        # 致命伤害可能同步触发关卡结束；死亡后不再启动移动。
+        if node_health.health > 0 and not is_queued_for_deletion():
+            _contact_knockback_remaining = contact_knockback_duration
+        return
+
+
+## 每个物理帧检查敌人接触，并用受地形约束的移动执行闪避或击退。
 func _physics_process(delta: float) -> void:
+    _update_enemy_contact(delta)
     # 闪避期间忽略手动移动与瞄准，方向从启动时锁定。
     var move_input: Vector2 = Vector2.ZERO if dodge_active else Input.get_vector('move_left', 'move_right', 'move_up', 'move_down')
     if move_input:
@@ -458,8 +526,17 @@ func _physics_process(delta: float) -> void:
             anim.self_modulate.a = _dodge_sprite_alpha
             velocity = Vector2.ZERO
             _emit_skill_updated()
+            sig_dodge_finished.emit()
+    elif _contact_knockback_remaining > 0.0:
+        # 击退短暂覆盖手动移动，最后一帧只移动剩余时长，避免帧率改变击退距离。
+        var knockback_step := minf(delta, _contact_knockback_remaining)
+        velocity = _contact_knockback_direction * contact_knockback_speed * (knockback_step / maxf(delta, 0.000001))
+        move_and_slide()
+        _contact_knockback_remaining = maxf(_contact_knockback_remaining - delta, 0.0)
     else:
         var speed_multiplier: float = 2.0 if sprint_active else 1.0
+        if tactical_equipment != null:
+            speed_multiplier *= tactical_equipment.multiplier(&"move_speed")
         velocity = move_input * prop_move_speed * speed_multiplier
         move_and_slide()
 
@@ -489,6 +566,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
+    # 先推进装备冷却，闪避期间仍会计时；SceneTree 暂停时本节点不会处理。
+    _equipment_cooldown_remaining = maxf(0.0, _equipment_cooldown_remaining - delta)
     _update_skill_input(delta)
     # 闪避为独占动作：仍推进体力/冷却，但不处理射击、道具、支援、换弹与切枪。
     if dodge_active:
@@ -571,6 +650,9 @@ func _start_dodge() -> void:
     if _dodge_direction == Vector2.ZERO:
         _dodge_direction = Vector2.DOWN
     dodge_active = true
+    RunStats.count("items", "闪避")
+    # 成功闪避时取消残余击退，避免闪避结束后继续执行旧的受击动作。
+    _contact_knockback_remaining = 0.0
     # 只调整身体精灵的透明度，不影响护盾轮廓等独立表现。
     _dodge_sprite_alpha = anim.self_modulate.a
     anim.self_modulate.a = _dodge_sprite_alpha * DODGE_ALPHA_MULTIPLIER
@@ -604,7 +686,7 @@ func _emit_skill_updated() -> void:
 
 ## 接收拾取区内的物品；货币与原有道具共用触碰流程，但播放各自的音效。
 func on_collect_item(item: Area2D):
-    if item is LootItem:
+    if item is LootItem and not item.is_queued_for_deletion() and health_current > 0:
         # 只有道具效果成功应用时才移除拾取物，避免满血或已满备弹时浪费道具。
         if item.apply_to(self):
             print('玩家拾取了', item.type, item.num)

@@ -232,7 +232,7 @@ offset_bottom = -88.0
 mouse_filter = 2
 anchor_top = 0.5
 anchor_bottom = 0.5
-text = "空降 5 关  /  强攻 7 关"
+text = "空降 5 关  /  反击 7 关"
 theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(0.76, 0.81, 0.63, 1)
 
@@ -260,7 +260,7 @@ theme_override_colors/font_color = Color(0.06, 0.08, 0.045, 1)
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(350, 44)
-text = "开始强攻"
+text = "开始反击"
 alignment = 0
 disabled = true
 
@@ -302,7 +302,7 @@ offset_bottom = 275.0
 mouse_filter = 2
 anchor_top = 0.5
 anchor_bottom = 0.5
-text = "强攻锁定 · 通关一次空降后开放"
+text = "反击锁定 · 通关一次空降后开放"
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.84, 0.76, 0.49, 1)
 
@@ -586,6 +586,12 @@ max_value = 100.0
 step = 1.0
 value = 65.0
 
+[node name="SkipStoryIntro" type="CheckButton" parent="SettingsPage/Center/Card/Contents"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "启动时跳过剧情介绍"
+tooltip_text = "仅跳过剧情漫画，Sunny Studio 工作室开场仍会显示。"
+
 [node name="Separator" type="HSeparator" parent="SettingsPage/Center/Card/Contents"]
 layout_mode = 2
 
@@ -600,7 +606,7 @@ theme_override_styles/normal = SubResource("StyleDanger")
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 32)
-text = "删除将清空研究点数与强攻解锁记录。"
+text = "删除将清空研究点数与反击解锁记录。"
 autowrap_mode = 3
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.89, 0.73, 0.55, 1)
@@ -655,7 +661,7 @@ horizontal_alignment = 1
 
 [node name="Description" type="Label" parent="AboutPage/Center/Card/Contents"]
 layout_mode = 2
-text = "像素风军事 Roguelike\n\n在随机战场中拾取武器、装备与战场支援，\n击败随机首领，推进你的闯关路线。\n\n空降模式：随机 5 个战场。\n强攻模式：6 个随机战场，终点为地下要塞。\n结算研究点数，用于永久武器与战场收益升级。"
+text = "像素风军事 Roguelike\n\n在随机战场中拾取武器、装备与战场支援，\n击败随机首领，推进你的闯关路线。\n\n空降模式：随机 5 个战场。\n反击模式：6 个随机战场，终点为地下要塞。\n结算研究点数，用于永久武器与战场收益升级。"
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 
@@ -668,7 +674,7 @@ text = "返回首页"
 [node name="DeleteConfirmation" type="ConfirmationDialog" parent="."]
 unique_name_in_owner = true
 title = "确认删除游戏存档"
-dialog_text = "将永久清空已存研究点数、全部升级与强攻解锁记录。\n删除后强攻恢复锁定，需要重新通关空降。\n\n确定删除吗？音量设置将保留。"
+dialog_text = "将永久清空已存研究点数、全部升级与反击解锁记录。\n删除后反击恢复锁定，需要重新通关空降。\n\n确定删除吗？音量设置将保留。"
 theme = SubResource("MenuTheme")
 min_size = Vector2i(500, 210)
 ok_button_text = "确认删除"

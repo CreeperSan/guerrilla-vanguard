@@ -137,8 +137,7 @@ func _on_phase_depleted() -> void:
 func _enter_phase(next_phase: int) -> void:
     var partner_alive := _companions.any(func(member): return is_instance_valid(member) and not member.is_queued_for_deletion() and not member._dead)
     current_phase = next_phase
-    health_component.health_max = second_health if next_phase == 2 else third_health
-    health_component.health = health_component.health_max
+    health_component.reset_enemy_health(second_health if next_phase == 2 else third_health)
     _clear_owned_effects(next_phase == 3 and encounter in [Encounter.NEON, Encounter.PARK])
     _sequence_index = 0
     _shots = 0

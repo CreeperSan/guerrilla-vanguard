@@ -21,7 +21,7 @@ var _settled: bool = false
 var _settlement_failed: bool = false
 ## 无法读取已有账户时禁止覆盖存档，避免把原余额错误替换为零。
 var _account_loaded: bool = true
-## 首次完整通关空降后解锁强攻，与研究账户共用同一持久存档。
+## 首次完整通关空降后解锁反击，与研究账户共用同一持久存档。
 var _airborne_completed: bool = false
 var _pending_airborne_completion: bool = false
 
@@ -77,6 +77,7 @@ func credit(kind: Kind, amount: int) -> bool:
 		money += credited
 	else:
 		run_research += credited
+	RunStats.currency(int(kind), credited)
 	_publish()
 	return true
 
@@ -86,6 +87,17 @@ func try_spend_money(cost: int) -> bool:
 	if not _run_open or cost <= 0 or money < cost:
 		return false
 	money -= cost
+	RunStats.currency(0, cost, true)
+	_publish()
+	return true
+
+
+## 商店发放失败退回实扣金额，不经过奖励倍率和小数收益累计。
+func refund_money(amount: int) -> bool:
+	if not _run_open or amount <= 0:
+		return false
+	money += amount
+	RunStats.currency(0, -amount, true)
 	_publish()
 	return true
 
@@ -190,7 +202,7 @@ func has_pending_settlement() -> bool:
 	return _settlement_failed
 
 
-## 首页和模式启动共同检查，避免只禁用按钮却仍允许外部调用启动强攻。
+## 首页和模式启动共同检查，避免只禁用按钮却仍允许外部调用启动反击。
 func is_assault_unlocked() -> bool:
 	return _airborne_completed
 

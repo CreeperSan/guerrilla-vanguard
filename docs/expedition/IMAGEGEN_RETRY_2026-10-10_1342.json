@@ -1,0 +1,15 @@
+{
+  "tool": "image_gen.imagegen",
+  "asset": "OldTown_full_atlas",
+  "started": {
+    "current_time": "2026-10-10 05:42:59 UTC"
+  },
+  "ended": {
+    "current_time": "2026-10-10 05:45:11 UTC"
+  },
+  "success": false,
+  "error": "image generation failed: connection failed: error sending request",
+  "elapsed_seconds": 132,
+  "prompt": "A square production game sprite atlas in a precise 4 by 4 grid. Hand-painted non-pixel military arcade style, elevated top-down view, dark outlines. Hong Kong Guangdong old town. Row one: seamless terrazzo ground, teal plaster wall, jade water, produce crate. Row two: concrete planter barrier, balcony air conditioner, north-pointing arrow sign, balcony facade. Row three: the same burly militia commander with riot shield and shotgun, facing down, right, up, left. Row four: the same rifle gunner facing down, right, up, left. Center full bodies with padding inside each cell. First three texture cells fill their edges and are opaque. All isolated sprites on genuine transparent background. No labels, borders, gutters, checkerboard or watermark.",
+  "new_art_applied": false
+}

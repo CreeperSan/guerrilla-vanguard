@@ -1,0 +1,232 @@
+{
+  "tool": "image_gen.imagegen",
+  "mode": "built-in; no CLI/API fallback",
+  "timezone": "timestamps UTC; user timezone Asia/Shanghai UTC+08:00",
+  "attempts": 19,
+  "successful": 10,
+  "failed": 9,
+  "confirmed": "Earlier requests returned network or connection errors. Later single-atlas retries succeeded for all eight themes; the available output does not identify the underlying cause of the earlier failures.",
+  "unknown": "Earlier connection errors provided no HTTP status, DNS, proxy or TLS diagnostics. Generated assets were imported, but successful generation and import do not establish in-game visual acceptance.",
+  "entries": [
+    {
+      "asset": "OldTown_full_atlas_single_retry",
+      "prompt": "Create a square 1024x1024 production sprite atlas for a non-pixel hand-painted top-down military arcade game. Exact 4x4 equal cells, no gutters, labels or borders. Theme: Hong Kong Guangdong old residential neighborhood. Row 1: seamless opaque terrazzo ground, seamless opaque faded teal plaster wall, seamless opaque jade drainage water, isolated wooden produce crate. Row 2: isolated concrete planter cover, old balcony air conditioner, north-pointing entrance arrow, old balcony facade. Row 3: SAME burly short-sleeved militia commander with steel shield and shotgun in DOWN RIGHT UP LEFT views. Row 4: SAME window rifle gunner in DOWN RIGHT UP LEFT views. Center full bodies within own cells with padding. Dark clean outlines, worn materials, elevated top-down view. Genuine transparent backgrounds for isolated sprites; first three tiles fill their cells. No baked checkerboard, watermark or scenery.",
+      "started": {
+        "current_time": "2026-10-10 04:40:19 UTC"
+      },
+      "ended": {
+        "current_time": "2026-10-10 04:43:01 UTC"
+      },
+      "success": false,
+      "error": "image generation failed: network error: error sending request",
+      "elapsed_seconds": 162
+    },
+    {
+      "asset": "OldTown_ground",
+      "prompt": "One seamless terrazzo floor texture tile for a top-down hand-painted military arcade game. Muted beige grey with tiny stone chips. Flat overhead view, low contrast, fully opaque. No objects, no text, no borders.",
+      "started": {
+        "current_time": "2026-10-10 04:43:14 UTC"
+      },
+      "ended": {
+        "current_time": "2026-10-10 04:46:21 UTC"
+      },
+      "success": true,
+      "source": "docs/expedition/source/OldTown_ground.png",
+      "applied": "Assets/Art/MilitaryArcade/Expedition/OldTown/ground.png",
+      "elapsed_seconds": 187
+    },
+    {
+      "asset": "OldTown_full_atlas",
+      "prompt": "One square production game atlas in EXACT 4x4 equal grid, no gutters borders or labels. Hand painted non-pixel military arcade art, elevated top-down view, dark clean outlines, worn materials. Hong Kong Guangdong old town: terrazzo floor, teal plaster wall, jade drain, produce crate, planter, balcony AC, stairwell arrow, balcony. Boss burly short sleeve militia leader with steel shield and shotgun. Companion rifle gunner. Row1: opaque seamless floor tile; opaque seamless wall tile; opaque seamless water tile; isolated crate. Row2: isolated cover; isolated decoration; isolated north-pointing entrance arrow; isolated extra environment prop. Row3: SAME boss facing DOWN, RIGHT, UP, LEFT, full body centered. Row4: SAME companion facing DOWN, RIGHT, UP, LEFT, full body centered. All isolated sprites have real transparent backgrounds and fit entirely within own cells with margin. First three textures fill cells edge to edge. No text, watermark, scenery or checkerboard.",
+      "started": {
+        "current_time": "2026-10-10 04:47:15 UTC"
+      },
+      "ended": {
+        "current_time": "2026-10-10 04:48:58 UTC"
+      },
+      "success": false,
+      "error": "image generation failed: connection failed: error sending request",
+      "elapsed_seconds": 103
+    },
+    {
+      "asset": "Neon_full_atlas",
+      "prompt": "One square production game atlas in EXACT 4x4 equal grid, no gutters borders or labels. Hand painted non-pixel military arcade art, elevated top-down view, dark clean outlines, worn materials. Japanese neon entertainment street: violet wet asphalt, charcoal shop wall, blue drain, beverage crate, road barrier, pink cyan neon sign, entrance arrow, shop facade. Boss white suited dual pistol gunman. Companion black coated baton fighter. Row1: opaque seamless floor tile; opaque seamless wall tile; opaque seamless water tile; isolated crate. Row2: isolated cover; isolated decoration; isolated north-pointing entrance arrow; isolated extra environment prop. Row3: SAME boss facing DOWN, RIGHT, UP, LEFT, full body centered. Row4: SAME companion facing DOWN, RIGHT, UP, LEFT, full body centered. All isolated sprites have real transparent backgrounds and fit entirely within own cells with margin. First three textures fill cells edge to edge. No text, watermark, scenery or checkerboard.",
+      "started": {
+        "current_time": "2026-10-10 04:47:15 UTC"
+      },
+      "ended": {
+        "current_time": "2026-10-10 04:49:14 UTC"
+      },
+      "success": false,
+      "error": "image generation failed: connection failed: error sending request",
+      "elapsed_seconds": 119
+    },
+    {
+      "asset": "Park_full_atlas",
+      "prompt": "One square production game atlas in EXACT 4x4 equal grid, no gutters borders or labels. Hand painted non-pixel military arcade art, elevated top-down view, dark clean outlines, worn materials. American countryside park: grass dirt, timber wall, pond water, supply crate, picnic table, ranger notice board, trail arrow, pine tree. Boss veteran tracker with hunting rifle. Companion four-legged military robotic dog with searchlight. Row1: opaque seamless floor tile; opaque seamless wall tile; opaque seamless water tile; isolated crate. Row2: isolated cover; isolated decoration; isolated north-pointing entrance arrow; isolated extra environment prop. Row3: SAME boss facing DOWN, RIGHT, UP, LEFT, full body centered. Row4: SAME companion facing DOWN, RIGHT, UP, LEFT, full body centered. All isolated sprites have real transparent backgrounds and fit entirely within own cells with margin. First three textures fill cells edge to edge. No text, watermark, scenery or checkerboard.",
+      "started": {
+        "current_time": "2026-10-10 04:47:15 UTC"
+      },
+      "ended": {
+        "current_time": "2026-10-10 04:49:08 UTC"
+      },
+      "success": false,
+      "error": "image generation failed: connection failed: error sending request",
+      "elapsed_seconds": 113
+    },
+    {
+      "asset": "Chemical_full_atlas",
+      "prompt": "One square production game atlas in EXACT 4x4 equal grid, no gutters borders or labels. Hand painted non-pixel military arcade art, elevated top-down view, dark clean outlines, worn materials. Chemical factory: concrete floor, steel panel wall, green waste liquid, chemical crate, pressure tank, pipe valve, emergency arrow, pipework. Boss orange hazmat exoskeleton with acid nozzle and pressure tanks. Companion pressure pump. Row1: opaque seamless floor tile; opaque seamless wall tile; opaque seamless water tile; isolated crate. Row2: isolated cover; isolated decoration; isolated north-pointing entrance arrow; isolated extra environment prop. Row3: SAME boss facing DOWN, RIGHT, UP, LEFT, full body centered. Row4: SAME companion facing DOWN, RIGHT, UP, LEFT, full body centered. All isolated sprites have real transparent backgrounds and fit entirely within own cells with margin. First three textures fill cells edge to edge. No text, watermark, scenery or checkerboard.",
+      "started": {
+        "current_time": "2026-10-10 04:47:15 UTC"
+      },
+      "ended": {
+        "current_time": "2026-10-10 04:49:21 UTC"
+      },
+      "success": false,
+      "error": "image generation failed: connection failed: error sending request",
+      "elapsed_seconds": 126
+    },
+    {
+      "asset": "Route66_full_atlas",
+      "prompt": "One square production game atlas in EXACT 4x4 equal grid, no gutters borders or labels. Hand painted non-pixel military arcade art, elevated top-down view, dark clean outlines, worn materials. Western Route 66: sandy asphalt, red sandstone wall, dusty water, supply crate, road barrier, motel sign, highway arrow, gas pump. Boss armored long-nose truck with machine gun and exposed engine. Companion outlaw driver with heavy machine gun. Row1: opaque seamless floor tile; opaque seamless wall tile; opaque seamless water tile; isolated crate. Row2: isolated cover; isolated decoration; isolated north-pointing entrance arrow; isolated extra environment prop. Row3: SAME boss facing DOWN, RIGHT, UP, LEFT, full body centered. Row4: SAME companion facing DOWN, RIGHT, UP, LEFT, full body centered. All isolated sprites have real transparent backgrounds and fit entirely within own cells with margin. First three textures fill cells edge to edge. No text, watermark, scenery or checkerboard.",
+      "started": {
+        "current_time": "2026-10-10 04:47:15 UTC"
+      },
+      "ended": {
+        "current_time": "2026-10-10 04:50:30 UTC"
+      },
+      "success": false,
+      "error": "image generation failed: network error: error sending request",
+      "elapsed_seconds": 195
+    },
+    {
+      "asset": "Swamp_full_atlas",
+      "prompt": "One square production game atlas in EXACT 4x4 equal grid, no gutters borders or labels. Hand painted non-pixel military arcade art, elevated top-down view, dark clean outlines, worn materials. Swamp wetlands: mossy mud, old timber wall, olive water, waterproof crate, fallen log, reeds, wooden arrow sign, mangrove tree. Boss armored airboat with large rear fan and harpoon turret. Companion rifle operator. Row1: opaque seamless floor tile; opaque seamless wall tile; opaque seamless water tile; isolated crate. Row2: isolated cover; isolated decoration; isolated north-pointing entrance arrow; isolated extra environment prop. Row3: SAME boss facing DOWN, RIGHT, UP, LEFT, full body centered. Row4: SAME companion facing DOWN, RIGHT, UP, LEFT, full body centered. All isolated sprites have real transparent backgrounds and fit entirely within own cells with margin. First three textures fill cells edge to edge. No text, watermark, scenery or checkerboard.",
+      "started": {
+        "current_time": "2026-10-10 04:47:15 UTC"
+      },
+      "ended": {
+        "current_time": "2026-10-10 04:51:40 UTC"
+      },
+      "success": false,
+      "error": "image generation failed: connection failed: error sending request",
+      "elapsed_seconds": 265
+    },
+    {
+      "asset": "Canal_full_atlas",
+      "prompt": "One square production game atlas in EXACT 4x4 equal grid, no gutters borders or labels. Hand painted non-pixel military arcade art, elevated top-down view, dark clean outlines, worn materials. Canal town: cobblestone, red brick wall, turquoise water, cargo crate, stone bridge parapet, sluice gear, canal arrow sign, canal facade. Boss heavy waterproof hydraulic engineer with pile hammer and rivet gun. Companion sluice pump. Row1: opaque seamless floor tile; opaque seamless wall tile; opaque seamless water tile; isolated crate. Row2: isolated cover; isolated decoration; isolated north-pointing entrance arrow; isolated extra environment prop. Row3: SAME boss facing DOWN, RIGHT, UP, LEFT, full body centered. Row4: SAME companion facing DOWN, RIGHT, UP, LEFT, full body centered. All isolated sprites have real transparent backgrounds and fit entirely within own cells with margin. First three textures fill cells edge to edge. No text, watermark, scenery or checkerboard.",
+      "started": {
+        "current_time": "2026-10-10 04:47:15 UTC"
+      },
+      "ended": {
+        "current_time": "2026-10-10 04:51:48 UTC"
+      },
+      "success": false,
+      "error": "image generation failed: connection failed: error sending request",
+      "elapsed_seconds": 273
+    },
+    {
+      "asset": "Hospital_full_atlas",
+      "prompt": "One square production game atlas in EXACT 4x4 equal grid, no gutters borders or labels. Hand painted non-pixel military arcade art, elevated top-down view, dark clean outlines, worn materials. Abandoned hospital biolab: ivory green floor tiles, cracked mint wall tiles, cyan liquid, medical crate, overturned bed, IV stand, emergency arrow, surgical equipment. Boss giant asymmetric mutated patient with hospital gown and medical back apparatus, no gore. Companion medical restraint pod. Row1: opaque seamless floor tile; opaque seamless wall tile; opaque seamless water tile; isolated crate. Row2: isolated cover; isolated decoration; isolated north-pointing entrance arrow; isolated extra environment prop. Row3: SAME boss facing DOWN, RIGHT, UP, LEFT, full body centered. Row4: SAME companion facing DOWN, RIGHT, UP, LEFT, full body centered. All isolated sprites have real transparent backgrounds and fit entirely within own cells with margin. First three textures fill cells edge to edge. No text, watermark, scenery or checkerboard.",
+      "started": {
+        "current_time": "2026-10-10 04:47:15 UTC"
+      },
+      "ended": {
+        "current_time": "2026-10-10 04:51:57 UTC"
+      },
+      "success": false,
+      "error": "image generation failed: connection failed: error sending request",
+      "elapsed_seconds": 282
+    },
+    {
+      "asset": "OldTown_full_atlas_retry",
+      "success": true,
+      "tool_execution_id": "exec-99f8daec-52bd-4b9b-8d97-5f8f96aff0cd",
+      "generated_file": "/Users/creepersan/.codex/generated_images/01a12470-27fb-7472-85ed-63c518941abc/exec-99f8daec-52bd-4b9b-8d97-5f8f96aff0cd.png",
+      "source": "docs/expedition/source/OldTown.png",
+      "applied": "Assets/Art/MilitaryArcade/Expedition/OldTown",
+      "format": "1254x1254 RGBA, alpha range 0..255",
+      "prompt_reference": "imagegen_prompts.json#OldTown"
+    },
+    {
+      "asset": "Neon_full_atlas_retry",
+      "success": true,
+      "tool_execution_id": "exec-f00d38b6-b0b0-42de-a510-17a8d909215e",
+      "generated_file": "/Users/creepersan/.codex/generated_images/01a12470-27fb-7472-85ed-63c518941abc/exec-f00d38b6-b0b0-42de-a510-17a8d909215e.png",
+      "source": "docs/expedition/source/Neon.png",
+      "applied": "Assets/Art/MilitaryArcade/Expedition/Neon",
+      "format": "1254x1254 RGBA, alpha range 0..255",
+      "prompt_reference": "imagegen_prompts.json#Neon"
+    },
+    {
+      "asset": "Park_full_atlas_retry",
+      "success": true,
+      "tool_execution_id": "exec-beeb2ecf-4114-471d-8a1a-c9bf964ef151",
+      "generated_file": "/Users/creepersan/.codex/generated_images/01a12470-27fb-7472-85ed-63c518941abc/exec-beeb2ecf-4114-471d-8a1a-c9bf964ef151.png",
+      "source": "docs/expedition/source/Park.png",
+      "applied": "Assets/Art/MilitaryArcade/Expedition/Park",
+      "format": "1254x1254 RGBA, alpha range 0..255",
+      "prompt_reference": "imagegen_prompts.json#Park"
+    },
+    {
+      "asset": "Chemical_full_atlas_retry",
+      "success": true,
+      "tool_execution_id": "exec-d56d366c-5fd1-46ae-94a9-eea2ed450c0b",
+      "generated_file": "/Users/creepersan/.codex/generated_images/01a12470-27fb-7472-85ed-63c518941abc/exec-d56d366c-5fd1-46ae-94a9-eea2ed450c0b.png",
+      "source": "docs/expedition/source/Chemical.png",
+      "applied": "Assets/Art/MilitaryArcade/Expedition/Chemical",
+      "format": "1254x1254 RGBA, alpha range 0..255",
+      "prompt_reference": "imagegen_prompts.json#Chemical"
+    },
+    {
+      "asset": "Route66_full_atlas_retry",
+      "success": true,
+      "tool_execution_id": "exec-8af25355-017e-487c-a9ea-2ac988da6220",
+      "generated_file": "/Users/creepersan/.codex/generated_images/01a12470-27fb-7472-85ed-63c518941abc/exec-8af25355-017e-487c-a9ea-2ac988da6220.png",
+      "source": "docs/expedition/source/Route66.png",
+      "applied": "Assets/Art/MilitaryArcade/Expedition/Route66",
+      "format": "1254x1254 RGBA, alpha range 0..255",
+      "prompt_reference": "imagegen_prompts.json#Route66"
+    },
+    {
+      "asset": "Swamp_full_atlas_retry",
+      "success": true,
+      "tool_execution_id": "exec-37bf69b1-67fb-4bcf-905f-c80b5990942c",
+      "generated_file": "/Users/creepersan/.codex/generated_images/01a12470-27fb-7472-85ed-63c518941abc/exec-37bf69b1-67fb-4bcf-905f-c80b5990942c.png",
+      "source": "docs/expedition/source/Swamp.png",
+      "applied": "Assets/Art/MilitaryArcade/Expedition/Swamp",
+      "format": "1254x1254 RGBA, alpha range 0..255",
+      "prompt_reference": "imagegen_prompts.json#Swamp"
+    },
+    {
+      "asset": "Canal_full_atlas_retry",
+      "success": true,
+      "tool_execution_id": "exec-1d082f20-6954-4dd7-9eaa-9bf4fba0cee9",
+      "generated_file": "/Users/creepersan/.codex/generated_images/01a12470-27fb-7472-85ed-63c518941abc/exec-1d082f20-6954-4dd7-9eaa-9bf4fba0cee9.png",
+      "source": "docs/expedition/source/Canal.png",
+      "applied": "Assets/Art/MilitaryArcade/Expedition/Canal",
+      "format": "1254x1254 RGBA, alpha range 0..255",
+      "prompt_reference": "imagegen_prompts.json#Canal"
+    },
+    {
+      "asset": "Hospital_full_atlas_retry",
+      "success": true,
+      "tool_execution_id": "exec-2338f624-761f-4bbd-a11a-dd0a32735b8c",
+      "generated_file": "/Users/creepersan/.codex/generated_images/01a12470-27fb-7472-85ed-63c518941abc/exec-2338f624-761f-4bbd-a11a-dd0a32735b8c.png",
+      "source": "docs/expedition/source/Hospital.png",
+      "applied": "Assets/Art/MilitaryArcade/Expedition/Hospital",
+      "format": "1254x1254 RGBA, alpha range 0..255",
+      "prompt_reference": "imagegen_prompts.json#Hospital"
+    },
+    {
+      "asset": "OldTown_ground_retry",
+      "success": true,
+      "tool_execution_id": "exec-81962662-1ab3-4671-a863-c01e2e2db646",
+      "generated_file": "/Users/creepersan/.codex/generated_images/01a12470-27fb-7472-85ed-63c518941abc/exec-81962662-1ab3-4671-a863-c01e2e2db646.png",
+      "source": "docs/expedition/source/OldTown_ground_retry.png",
+      "format": "1254x1254 RGB",
+      "superseded_by": "docs/expedition/source/OldTown.png"
+    }
+  ]
+}

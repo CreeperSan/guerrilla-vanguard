@@ -1,3 +1,4 @@
+## 霰弹枪武器配置：名称与稳定标识同时用于背包和本局开火战报。
 ## 霰弹枪：有限备弹、五枚前向散射；弹丸数与散布角读取独立升级配置资源。
 class_name PlayerWeaponShortgun
 extends PlayerWeaponSlot
@@ -5,6 +6,9 @@ extends PlayerWeaponSlot
 
 ## 配置霰弹枪的八发弹匣和每次五发的宽散布射击。
 func _init() -> void:
+    # 战报与装备界面共用稳定的武器标识和中文名称。
+    weapon_id = "shortgun"
+    display_name = "霰弹枪"
     ammo_magazine_max = 8
     ammo_magazine_cur = ammo_magazine_max
     ammo_back_max = 40

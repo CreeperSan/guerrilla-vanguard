@@ -1,0 +1,14 @@
+{
+  "tool": "image_gen.imagegen",
+  "asset": "OldTown_full_atlas",
+  "started": {
+    "current_time": "2026-10-10 06:10:22 UTC"
+  },
+  "ended": {
+    "current_time": "2026-10-10 06:10:31 UTC"
+  },
+  "success": false,
+  "error": "image generation failed: connection failed: error sending request",
+  "prompt": "Create a 1024x1024 square game art atlas, exact 4x4 equal grid, hand painted non-pixel top-down military arcade style, dark outlines. Hong Kong Guangdong old neighborhood. Row1 floor tile terrazzo, teal plaster wall tile, jade drain water tile, produce crate. Row2 concrete planter, balcony AC, north arrow sign, old balcony prop. Row3 same militia commander with riot shield and shotgun facing down/right/up/left. Row4 same rifle gunner facing down/right/up/left. Each sprite centered and fully inside its cell with margin; objects have real transparent background. First three tile cells opaque edge-to-edge. No text, gutters, labels, borders or watermark.",
+  "new_art_applied": false
+}

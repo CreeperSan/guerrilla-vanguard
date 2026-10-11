@@ -37,6 +37,10 @@ enum BehaviorMode {
 @onready var perception_hear: CollisionShape2D = $Perception/RangeHear
 @onready var perception_vision: CollisionShape2D = $Perception/RangeVision
 
+## 普通士兵的短时外力击退；使用物理移动，不能穿墙，Boss 不继承此接口。
+var _melee_knockback_velocity := Vector2.ZERO
+var _melee_knockback_remaining: float = 0.0
+
 var _spawn_position: Vector2
 var _wander_target: Vector2
 var _movement_timer: float = 0.0
@@ -57,8 +61,7 @@ func _ready() -> void:
     _spawn_position = global_position
     _wander_target = _spawn_position
     _ammo_in_magazine = maxi(magazine_size, 1)
-    health_component.health_max = maxi(health, 1)
-    health_component.health = health_component.health_max
+    health_component.reset_enemy_health(health)
     health_component.sig_die.connect(_on_die)
     _set_shape_radius(perception_hear, alert_range)
     _set_shape_radius(perception_vision, weapon_range)
@@ -67,6 +70,12 @@ func _ready() -> void:
 
 ## 每帧依据模式更新移动、朝向和武器状态。
 func _physics_process(delta: float) -> void:
+    if _melee_knockback_remaining > 0.0:
+        var knockback_step := minf(delta, _melee_knockback_remaining)
+        velocity = _melee_knockback_velocity * knockback_step / maxf(delta, 0.000001)
+        _melee_knockback_remaining = maxf(_melee_knockback_remaining - delta, 0.0)
+        move_and_slide()
+        return
     if _action_start_delay_remaining > 0.0:
         _action_start_delay_remaining = maxf(_action_start_delay_remaining - delta, 0.0)
         return
@@ -94,6 +103,12 @@ func _physics_process(delta: float) -> void:
     move_and_slide()
     _update_animation(target_direction if is_instance_valid(player) else movement_direction)
     _update_weapon(delta, in_weapon_range, target_direction)
+
+
+## 接收近战轻击退，重叠时由攻击者给出确定方向；连续攻击只刷新短时外力。
+func apply_melee_knockback(direction: Vector2) -> void:
+    _melee_knockback_velocity = direction.normalized() * 100.0
+    _melee_knockback_remaining = 0.12
 
 
 ## 按四种行为模式计算移动方向；射程内的站立射击模式保持静止。

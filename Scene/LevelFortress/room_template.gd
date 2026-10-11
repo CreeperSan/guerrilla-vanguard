@@ -264,6 +264,9 @@ func _populate_theme_terrain(content_root: Node2D, rng: RandomNumberGenerator, h
 		var decoration := Sprite2D.new()
 		decoration.name = "ThemeDecoration%d" % index
 		decoration.texture = battlefield_theme.decoration_texture
+		# 与主要装饰交替使用图集中的场景物件，沿用同一位置规则和随机种子。
+		if index % 2 == 1 and battlefield_theme.prop_texture != null:
+			decoration.texture = battlefield_theme.prop_texture
 		var inner_half := half_bounds - Vector2.ONE * 100.0
 		match index % 4:
 			0: decoration.position = Vector2(rng.randf_range(-inner_half.x, inner_half.x), -inner_half.y)
