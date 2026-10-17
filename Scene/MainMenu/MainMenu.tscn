@@ -537,30 +537,94 @@ layout_mode = 2
 text = "游戏设置"
 theme_override_font_sizes/font_size = 28
 
-[node name="MusicRow" type="HBoxContainer" parent="SettingsPage/Center/Card/Contents"]
+[node name="SettingsScroll" type="ScrollContainer" parent="SettingsPage/Center/Card/Contents"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+follow_focus = true
+scroll_deadzone = 12
+
+[node name="SettingsList" type="VBoxContainer" parent="SettingsPage/Center/Card/Contents/SettingsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 28
+
+[node name="显示" type="VBoxContainer" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="SectionTitle" type="Label" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/显示"]
+layout_mode = 2
+mouse_filter = 2
+text = "显示"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.93, 0.79, 0.47, 1)
+
+[node name="ReplayStory" type="Button" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/显示"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 48)
+text = "重温游戏剧情"
+
+[node name="操控" type="VBoxContainer" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Caption" type="Label" parent="SettingsPage/Center/Card/Contents/MusicRow"]
+[node name="SectionTitle" type="Label" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/操控"]
+layout_mode = 2
+mouse_filter = 2
+text = "操控"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.93, 0.79, 0.47, 1)
+
+[node name="音效" type="VBoxContainer" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="SectionTitle" type="Label" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效"]
+layout_mode = 2
+mouse_filter = 2
+text = "音效"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.93, 0.79, 0.47, 1)
+
+[node name="其他" type="VBoxContainer" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="SectionTitle" type="Label" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/其他"]
+layout_mode = 2
+mouse_filter = 2
+text = "其他"
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.93, 0.79, 0.47, 1)
+
+[node name="MusicRow" type="HBoxContainer" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Caption" type="Label" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效/MusicRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "背景音乐音量"
 
-[node name="MusicValue" type="Label" parent="SettingsPage/Center/Card/Contents/MusicRow"]
+[node name="MusicValue" type="Label" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效/MusicRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(65, 0)
 text = "65%"
 horizontal_alignment = 2
 
-[node name="MusicMute" type="Button" parent="SettingsPage/Center/Card/Contents/MusicRow"]
+[node name="MusicMute" type="Button" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效/MusicRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(114, 42)
 text = "静音"
 theme_override_font_sizes/font_size = 15
 
-[node name="MusicSlider" type="HSlider" parent="SettingsPage/Center/Card/Contents"]
+[node name="MusicSlider" type="HSlider" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 32)
@@ -568,30 +632,30 @@ max_value = 100.0
 step = 1.0
 value = 65.0
 
-[node name="SfxRow" type="HBoxContainer" parent="SettingsPage/Center/Card/Contents"]
+[node name="SfxRow" type="HBoxContainer" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Caption" type="Label" parent="SettingsPage/Center/Card/Contents/SfxRow"]
+[node name="Caption" type="Label" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效/SfxRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "音效音量"
 
-[node name="SfxValue" type="Label" parent="SettingsPage/Center/Card/Contents/SfxRow"]
+[node name="SfxValue" type="Label" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效/SfxRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(65, 0)
 text = "65%"
 horizontal_alignment = 2
 
-[node name="SfxMute" type="Button" parent="SettingsPage/Center/Card/Contents/SfxRow"]
+[node name="SfxMute" type="Button" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效/SfxRow"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(114, 42)
 text = "静音"
 theme_override_font_sizes/font_size = 15
 
-[node name="SfxSlider" type="HSlider" parent="SettingsPage/Center/Card/Contents"]
+[node name="SfxSlider" type="HSlider" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/音效"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 32)
@@ -599,23 +663,14 @@ max_value = 100.0
 step = 1.0
 value = 65.0
 
-[node name="SkipStoryIntro" type="CheckButton" parent="SettingsPage/Center/Card/Contents"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "启动时跳过剧情介绍"
-tooltip_text = "仅跳过剧情漫画，Sunny Studio 工作室开场仍会显示。"
-
-[node name="Separator" type="HSeparator" parent="SettingsPage/Center/Card/Contents"]
-layout_mode = 2
-
-[node name="DeleteSaveButton" type="Button" parent="SettingsPage/Center/Card/Contents"]
+[node name="DeleteSaveButton" type="Button" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/其他"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 44)
 text = "删除游戏存档"
 theme_override_styles/normal = SubResource("StyleDanger")
 
-[node name="SettingsStatus" type="Label" parent="SettingsPage/Center/Card/Contents"]
+[node name="SettingsStatus" type="Label" parent="SettingsPage/Center/Card/Contents/SettingsScroll/SettingsList/其他"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 32)

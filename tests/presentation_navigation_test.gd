@@ -2,21 +2,20 @@
 extends Node
 var _checks := 0
 var _failures := 0
-var _original_preference := false
 
 ## 测试节点脱离 current_scene，作为观察者跨 SceneTree 换场保留。
 func _ready() -> void:
+	GameSettings.settings_path = "/private/tmp/gv-presentation-navigation-settings.cfg"
 	process_mode = PROCESS_MODE_ALWAYS
 	_run.call_deferred()
 
-## 验证两个剧情设置分支、工作室输入不可跳过及战败实际路由。
+## 验证首次/再次启动、手动重温、工作室输入不可跳过及战败实际路由。
 func _run() -> void:
 	get_tree().current_scene = null
-	_original_preference = GameSettings.skip_story_intro
 	RunStats.report_path = "/private/tmp/gv-presentation-navigation-report.json"
-	GameSettings.skip_story_intro = false
+	GameSettings.story_intro_seen = false
 	await _start_studio()
-	_check(get_tree().current_scene.name == "StoryIntro", "未跳过剧情时工作室结束进入漫画")
+	_check(get_tree().current_scene.name == "StoryIntro", "首次启动工作室结束进入漫画")
 	await _wait_transition()
 	var story := get_tree().current_scene
 	await get_tree().create_timer(0.25, true).timeout
@@ -30,9 +29,20 @@ func _run() -> void:
 	await _wait_scene("MainMenu")
 	await _wait_transition()
 	_check(get_tree().current_scene.name == "MainMenu", "漫画跳过按钮实际进入首页")
-	GameSettings.skip_story_intro = true
+	_check(GameSettings.story_intro_seen, "进入剧情场景立即标记已展示")
+	# 模拟重启读取磁盘；第二次启动由已展示标记自动跳过，不手动设置开关。
+	GameSettings.story_intro_seen = false
+	GameSettings._load_settings()
+	_check(GameSettings.story_intro_seen, "剧情已展示状态从临时设置恢复")
 	await _start_studio()
-	_check(get_tree().current_scene.name == "MainMenu", "跳过剧情设置仅略过漫画")
+	_check(get_tree().current_scene.name == "MainMenu", "已展示剧情后启动直接进入首页")
+	await _wait_transition()
+	get_tree().current_scene.get_node("%ReplayStory").pressed.emit()
+	await _wait_scene("StoryIntro")
+	await _wait_transition()
+	_check(get_tree().current_scene.panel_index == 0 and GameSettings.story_intro_seen, "重温按钮重新播放剧情且保留标记")
+	get_tree().current_scene._skip.pressed.emit()
+	await _wait_scene("MainMenu")
 	await _wait_transition()
 	_check(GameManager.start_from_menu(RogueRunManager.AttackMode.AIRBORNE), "首页可以开始空降模式")
 	await _wait_scene("BattlePlanning")
@@ -60,13 +70,22 @@ func _run() -> void:
 		await get_tree().create_timer(0.02, true).timeout
 	_check(GameManager.run_state == RogueRunManager.RunState.ACTIVE and GameManager.get_current_stage_number() == 2, "后续 Level 完成遮幕生成与确认")
 	_check(RunStats.data.items.get("跨关标记") == 1, "切关保留整局事件账本")
-	# 测试仅检查失败路由，不结算真实研究收益，控制器入口已经由事件测试覆盖。
-	GameManager.fail_run(host)
-	RunStats.finish(false, 123, GameManager.get_run_snapshot(), {"money": 0})
-	host.controlled_hud.show_defeat(123)
+	# 通过真实暂停按钮验证放弃路由；测试将钱包标为已结算，避免写入玩家研究账户。
+	CurrencyManager._settled = true
+	host.total_score = 123
+	var hud: GameHUD = host.controlled_hud
+	hud.toggle_pause()
+	_check(get_tree().paused and hud._pause_overlay.visible, "战斗中可以打开暂停菜单")
+	var abandon: Button = hud.get_node("UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents/AbandonButton")
+	_check(abandon.text == "放弃战斗", "暂停菜单使用放弃战斗入口")
+	abandon.pressed.emit()
+	_check(GameManager.run_state == RogueRunManager.RunState.FAILED, "放弃立即将整局标记为失败")
+	_check(not RunStats.last_report.won and RunStats.last_report.score == 123, "放弃冻结失败战报及已有积分")
+	abandon.pressed.emit()
+	_check(GameManager.run_state == RogueRunManager.RunState.FAILED, "重复放弃不重启终局流程")
 	await _wait_scene("RunResult")
 	await _wait_transition()
-	_check(get_tree().current_scene.report.score == 123 and not get_tree().paused, "战败进入独立结果页并解除场景暂停")
+	_check(get_tree().current_scene.report.score == 123 and not get_tree().current_scene.report.won and not get_tree().paused, "放弃进入失败结算页并解除场景暂停")
 	# 构造已完成反击的冻结战报，检查真实结果页到片尾的按钮导航。
 	RunStats.last_report.merge({"won": true, "mode": RogueRunManager.AttackMode.FULL_ASSAULT, "completed": 7, "total": 7}, true)
 	GameManager.open_presentation("res://Scene/RunResult/RunResult.tscn", "反击成果")
@@ -83,7 +102,6 @@ func _run() -> void:
 	await _wait_scene("MainMenu")
 	await _wait_transition()
 	_check(GameManager.run_state == RogueRunManager.RunState.IDLE, "结果返回首页清理对局状态")
-	GameSettings.skip_story_intro = _original_preference
 	print("PRESENTATION_NAVIGATION_TEST checks=%d failures=%d" % [_checks, _failures])
 	get_tree().quit(1 if _failures else 0)
 

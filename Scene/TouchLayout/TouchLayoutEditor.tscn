@@ -1,0 +1,8 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scene/TouchLayout/touch_layout_editor.gd" id="1"]
+
+[node name="TouchLayoutEditor" type="CanvasLayer"]
+layer = 100
+process_mode = 3
+script = ExtResource("1")

@@ -1,9 +1,12 @@
-## AutoLoad 音频设置：Music 与 SFX 独立音量和静音状态，跨首页、升级页与战斗场景保持。
-## 设置与游戏进度分文件保存，删除研究账户不会改变音量偏好。
+## AutoLoad 用户设置：音频、剧情已展示标记与触控布局跨场景持久保存。
+## 设置与游戏进度分文件保存，删除研究账户不会改变音量、操控与剧情状态。
 extends Node
 
 signal sig_audio_changed
+signal sig_controls_changed
 const SETTINGS_PATH := "user://audio_settings.cfg"
+## 可替换路径用于隔离自动验证，不触碰玩家真实偏好文件。
+var settings_path: String = SETTINGS_PATH
 const MUSIC_BUS := "Music"
 const SFX_BUS := "SFX"
 const MENU_MUSIC: AudioStream = preload("res://Assets/Audio/Music/menu_command.wav")
@@ -11,8 +14,12 @@ const FORTRESS_MUSIC: AudioStream = preload("res://Assets/Audio/Music/level_fort
 const MUSIC_FADE_DURATION := 0.8
 const MUSIC_GAIN := 0.4
 
-## 剧情偏好与音量同文件保存，删除研究账户不会改变开场设置。
-var skip_story_intro := false
+## 进入剧情场景即落盘；旧版跳过开关不迁移为已观看状态。
+var story_intro_seen := false
+## 操控偏好独立于研究存档；活动摇杆仅在手指首次落点建立中心。
+var floating_movement := false
+var movement_scale := 1.0
+var touch_layout: Dictionary = TouchLayout.DEFAULTS.duplicate(true)
 var music_volume: float = 0.65
 var sfx_volume: float = 0.8
 var music_muted: bool = false
@@ -178,10 +185,10 @@ func _apply_audio() -> void:
 ## 防御旧配置中的非法类型，持久设置优先于代码默认值。
 func _load_settings() -> void:
 	var settings := ConfigFile.new()
-	var error := settings.load(SETTINGS_PATH)
+	var error := settings.load(settings_path)
 	if error != OK:
 		if error != ERR_FILE_NOT_FOUND:
-			push_warning("音频设置读取失败，暂用默认值，错误码 %s。" % error)
+			push_warning("用户设置读取失败，暂用默认值，错误码 %s。" % error)
 		return
 	var music: Variant = settings.get_value("audio", "music_volume", music_volume)
 	var sfx: Variant = settings.get_value("audio", "sfx_volume", sfx_volume)
@@ -189,7 +196,16 @@ func _load_settings() -> void:
 		music_volume = clampf(float(music), 0.0, 1.0)
 	if sfx is float or sfx is int:
 		sfx_volume = clampf(float(sfx), 0.0, 1.0)
-	skip_story_intro = settings.get_value("presentation", "skip_story_intro", false) == true
+	story_intro_seen = settings.get_value("presentation", "story_intro_seen", false) == true
+	floating_movement = settings.get_value("controls", "floating_movement", false) == true
+	var area: Variant = settings.get_value("controls", "movement_scale", 1.0)
+	if (area is float or area is int) and is_finite(float(area)):
+		movement_scale = clampf(float(area), 0.5, 1.5)
+	var raw_layout: Variant = settings.get_value("controls", "layout", {})
+	var layout_version: Variant = settings.get_value("controls", "layout_version", 1)
+	if not layout_version is int or layout_version < TouchLayout.LAYOUT_VERSION:
+		raw_layout = TouchLayout.migrate_legacy_layout(raw_layout)
+	touch_layout = TouchLayout.sanitize(raw_layout)
 	music_muted = settings.get_value("audio", "music_muted", false) == true
 	sfx_muted = settings.get_value("audio", "sfx_muted", false) == true
 
@@ -197,14 +213,18 @@ func _load_settings() -> void:
 ## 退出按钮在结束进程前主动调用，避免最后一次拖动还没经过合并计时就丢失设置。
 func save_now() -> void:
 	var settings := ConfigFile.new()
-	settings.set_value("presentation", "skip_story_intro", skip_story_intro)
+	settings.set_value("presentation", "story_intro_seen", story_intro_seen)
+	settings.set_value("controls", "floating_movement", floating_movement)
+	settings.set_value("controls", "movement_scale", movement_scale)
+	settings.set_value("controls", "layout", touch_layout)
+	settings.set_value("controls", "layout_version", TouchLayout.LAYOUT_VERSION)
 	settings.set_value("audio", "music_volume", music_volume)
 	settings.set_value("audio", "sfx_volume", sfx_volume)
 	settings.set_value("audio", "music_muted", music_muted)
 	settings.set_value("audio", "sfx_muted", sfx_muted)
-	var error := settings.save(SETTINGS_PATH)
+	var error := settings.save(settings_path)
 	if error != OK:
-		push_warning("音频设置保存失败，错误码 %s。" % error)
+		push_warning("用户设置保存失败，错误码 %s。" % error)
 
 
 ## 正常关闭窗口也落盘，保留尚未经过定时器保存的最后一次调整。
@@ -212,7 +232,27 @@ func _exit_tree() -> void:
 	save_now()
 
 
-## 只跳过漫画，不影响每次启动必播的工作室信息。
-func set_skip_story_intro(value: bool) -> void:
-	skip_story_intro = value
+## 场景进入时立即保存，即使用户中途关闭程序，下次也不重复自动播放。
+func mark_story_intro_seen() -> void:
+	story_intro_seen = true
+	save_now()
+
+
+## 操控选项即时更新，滑块拖动合并磁盘写入。
+func set_movement_options(floating: bool, area_scale: float) -> void:
+	floating_movement = floating
+	movement_scale = clampf(area_scale, 0.5, 1.5)
+	sig_controls_changed.emit()
 	_save_timer.start()
+
+
+## 编辑器确认保存才提交草稿；运行 HUD 订阅同一信号立即刷新布局。
+func set_touch_layout(layout: Dictionary) -> void:
+	touch_layout = TouchLayout.sanitize(layout)
+	sig_controls_changed.emit()
+	save_now()
+
+
+## 重置仅恢复按钮位置及各按钮大小，保留移动方式和移动区整体倍率。
+func reset_touch_layout() -> void:
+	set_touch_layout(TouchLayout.DEFAULTS)

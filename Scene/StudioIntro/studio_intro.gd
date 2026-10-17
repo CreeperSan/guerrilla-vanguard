@@ -15,7 +15,7 @@ func _ready() -> void:
 	center.add_child(_content)
 	await _card("☀", "SUNNY STUDIO", "独立创作 · 用热爱点亮每一次冒险")
 	await _card("呈  现", "游击先锋", "GUERRILLA VANGUARD")
-	var destination := "res://Scene/MainMenu/MainMenu.tscn" if GameSettings.skip_story_intro else "res://Scene/StoryIntro/StoryIntro.tscn"
+	var destination := "res://Scene/MainMenu/MainMenu.tscn" if GameSettings.story_intro_seen else "res://Scene/StoryIntro/StoryIntro.tscn"
 	await SceneTransition.change_scene(destination, "Sunny Studio 呈现")
 
 ## 内容使用位移和透明度形成滚动切换，不依赖窗口实际像素尺寸。

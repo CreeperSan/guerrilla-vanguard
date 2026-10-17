@@ -874,11 +874,11 @@ custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "继续游戏"
 
-[node name="ExitButton" type="Button" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents" unique_id=249555935]
+[node name="AbandonButton" type="Button" parent="UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents" unique_id=249555935]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-text = "退出游戏"
+text = "放弃战斗"
 
 [node name="DefeatOverlay" type="Control" parent="UIRoot" unique_id=865770809]
 visible = false

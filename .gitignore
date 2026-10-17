@@ -25,3 +25,8 @@ Desktop.ini
 *.user
 *.userosscache
 *.sln.docstates
+
+# 导出目录
+out
+dock
+ai_generate

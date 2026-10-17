@@ -48,6 +48,8 @@ func _ready() -> void:
 	_bind_player_state()
 	if controlled_hud != null:
 		controlled_hud.set_score(total_score)
+		# 放弃与死亡走同一失败入口；正式宿主的覆写同时关闭路线推进，随后进入独立结算页。
+		controlled_hud.sig_battle_abandoned.connect(_on_player_died)
 	for enemy: Node in get_tree().get_nodes_in_group("enemies"):
 		register_enemy(enemy as Node2D)
 

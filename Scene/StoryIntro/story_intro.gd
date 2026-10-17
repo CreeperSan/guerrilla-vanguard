@@ -11,6 +11,7 @@ var _skip: Button
 
 ## 保持图像纵横比，字幕单独排版；跳过按钮不参与普通推进事件。
 func _ready() -> void:
+	GameSettings.mark_story_intro_seen()
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var page := FlowUI.page(self)
 	var top := HBoxContainer.new()

@@ -4,6 +4,8 @@ extends CanvasLayer
 
 ## 模式菜单只提交玩家选择，不在 HUD 内随机生成或推进路线。
 signal sig_run_mode_selected(mode: int)
+## 暂停菜单只请求放弃；宿主统一冻结战报、结算收益并标记整局失败。
+signal sig_battle_abandoned
 
 ## 当前操作设备；HUD 会按最后一次真实输入即时切换提示与屏幕控件。
 enum ControlMode { KEYBOARD_MOUSE, GAMEPAD, TOUCH }
@@ -112,6 +114,18 @@ var _game_started: bool = false
 var _game_over: bool = false
 var _control_mode: ControlMode = ControlMode.KEYBOARD_MOUSE
 var _movement_touch_index: int = -1
+## 活动摇杆以首次落点为输入原点；左半屏裁剪层限制可视范围。
+var _movement_origin := Vector2.ZERO
+var _floating_movement_root: Control
+## 触屏专用样式由实例持有，动态圆角不会改到桌面或其他按钮的共享资源。
+var _movement_desktop_style: StyleBox
+var _movement_touch_style: StyleBoxFlat
+var _fire_panel: PanelContainer
+var _touch_controls: Dictionary = {}
+## 桌面调制色原样缓存，触控透明度不会改变键鼠/手柄面板。
+var _touch_original_modulates: Dictionary = {}
+var _extra_desktop_layout: Dictionary = {}
+var _tactical_icons_desktop := Rect2()
 var _touch_action_indices: Dictionary = {}
 var _touch_action_release_at: Dictionary = {}
 var _last_touch_event_msec: int = -1000
@@ -129,7 +143,7 @@ var _start_sequence_id: int = 0
 func _ready() -> void:
     _health_bar.add_theme_stylebox_override("fill", _health_fill_style)
     $UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents/ContinueButton.pressed.connect(resume_game)
-    $UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents/ExitButton.pressed.connect(_exit_game)
+    $UIRoot/PauseOverlay/CenterContainer/MenuCard/Contents/AbandonButton.pressed.connect(_abandon_battle)
     $UIRoot/DefeatOverlay/CenterContainer/MenuCard/Contents/ExitButton.pressed.connect(_exit_game)
     _volume_slider.value_changed.connect(_on_volume_changed)
     _menu_panel.gui_input.connect(_on_menu_panel_gui_input)
@@ -150,6 +164,7 @@ func _ready() -> void:
             "minimum": panel.custom_minimum_size,
             "right": panel.anchor_left == 1.0,
         }
+    _initialize_touch_layout()
     _set_control_mode(_get_initial_control_mode())
     call_deferred("_cache_player")
     set_score(0)
@@ -264,14 +279,10 @@ func _apply_control_hud_layout(is_touch: bool) -> void:
         _attack_hint.add_theme_font_size_override("font_size", 10)
         _reload_title.add_theme_font_size_override("font_size", 12)
         _reload_hint.add_theme_font_size_override("font_size", 10)
-        _set_bottom_panel_rect(_movement_panel, false, 26.0, -180.0, 180.0, -26.0, Vector2(154.0, 154.0))
-        _set_bottom_panel_rect(_attack_panel, true, -174.0, -172.0, -32.0, -30.0, Vector2(142.0, 142.0))
-        _set_bottom_panel_rect(_reload_panel, true, -218.0, -282.0, -140.0, -204.0, Vector2(78.0, 78.0))
-        _set_bottom_panel_rect(_item_panel, true, -352.0, -252.0, -252.0, -152.0, Vector2(100.0, 100.0))
-        _set_bottom_panel_rect(_support_panel, true, -462.0, -252.0, -362.0, -152.0, Vector2(100.0, 100.0))
-        _set_bottom_panel_rect(_skill_panel, true, -352.0, -134.0, -264.0, -34.0, Vector2(88.0, 100.0))
+        _refresh_touch_layout()
         _battle_support_icon.custom_minimum_size = Vector2(34.0, 34.0)
     else:
+        _restore_extra_desktop_layout()
         for panel: Control in _desktop_panel_layout:
             var layout: Dictionary = _desktop_panel_layout[panel]
             var offsets: Vector4 = layout.offsets
@@ -288,6 +299,7 @@ func _apply_control_hud_layout(is_touch: bool) -> void:
 ## 给触控布局统一设置底边锚点；紧凑桌面尺寸由 HUD.tscn 配置，触控尺寸在此恢复。
 func _set_bottom_panel_rect(control: Control, right_anchored: bool, left: float, top: float, right: float, bottom: float, minimum_size: Vector2) -> void:
     # 先释放旧模式的最小尺寸约束，再写入新偏移，避免大触控按钮撑开桌面布局。
+    control.scale = Vector2.ONE
     control.custom_minimum_size = minimum_size
     var anchor_x := 1.0 if right_anchored else 0.0
     control.anchor_left = anchor_x
@@ -358,17 +370,32 @@ func _handle_touch_event(event: InputEvent) -> void:
                 return
             if not _game_started or _game_over or get_tree().paused:
                 return
-            if _movement_panel.get_global_rect().has_point(touch.position):
-                _movement_touch_index = touch.index
-                _update_touch_movement(touch.position)
+            # 动作按钮优先，避免自定义布局放在左侧时被活动摇杆吞掉。
+            if (_touch_controls["tactical"] as Control).get_global_rect().has_point(touch.position) or _room_minimap.get_global_rect().has_point(touch.position):
                 return
             var action_name := _touch_action_at(touch.position)
+            var local_touch := ($UIRoot as Control).get_global_transform_with_canvas().affine_inverse() * touch.position
+            var in_move_area := TouchLayout.contains_point("move", _movement_panel.get_global_rect(), touch.position)
+            if GameSettings.floating_movement:
+                in_move_area = local_touch.x < ($UIRoot as Control).size.x * 0.5
+            if action_name.is_empty() and in_move_area and _movement_touch_index == -1:
+                _movement_touch_index = touch.index
+                _movement_origin = touch.position
+                if GameSettings.floating_movement:
+                    var rect := TouchLayout.rect_for("move", GameSettings.touch_layout, ($UIRoot as Control).size, GameSettings.movement_scale)
+                    # 中心精确跟随首次落点；左半屏裁剪容器保证边缘触点的图形不越过中线。
+                    _movement_panel.reparent(_floating_movement_root)
+                    TouchLayout.apply(_movement_panel, Rect2(local_touch - rect.size * 0.5, rect.size))
+                _update_touch_movement(touch.position)
+                return
             if action_name.is_empty():
                 return
-            if action_name in ["fire", "use_skill"]:
+            if action_name in ["fire", "aim", "use_skill"]:
+                if _touch_action_indices.has(action_name):
+                    return
                 _touch_action_indices[action_name] = touch.index
-                Input.action_press(action_name)
-                if action_name == "fire":
+                Input.action_press("fire" if action_name == "aim" else action_name)
+                if action_name == "aim":
                     _update_touch_aim(touch.position)
             else:
                 _pulse_touch_action(action_name)
@@ -376,23 +403,30 @@ func _handle_touch_event(event: InputEvent) -> void:
             if touch.index == _movement_touch_index:
                 _movement_touch_index = -1
                 _set_touch_movement(Vector2.ZERO)
+                _refresh_touch_layout()
             for action_name: String in _touch_action_indices.keys().duplicate():
                 if int(_touch_action_indices[action_name]) == touch.index:
-                    Input.action_release(action_name)
                     _touch_action_indices.erase(action_name)
+                    if action_name in ["aim", "fire"]:
+                        if not _touch_action_indices.has("aim") and not _touch_action_indices.has("fire"):
+                            Input.action_release("fire")
+                    else:
+                        Input.action_release(action_name)
     elif event is InputEventScreenDrag:
         var drag := event as InputEventScreenDrag
         if drag.index == _movement_touch_index:
             _update_touch_movement(drag.position)
         for action_name: String in _touch_action_indices.keys():
-            if action_name == "fire" and int(_touch_action_indices[action_name]) == drag.index:
+            if action_name == "aim" and int(_touch_action_indices[action_name]) == drag.index:
                 _update_touch_aim(drag.position)
 
 
 ## 按屏幕坐标命中 HUD 控件，支持连续开火、按住奔跑和点按型操作。
 func _touch_action_at(screen_position: Vector2) -> String:
-    if _attack_panel.get_global_rect().has_point(screen_position):
+    if _fire_panel.get_global_rect().has_point(screen_position):
         return "fire"
+    if _attack_panel.get_global_rect().has_point(screen_position):
+        return "aim"
     if _reload_panel.get_global_rect().has_point(screen_position):
         return "reload"
     if _item_panel.get_global_rect().has_point(screen_position):
@@ -415,6 +449,9 @@ func _update_touch_movement(screen_position: Vector2) -> void:
     var local_position := _movement_panel.get_global_transform_with_canvas().affine_inverse() * screen_position
     var center := _movement_panel.size * 0.5
     var max_radius := minf(_movement_panel.size.x, _movement_panel.size.y) * 0.36
+    if GameSettings.floating_movement:
+        # 输入原点保持首次真实触点，靠边时视觉约束也不会引起按下即移动。
+        center = _movement_panel.get_global_transform_with_canvas().affine_inverse() * _movement_origin
     var offset := (local_position - center) / maxf(max_radius, 1.0)
     var strength := clampf(offset.length(), 0.0, 1.0)
     if strength <= 0.12:
@@ -476,8 +513,11 @@ func _clear_touch_input() -> void:
     _movement_touch_index = -1
     _set_touch_movement(Vector2.ZERO)
     for action_name: String in _touch_action_indices.keys().duplicate():
-        Input.action_release(action_name)
+        Input.action_release("fire" if action_name == "aim" else action_name)
     _touch_action_indices.clear()
+    Input.action_release("fire")
+    if _control_mode_initialized and _control_mode == ControlMode.TOUCH:
+        _refresh_touch_layout()
     for action_name: String in _touch_action_release_at.keys():
         Input.action_release(action_name)
     _touch_action_release_at.clear()
@@ -773,6 +813,13 @@ func _on_menu_panel_gui_input(event: InputEvent) -> void:
         _menu_panel.accept_event()
 
 
+## 放弃复用玩家战败流程；终局和非暂停状态忽略请求，防止重复结算。
+func _abandon_battle() -> void:
+    if _game_over or not _game_started or not _pause_overlay.visible:
+        return
+    sig_battle_abandoned.emit()
+
+
 ## 退出当前游戏进程，并先解除暂停状态。
 func _exit_game() -> void:
     GameSettings.save_now()
@@ -960,3 +1007,98 @@ func set_level_room_progress(cleared: int, total: int) -> void:
         return
     _run_progress_bar.value = GameManager.completed_level_count + float(cleared) / maxf(total, 1.0)
     _run_progress_bar.tooltip_text = "本关已清理 %d / %d 间房" % [cleared, total]
+
+
+## 建立独立射击按钮，并缓存非触控布局；战术背包保持原有 Button 事件与暂停所有权。
+func _initialize_touch_layout() -> void:
+    _movement_desktop_style = _movement_panel.get_theme_stylebox("panel")
+    _movement_touch_style = _movement_desktop_style.duplicate() as StyleBoxFlat
+    _movement_touch_style.corner_detail = 32
+    _floating_movement_root = Control.new()
+    _floating_movement_root.name = "FloatingMovementRoot"
+    _floating_movement_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _floating_movement_root.clip_contents = true
+    _floating_movement_root.anchor_right = 0.5
+    _floating_movement_root.anchor_bottom = 1.0
+    $UIRoot.add_child(_floating_movement_root)
+    _fire_panel = PanelContainer.new()
+    _fire_panel.name = "TouchFirePanel"
+    _fire_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _fire_panel.add_theme_stylebox_override("panel", _attack_panel.get_theme_stylebox("panel").duplicate())
+    var caption := Label.new()
+    caption.text = "射击"
+    caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+    caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _fire_panel.add_child(caption)
+    $UIRoot.add_child(_fire_panel)
+    _touch_controls = {"move": _movement_panel, "aim": _attack_panel, "fire": _fire_panel, "reload": _reload_panel, "equipment": _item_panel, "support": _support_panel, "skill": _skill_panel, "map": _room_minimap, "weapon": _weapon_panel, "tactical": $TacticalInterface/Root/InventoryButton}
+    for id: String in _touch_controls:
+        _touch_original_modulates[id] = (_touch_controls[id] as Control).modulate
+    for id: String in ["map", "weapon", "tactical"]:
+        var control: Control = _touch_controls[id]
+        _extra_desktop_layout[id] = {"anchors": Vector4(control.anchor_left, control.anchor_top, control.anchor_right, control.anchor_bottom), "offsets": Vector4(control.offset_left, control.offset_top, control.offset_right, control.offset_bottom)}
+    var icons: Control = $TacticalInterface/Root/EquippedIcons
+    _tactical_icons_desktop = Rect2(icons.position, icons.size)
+    GameSettings.sig_controls_changed.connect(_on_touch_settings_changed)
+    ($UIRoot as Control).resized.connect(_on_touch_settings_changed)
+
+
+## 设置或视口改变时释放旧手指状态；旋转屏幕后不残留持续移动/射击。
+func _on_touch_settings_changed() -> void:
+    if _control_mode == ControlMode.TOUCH:
+        _clear_touch_input()
+        _refresh_touch_layout()
+
+
+## 实战与预览共享按钮矩形；活动摇杆按住期间不因其他手指松开而跳回默认位置。
+func _refresh_touch_layout() -> void:
+    if _touch_controls.is_empty():
+        return
+    if _movement_touch_index == -1 and _movement_panel.get_parent() == _floating_movement_root:
+        _movement_panel.reparent($UIRoot)
+    var viewport_size := ($UIRoot as Control).size
+    for id: String in _touch_controls:
+        if id == "move" and _movement_touch_index >= 0 and GameSettings.floating_movement:
+            continue
+        TouchLayout.apply(_touch_controls[id], TouchLayout.rect_for(id, GameSettings.touch_layout, viewport_size, GameSettings.movement_scale))
+    for id: String in _touch_controls:
+        var opacity := TouchLayout.BUTTON_OPACITY
+        if id == "move":
+            opacity = TouchLayout.MOVEMENT_OPACITY
+        elif id == "map":
+            opacity = TouchLayout.MAP_OPACITY
+        (_touch_controls[id] as Control).modulate.a = opacity
+    # 半径随用户配置和视口尺寸更新，使放大后的移动区始终是正圆。
+    _movement_touch_style.set_corner_radius_all(ceili(minf(_movement_panel.size.x, _movement_panel.size.y) * 0.5))
+    _movement_panel.add_theme_stylebox_override("panel", _movement_touch_style)
+    # 库存图标跟随背包入口，避免自定义入口移动后仍覆盖左上生命信息。
+    var inventory_rect := TouchLayout.rect_for("tactical", GameSettings.touch_layout, viewport_size)
+    var icons: Control = $TacticalInterface/Root/EquippedIcons
+    icons.position = inventory_rect.position + Vector2(0, inventory_rect.size.y + 8)
+    _fire_panel.visible = true
+
+
+## 切回键鼠/手柄时还原小地图、武器面板和背包位置，触控偏好不改写桌面界面。
+func _restore_extra_desktop_layout() -> void:
+    _fire_panel.hide()
+    for id: String in _touch_original_modulates:
+        (_touch_controls[id] as Control).modulate = _touch_original_modulates[id]
+    _movement_panel.add_theme_stylebox_override("panel", _movement_desktop_style)
+    var icons: Control = $TacticalInterface/Root/EquippedIcons
+    icons.position = _tactical_icons_desktop.position
+    icons.size = _tactical_icons_desktop.size
+    for id: String in _extra_desktop_layout:
+        var control: Control = _touch_controls[id]
+        var saved: Dictionary = _extra_desktop_layout[id]
+        var anchors: Vector4 = saved.anchors
+        var offsets: Vector4 = saved.offsets
+        control.scale = Vector2.ONE
+        control.anchor_left = anchors.x
+        control.anchor_top = anchors.y
+        control.anchor_right = anchors.z
+        control.anchor_bottom = anchors.w
+        control.offset_left = offsets.x
+        control.offset_top = offsets.y
+        control.offset_right = offsets.z
+        control.offset_bottom = offsets.w

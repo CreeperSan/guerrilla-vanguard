@@ -6,6 +6,15 @@ var _scroll: ScrollContainer
 var _retry: Button
 var _status: Label
 var _navigation: Array[Button] = []
+## 正文区域拥有一根拖动手指；在 _input 阶段处理，避免行标签截获触摸后无法滚动。
+var _scroll_touch_index := -1
+var _scroll_touch_origin := Vector2.ZERO
+var _scroll_touch_start := 0.0
+var _scroll_touch_velocity := 0.0
+var _scroll_touch_dragging := false
+var _scroll_last_drag_msec := -1000
+const TOUCH_SCROLL_DEADZONE := 8.0
+const TOUCH_SCROLL_FRICTION := 2400.0
 
 ## 滚动正文兼容大量装备及敌军种类，固定底部按钮支持触屏和手柄。
 func _ready() -> void:
@@ -58,7 +67,6 @@ func _ready() -> void:
 	_navigation.append(FlowUI.button(actions, "继续 · 制作人员" if credits else "返回首页", _continue.bind(credits)))
 	FlowUI.button(actions, "立即显示全部成果", _finish_animation)
 	_retry = FlowUI.button(actions, "重试保存", _retry_save)
-	_navigation.append(FlowUI.button(actions, "退出游戏", _quit))
 	_navigation[0].grab_focus()
 	_refresh_status()
 
@@ -101,19 +109,89 @@ func _continue(credits: bool) -> void:
 	else:
 		GameManager.return_to_main_menu()
 
-## 所有持久化均确认成功后才允许退出，避免关闭进程丢失待存收益。
-func _quit() -> void:
-	GameSettings.save_now()
-	get_tree().quit()
-
-
 ## 上下方向键或手柄方向操作滚动正文，左右仍由 GUI 在底部按钮之间切换焦点。
 func _input(event: InputEvent) -> void:
 	if SceneTransition.busy or _scroll == null:
+		_stop_touch_scroll()
+		return
+	if _handle_touch_scroll(event):
+		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("ui_down", true):
+		_stop_touch_scroll()
 		_scroll.scroll_vertical += 80
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("ui_up", true):
+		_stop_touch_scroll()
 		_scroll.scroll_vertical -= 80
 		get_viewport().set_input_as_handled()
+
+
+## 只从正文内开始拖动；页头、底部按钮与原生滚动条仍使用各自的 GUI 交互。
+func _handle_touch_scroll(event: InputEvent) -> bool:
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			if _scroll_touch_index == -1:
+				_scroll_touch_velocity = 0.0
+			var bar := _scroll.get_v_scroll_bar()
+			if not _scroll.get_global_rect().has_point(event.position) or (bar.is_visible_in_tree() and bar.get_global_rect().has_point(event.position)):
+				return false
+			if _scroll_touch_index == -1:
+				_scroll_touch_index = event.index
+				_scroll_touch_origin = event.position
+				_scroll_touch_start = _scroll.scroll_vertical
+				_scroll_touch_dragging = false
+			return true
+		if event.index == _scroll_touch_index:
+			_scroll_touch_index = -1
+			if event.canceled or Time.get_ticks_msec() - _scroll_last_drag_msec > 100:
+				_scroll_touch_velocity = 0.0
+			return true
+	elif event is InputEventScreenDrag and event.index == _scroll_touch_index:
+		var distance: float = _scroll_touch_origin.y - event.position.y
+		if _scroll_touch_dragging or absf(distance) >= TOUCH_SCROLL_DEADZONE:
+			_scroll_touch_dragging = true
+			_scroll_last_drag_msec = Time.get_ticks_msec()
+			_set_touch_scroll(_scroll_touch_start + distance)
+			_scroll_touch_velocity = -event.velocity.y
+		return true
+	elif event is InputEventMouseButton:
+		# 鼠标滚轮/点击接管时停止惯性，但不消费事件，保留桌面原有交互。
+		if _scroll_touch_index == -1 and Time.get_ticks_msec() - _scroll_last_drag_msec > 100:
+			_scroll_touch_velocity = 0.0
+	return false
+
+
+## 松手后沿最后拖动方向减速；到达列表两端即停止，不影响固定的结算操作按钮。
+func _process(delta: float) -> void:
+	if _scroll == null or _scroll_touch_index != -1 or is_zero_approx(_scroll_touch_velocity):
+		return
+	if SceneTransition.busy:
+		_stop_touch_scroll()
+		return
+	if not _set_touch_scroll(_scroll.scroll_vertical + _scroll_touch_velocity * delta):
+		_scroll_touch_velocity = 0.0
+	else:
+		_scroll_touch_velocity = move_toward(_scroll_touch_velocity, 0.0, TOUCH_SCROLL_FRICTION * delta)
+
+
+## 使用滚动条实际内容范围夹紧，防止快速滑动或列表尺寸变化时越界。
+func _set_touch_scroll(value: float) -> bool:
+	var bar := _scroll.get_v_scroll_bar()
+	var maximum := maxf(bar.max_value - bar.page, 0.0)
+	var clamped := clampf(value, 0.0, maximum)
+	_scroll.scroll_vertical = roundi(clamped)
+	return value > 0.0 and value < maximum
+
+
+## 失焦与取消时释放触点和惯性，恢复窗口后不会继续自行滑动。
+func _stop_touch_scroll() -> void:
+	_scroll_touch_index = -1
+	_scroll_touch_velocity = 0.0
+	_scroll_touch_dragging = false
+
+
+## 移动端切到后台可能不再发送松手事件，因此单独清理手势所有权。
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_stop_touch_scroll()
